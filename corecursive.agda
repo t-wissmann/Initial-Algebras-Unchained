@@ -8,9 +8,10 @@ open import Level
 open import Categories.Functor.Coalgebra
 open import Categories.Functor.Algebra
 open import Categories.Category.Construction.F-Algebras
-open import Categories.Morphism using (IsIso)
+open import Categories.Morphism using (IsIso; Iso)
 open import Categories.Object.Initial using (IsInitial)
 open import Function.Equality using (cong)
+open import Categories.Morphism.Reasoning
 
 
 record Coalg-to-Alg-Morphism {o ℓ e} {C : Category o ℓ e} {F : Endofunctor C}
@@ -54,20 +55,45 @@ iso-recursive⇒initial R is-rec r-iso =
         a = F-Algebra.α A
         h : (F-Coalgebra.A R) ⇒ (F-Algebra.A A)
         h = Coalg-to-Alg-Morphism.f coalg2alg
-        foo : h ≈ a ∘ Functor.F₁ F h ∘ r
-        foo = Coalg-to-Alg-Morphism.commutes coalg2alg
-        bar : h ∘ r⁻¹ ≈ (a ∘ Functor.F₁ F h ∘ r) ∘ r⁻¹
-        bar = cong {!!} {!!}  -- TODO: why does this yield an error?
+        Fh = Functor.F₁ F h
       in
       record
         { f = h
         ; commutes = begin
           h ∘ r⁻¹
-          -- ≈⟨ cong (\Z -> Z  ∘ r⁻¹) (Coalg-to-Alg-Morphism.commutes coalg2alg) ⟩
-          -- (a ∘ Functor.F₁ F h ∘ r) ∘ r⁻¹
-          ≈⟨ {!!} ⟩
-          (F-Algebra.α A) ∘ (Functor.F₁ F h)
+            ≈⟨  Coalg-to-Alg-Morphism.commutes coalg2alg ⟩∘⟨refl ⟩
+          (a ∘ Fh ∘ r) ∘ r⁻¹   ≈⟨ assoc ⟩
+          a ∘ ((Fh ∘ r) ∘ r⁻¹) ≈⟨ refl⟩∘⟨ assoc ⟩
+          a ∘ Fh ∘ (r ∘ r⁻¹)
+            ≈˘⟨ assoc ⟩
+          (a ∘ Fh) ∘ (r ∘ r⁻¹)
+            ≈⟨ refl⟩∘⟨ Iso.isoʳ (IsIso.iso r-iso) ⟩
+          (a ∘ Fh) ∘ id
+            ≈⟨ identityʳ ⟩
+          a ∘ Fh
           ∎
         }
-  ; !-unique = {!!}
+  ; !-unique = λ {A} g-hom →
+    let
+      g = (F-Algebra-Morphism.f g-hom)
+      Fg = Functor.F₁ F g
+      a = F-Algebra.α A
+      -- we first show that 'g' is a coalg2algebra homomorphism
+      g-coalg2alg : Coalg-to-Alg-Morphism R A
+      g-coalg2alg = record {
+        f = g ;
+        commutes =
+          begin
+          g          ≈˘⟨ identityʳ ⟩
+          g ∘ id      ≈˘⟨ refl⟩∘⟨ Iso.isoˡ (IsIso.iso r-iso) ⟩
+          g ∘ (r⁻¹ ∘ r) ≈˘⟨ assoc ⟩
+          (g ∘ r⁻¹) ∘ r ≈⟨ F-Algebra-Morphism.commutes g-hom ⟩∘⟨refl ⟩
+          (a ∘ Fg) ∘ r ≈⟨ assoc ⟩
+          a ∘ Fg ∘ r
+          ∎
+        }
+      -- and thus, it has to be identical to h:
+      h = IsRecursive.recur is-rec A
+    in
+    IsRecursive.unique is-rec A h g-coalg2alg
   }
