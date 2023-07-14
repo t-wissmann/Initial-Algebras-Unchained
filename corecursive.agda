@@ -10,6 +10,7 @@ open import Categories.Functor.Algebra
 open import Categories.Category.Construction.F-Algebras
 open import Categories.Morphism using (IsIso)
 open import Categories.Object.Initial using (IsInitial)
+open import Function.Equality using (cong)
 
 
 record Coalg-to-Alg-Morphism {o ℓ e} {C : Category o ℓ e} {F : Endofunctor C}
@@ -37,25 +38,34 @@ record IsRecursive (X : F-Coalgebra F) : Set (o ⊔ ℓ ⊔ e) where
 iso-recursive⇒initial :
   (R : F-Coalgebra F)
   → IsRecursive R
-  → (iso : IsIso C (F-Coalgebra.α R))
-  → IsInitial (F-Algebras F) (to-Algebra (IsIso.inv iso))
-iso-recursive⇒initial R is-rec iso =
+  → (r-iso : IsIso C (F-Coalgebra.α R))
+  → IsInitial (F-Algebras F) (to-Algebra (IsIso.inv r-iso))
+iso-recursive⇒initial R is-rec r-iso =
   let
     open Category C
     open HomReasoning
-    alg = IsIso.inv iso
+    r⁻¹ = IsIso.inv r-iso
+    r = F-Coalgebra.α R
   in
   record
   { ! = λ {A : F-Algebra F} →
       let
         coalg2alg = IsRecursive.recur is-rec A
+        a = F-Algebra.α A
         h : (F-Coalgebra.A R) ⇒ (F-Algebra.A A)
         h = Coalg-to-Alg-Morphism.f coalg2alg
+        foo : h ≈ a ∘ Functor.F₁ F h ∘ r
+        foo = Coalg-to-Alg-Morphism.commutes coalg2alg
+        bar : h ∘ r⁻¹ ≈ (a ∘ Functor.F₁ F h ∘ r) ∘ r⁻¹
+        bar = cong {!!} {!!}  -- TODO: why does this yield an error?
       in
       record
         { f = h
         ; commutes = begin
-          (h ∘ alg) ≈⟨ {!!} ⟩
+          h ∘ r⁻¹
+          -- ≈⟨ cong (\Z -> Z  ∘ r⁻¹) (Coalg-to-Alg-Morphism.commutes coalg2alg) ⟩
+          -- (a ∘ Functor.F₁ F h ∘ r) ∘ r⁻¹
+          ≈⟨ {!!} ⟩
           (F-Algebra.α A) ∘ (Functor.F₁ F h)
           ∎
         }
