@@ -26,6 +26,32 @@ record Coalg-to-Alg-Morphism {o ℓ e} {C : Category o ℓ e} {F : Endofunctor C
     f : X.A ⇒ Y.A
     commutes : f ≈ Y.α ∘ F₁ f ∘ X.α
 
+-- we can precompose solutions with coalgebra morphisms:
+solution-precompose : {B D : F-Coalgebra F} → {A : F-Algebra F} →
+  Coalg-to-Alg-Morphism D A → F-Coalgebra-Morphism B D → Coalg-to-Alg-Morphism B A
+solution-precompose {B} {D} {A} sol mor =
+  let
+    open Category C
+    module sol = Coalg-to-Alg-Morphism sol
+    module mor = F-Coalgebra-Morphism mor
+    module B = F-Coalgebra B
+    module D = F-Coalgebra D
+    module A = F-Algebra A
+    open HomReasoning
+    open Functor F
+  in
+  record
+  { f = sol.f ∘ mor.f ;
+  commutes = begin
+    sol.f ∘ mor.f                     ≈⟨ sol.commutes ⟩∘⟨refl  ⟩
+    (A.α ∘ F₁ sol.f ∘ D.α) ∘ mor.f     ≈⟨ assoc ⟩
+    A.α ∘ (F₁ sol.f ∘ D.α) ∘ mor.f     ≈⟨ refl⟩∘⟨ assoc ⟩
+    A.α ∘ F₁ sol.f ∘ D.α ∘ mor.f       ≈⟨ refl⟩∘⟨ refl⟩∘⟨ mor.commutes ⟩
+    A.α ∘ F₁ sol.f ∘ F₁ mor.f ∘ B.α    ≈⟨ refl⟩∘⟨ sym-assoc ⟩
+    A.α ∘ (F₁ sol.f ∘ F₁ mor.f) ∘ B.α  ≈˘⟨ refl⟩∘⟨ homomorphism ⟩∘⟨refl ⟩
+    A.α ∘ F₁ (sol.f ∘ mor.f) ∘ B.α
+          ∎
+  }
 
 record IsRecursive (X : F-Coalgebra F) : Set (o ⊔ ℓ ⊔ e) where
   open Category C
@@ -121,10 +147,10 @@ module sandwhich-corecursive (R : F-Coalgebra F) (B : F-Coalgebra F) where
     → (g : F-Coalgebra-Morphism B (F-of-coalgebra R))
     → B.α ≈ F.F₁ (F-Coalgebra-Morphism.f h) ∘ (F-Coalgebra-Morphism.f g)
     → IsRecursive B
-  sandwich-corecursive R-is-rec h-morph g-morph equation =
+  sandwich-corecursive R-is-rec h g equation =
     let
-      module h = F-Coalgebra-Morphism h-morph
-      module g = F-Coalgebra-Morphism g-morph
+      module h = F-Coalgebra-Morphism h
+      module g = F-Coalgebra-Morphism g
       open IsRecursive R-is-rec
     in
     record {
@@ -156,15 +182,29 @@ module sandwhich-corecursive (R : F-Coalgebra F) (B : F-Coalgebra F) where
           D.α ∘ F.F₁ sol ∘ B.α
           ∎
       } ;
-    unique = λ D sol1 sol2 → {!!}
+    unique = λ D sol1 sol2 →
+      let
+        module D = F-Algebra D
+        module sol1 = Coalg-to-Alg-Morphism sol1
+        module sol2 = Coalg-to-Alg-Morphism sol2
+        open HomReasoning
+        -- first of all, the solutions are equal when precomposed with 'h: R -> B':
+        sol1-h-is-sol2-h : sol1.f ∘ h.f ≈ sol2.f ∘ h.f
+        sol1-h-is-sol2-h =
+          IsRecursive.unique R-is-rec D
+             (solution-precompose sol1 h)
+             (solution-precompose sol2 h)
+      in
+      begin
+      sol1.f            ≈⟨ sol1.commutes ⟩
+      D.α ∘ F.F₁ sol1.f ∘ B.α  ≈⟨ refl⟩∘⟨ refl⟩∘⟨ equation ⟩
+      D.α ∘ F.F₁ sol1.f ∘ F.F₁ h.f ∘ g.f  ≈⟨ refl⟩∘⟨ sym-assoc ⟩
+      D.α ∘ (F.F₁ sol1.f ∘ F.F₁ h.f) ∘ g.f  ≈˘⟨ refl⟩∘⟨ F.homomorphism ⟩∘⟨refl ⟩
+      D.α ∘ F.F₁ (sol1.f ∘ h.f) ∘ g.f  ≈⟨ refl⟩∘⟨ F.F-resp-≈ sol1-h-is-sol2-h ⟩∘⟨refl ⟩
+      D.α ∘ F.F₁ (sol2.f ∘ h.f) ∘ g.f  ≈⟨ refl⟩∘⟨ F.homomorphism ⟩∘⟨refl ⟩
+      D.α ∘ (F.F₁ sol2.f ∘ F.F₁ h.f) ∘ g.f  ≈⟨ refl⟩∘⟨ assoc ⟩
+      D.α ∘ F.F₁ sol2.f ∘ F.F₁ h.f ∘ g.f  ≈˘⟨ refl⟩∘⟨ refl⟩∘⟨ equation ⟩
+      D.α ∘ F.F₁ sol2.f ∘ B.α  ≈˘⟨ sol2.commutes ⟩
+      sol2.f
+      ∎
     }
-
--- The error message of agda:
--- ...agda/corecursive.agda:116,12-13
--- Not in scope:
---   ⇒
---   at ...agda/corecursive.agda:116,12-13
---     (did you mean
---        'Categories.Category.Category._⇒_' or
---        'Category._⇒_'?)
--- when scope checking ⇒
