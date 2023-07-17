@@ -137,11 +137,6 @@ module sandwhich-corecursive (R : F-Coalgebra F) (B : F-Coalgebra F) where
         -- use this under the functor to get a solution from B to D:
         sol = D.α ∘ F.F₁ R2D.f ∘ g.f
         open HomReasoning
-        test =
-          begin
-          D.α ∘ F.F₁ R2D.f  ∘ g.f ≈⟨ refl⟩∘⟨ F.F-resp-≈ R2D.commutes ⟩∘⟨refl ⟩
-          D.α ∘ F.F₁ (D.α ∘ F.F₁ R2D.f ∘ R.α) ∘ g.f
-          ∎
       in
       record {
       f = sol;
