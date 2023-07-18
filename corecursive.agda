@@ -7,7 +7,7 @@ module corecursive {o ℓ e} (C : Category o ℓ e) (F : Endofunctor C) where
 open import Level
 
 open import Categories.Functor.Coalgebra
-open import Categories.Functor.Algebra
+open import Categories.Functor.Algebra hiding (iterate)
 open import Categories.Category using (Category)
 open import Categories.Category.Construction.F-Algebras
 open import Categories.Category.Construction.F-Coalgebras
@@ -134,14 +134,8 @@ iso-recursive⇒initial R is-rec r-iso =
   }
 
 -- Apply the functor F to the coalgebra carrier and structure:
-F-of-coalgebra : F-Coalgebra F → F-Coalgebra F
-F-of-coalgebra Aα = record { A = F₀ A ; α = F₁ α }
-  where
-    open Functor F
-    open F-Coalgebra Aα
 
-
-module sandwhich-recursive (R : F-Coalgebra F) (B : F-Coalgebra F) where
+module _ (R : F-Coalgebra F) (B : F-Coalgebra F) where
   -- ([CUV06, Prop. 5])
   open Category C
   private
@@ -152,7 +146,7 @@ module sandwhich-recursive (R : F-Coalgebra F) (B : F-Coalgebra F) where
   sandwich-recursive :
     IsRecursive R
     → (h : F-Coalgebra-Morphism R B)
-    → (g : F-Coalgebra-Morphism B (F-of-coalgebra R))
+    → (g : F-Coalgebra-Morphism B (iterate R))
     → B.α ≈ F.F₁ (F-Coalgebra-Morphism.f h) ∘ (F-Coalgebra-Morphism.f g)
     → IsRecursive B
   sandwich-recursive R-is-rec h g equation =
@@ -224,3 +218,35 @@ module sandwhich-recursive (R : F-Coalgebra F) (B : F-Coalgebra F) where
       sol2.f
       ∎
     }
+
+
+-- Corollary: If (R,r) is recursive, then so is (FR,Fr) ([CUV06, Prop. 6]).
+iterate-recursive : (R : F-Coalgebra F)
+                    → IsRecursive R
+                    → IsRecursive (iterate R)
+iterate-recursive R is-rec =
+  let
+    module R = F-Coalgebra R
+    g : F-Coalgebra-Morphism R (iterate R)
+    g =
+      let
+        open Category C
+        open Equiv
+      in
+      record { f = R.α ; commutes = refl }
+
+    equation =
+      let
+        module FR = F-Coalgebra (iterate R)
+        open Functor F
+        open Category C
+        open HomReasoning
+      in
+      begin
+      FR.α ≈˘⟨ identityʳ ⟩
+      F₁ R.α ∘ id
+      ∎
+
+    open Category (F-Coalgebras F)
+  in
+  sandwich-recursive R (iterate R) is-rec g id equation
