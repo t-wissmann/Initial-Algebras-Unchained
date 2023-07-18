@@ -2,7 +2,7 @@
 open import Categories.Category
 open import Categories.Functor using (Functor; Endofunctor)
 
-module corecursive {o ℓ e} (C : Category o ℓ e) (F : Endofunctor C) where
+module recursive-coalgebra {o ℓ e} (C : Category o ℓ e) (F : Endofunctor C) where
 
 open import Level
 
