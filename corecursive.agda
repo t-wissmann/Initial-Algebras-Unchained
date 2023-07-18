@@ -16,6 +16,11 @@ open import Categories.Object.Initial using (IsInitial)
 open import Function.Equality using (cong)
 open import Categories.Morphism.Reasoning
 
+-- We first recap some lemmas from:
+--   [CUV06] Venanzio Capretta, Tarmo Uustalu, and Varmo Vene.
+--           Recursive coalgebras from comonads.
+--           Inf. Comput., 204(4):437–468, 2006.
+
 record Solution {o ℓ e} {C : Category o ℓ e} {F : Endofunctor C}
   (X : F-Coalgebra F)
   (Y : F-Algebra F) : Set (ℓ ⊔ e) where
@@ -136,7 +141,7 @@ F-of-coalgebra Aα = record { A = F₀ A ; α = F₁ α }
     open F-Coalgebra Aα
 
 
-module sandwhich-corecursive (R : F-Coalgebra F) (B : F-Coalgebra F) where
+module sandwhich-recursive (R : F-Coalgebra F) (B : F-Coalgebra F) where
   -- ([CUV06, Prop. 5])
   open Category C
   private
@@ -144,13 +149,13 @@ module sandwhich-corecursive (R : F-Coalgebra F) (B : F-Coalgebra F) where
     module B = F-Coalgebra B
     module F = Functor F
 
-  sandwich-corecursive :
+  sandwich-recursive :
     IsRecursive R
     → (h : F-Coalgebra-Morphism R B)
     → (g : F-Coalgebra-Morphism B (F-of-coalgebra R))
     → B.α ≈ F.F₁ (F-Coalgebra-Morphism.f h) ∘ (F-Coalgebra-Morphism.f g)
     → IsRecursive B
-  sandwich-corecursive R-is-rec h g equation =
+  sandwich-recursive R-is-rec h g equation =
     let
       module h = F-Coalgebra-Morphism h
       module g = F-Coalgebra-Morphism g
