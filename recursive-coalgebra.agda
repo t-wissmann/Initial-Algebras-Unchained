@@ -250,3 +250,43 @@ iterate-recursive R is-rec =
     open Category (F-Coalgebras F)
   in
   sandwich-recursive R (iterate R) is-rec g id equation
+
+
+record R-Coalgebra : Set (o ⊔ ℓ ⊔ e) where
+  field
+    coalg : F-Coalgebra F
+    ump : IsRecursive coalg
+
+-- The recursive coalgebras form a full subcategory of F-Coalgebras:
+R-Coalgebras : Category (ℓ ⊔ o ⊔ e) (e ⊔ ℓ) e
+R-Coalgebras = FullSubCategory (F-Coalgebras F) R-Coalgebra.coalg
+  where
+    open import Categories.Category.SubCategory using (FullSubCategory)
+
+forget-Coalgebra : Functor (F-Coalgebras F) C
+forget-Coalgebra =
+    let
+      -- open Category (F-Coalgebras F)
+      open Category C
+      open HomReasoning
+      open Equiv
+    in
+    record
+      { F₀ = F-Coalgebra.A
+      ; F₁ = F-Coalgebra-Morphism.f
+      ; identity = refl
+      ; homomorphism = refl
+      ; F-resp-≈ = λ equal → equal
+      }
+
+open import Categories.Category.Cocomplete
+-- The F-Coalgebras are cocomplete if the underlying category is:
+F-Coalgebras-Cocomplete : (o' ℓ' e' : Level) → Cocomplete o' ℓ' e' C → Cocomplete o' ℓ' e' (F-Coalgebras F)
+F-Coalgebras-Cocomplete o' ℓ' e' C-Cocomplete {D} = λ (J : Functor D (F-Coalgebras F)) →
+  -- let
+  --   -- we first compute the colimit in C:
+  -- in
+  record { initial =
+    record { ⊥ = {!!} ;
+    ⊥-is-initial = {!!} }
+  }
