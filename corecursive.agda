@@ -15,7 +15,7 @@ open import Categories.Object.Initial using (IsInitial)
 open import Function.Equality using (cong)
 open import Categories.Morphism.Reasoning
 
-record Coalg-to-Alg-Morphism {o ℓ e} {C : Category o ℓ e} {F : Endofunctor C}
+record Solution {o ℓ e} {C : Category o ℓ e} {F : Endofunctor C}
   (X : F-Coalgebra F)
   (Y : F-Algebra F) : Set (ℓ ⊔ e) where
   open Category C
@@ -28,11 +28,11 @@ record Coalg-to-Alg-Morphism {o ℓ e} {C : Category o ℓ e} {F : Endofunctor C
 
 -- we can precompose solutions with coalgebra morphisms:
 solution-precompose : {B D : F-Coalgebra F} → {A : F-Algebra F} →
-  Coalg-to-Alg-Morphism D A → F-Coalgebra-Morphism B D → Coalg-to-Alg-Morphism B A
+  Solution D A → F-Coalgebra-Morphism B D → Solution B A
 solution-precompose {B} {D} {A} sol mor =
   let
     open Category C
-    module sol = Coalg-to-Alg-Morphism sol
+    module sol = Solution sol
     module mor = F-Coalgebra-Morphism mor
     module B = F-Coalgebra B
     module D = F-Coalgebra D
@@ -55,10 +55,10 @@ solution-precompose {B} {D} {A} sol mor =
 
 record IsRecursive (X : F-Coalgebra F) : Set (o ⊔ ℓ ⊔ e) where
   open Category C
-  morph = Coalg-to-Alg-Morphism.f
+  morph = Solution.f
   field
-    recur : (B : F-Algebra F) → Coalg-to-Alg-Morphism X B
-    unique : (B : F-Algebra F) → (g h : Coalg-to-Alg-Morphism X B) →
+    recur : (B : F-Algebra F) → Solution X B
+    unique : (B : F-Algebra F) → (g h : Solution X B) →
       morph g ≈ morph h
 
 -- whenever a recursive coalgebra is an iso, it is the initial algebra:
@@ -81,14 +81,14 @@ iso-recursive⇒initial R is-rec r-iso =
         coalg2alg = IsRecursive.recur is-rec A
         a = F-Algebra.α A
         h : (F-Coalgebra.A R) ⇒ (F-Algebra.A A)
-        h = Coalg-to-Alg-Morphism.f coalg2alg
+        h = Solution.f coalg2alg
         Fh = Functor.F₁ F h
       in
       record
         { f = h
         ; commutes = begin
           h ∘ r⁻¹
-            ≈⟨  Coalg-to-Alg-Morphism.commutes coalg2alg ⟩∘⟨refl ⟩
+            ≈⟨  Solution.commutes coalg2alg ⟩∘⟨refl ⟩
           (a ∘ Fh ∘ r) ∘ r⁻¹   ≈⟨ assoc ⟩
           a ∘ ((Fh ∘ r) ∘ r⁻¹) ≈⟨ refl⟩∘⟨ assoc ⟩
           a ∘ Fh ∘ (r ∘ r⁻¹)
@@ -106,7 +106,7 @@ iso-recursive⇒initial R is-rec r-iso =
       Fg = Functor.F₁ F g
       a = F-Algebra.α A
       -- we first show that 'g' is a coalg2algebra homomorphism
-      g-coalg2alg : Coalg-to-Alg-Morphism R A
+      g-coalg2alg : Solution R A
       g-coalg2alg = record {
         f = g ;
         commutes =
@@ -159,7 +159,7 @@ module sandwhich-corecursive (R : F-Coalgebra F) (B : F-Coalgebra F) where
         -- for an F-algebra D, consider the induced solution by R:
         module D = F-Algebra D
         R2D = recur D
-        module R2D = Coalg-to-Alg-Morphism R2D
+        module R2D = Solution R2D
         -- use this under the functor to get a solution from B to D:
         sol = D.α ∘ F.F₁ R2D.f ∘ g.f
         open HomReasoning
@@ -185,8 +185,8 @@ module sandwhich-corecursive (R : F-Coalgebra F) (B : F-Coalgebra F) where
     unique = λ D sol1 sol2 →
       let
         module D = F-Algebra D
-        module sol1 = Coalg-to-Alg-Morphism sol1
-        module sol2 = Coalg-to-Alg-Morphism sol2
+        module sol1 = Solution sol1
+        module sol2 = Solution sol2
         open HomReasoning
         -- first of all, the solutions are equal when precomposed with 'h: R -> B':
         sol1-h-is-sol2-h : sol1.f ∘ h.f ≈ sol2.f ∘ h.f
