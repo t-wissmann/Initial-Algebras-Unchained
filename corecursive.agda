@@ -57,7 +57,9 @@ record IsRecursive (X : F-Coalgebra F) : Set (o ⊔ ℓ ⊔ e) where
   open Category C
   morph = Solution.f
   field
+    -- there is at least one solution:
     recur : (B : F-Algebra F) → Solution X B
+    -- there is at most one solution:
     unique : (B : F-Algebra F) → (g h : Solution X B) →
       morph g ≈ morph h
 
@@ -194,17 +196,25 @@ module sandwhich-corecursive (R : F-Coalgebra F) (B : F-Coalgebra F) where
           IsRecursive.unique R-is-rec D
              (solution-precompose sol1 h)
              (solution-precompose sol2 h)
+
+        -- this is essentially the reasoning: we do it forward for sol1 and
+        -- backwards for sol2.
+        sol-transformation sol =
+          let
+            module sol = Solution sol
+          in
+          begin
+          sol.f            ≈⟨ sol.commutes ⟩
+          D.α ∘ F.F₁ sol.f ∘ B.α  ≈⟨ refl⟩∘⟨ refl⟩∘⟨ equation ⟩
+          D.α ∘ F.F₁ sol.f ∘ F.F₁ h.f ∘ g.f  ≈⟨ refl⟩∘⟨ sym-assoc ⟩
+          D.α ∘ (F.F₁ sol.f ∘ F.F₁ h.f) ∘ g.f  ≈˘⟨ refl⟩∘⟨ F.homomorphism ⟩∘⟨refl ⟩
+          D.α ∘ F.F₁ (sol.f ∘ h.f) ∘ g.f
+          ∎
       in
       begin
-      sol1.f            ≈⟨ sol1.commutes ⟩
-      D.α ∘ F.F₁ sol1.f ∘ B.α  ≈⟨ refl⟩∘⟨ refl⟩∘⟨ equation ⟩
-      D.α ∘ F.F₁ sol1.f ∘ F.F₁ h.f ∘ g.f  ≈⟨ refl⟩∘⟨ sym-assoc ⟩
-      D.α ∘ (F.F₁ sol1.f ∘ F.F₁ h.f) ∘ g.f  ≈˘⟨ refl⟩∘⟨ F.homomorphism ⟩∘⟨refl ⟩
-      D.α ∘ F.F₁ (sol1.f ∘ h.f) ∘ g.f  ≈⟨ refl⟩∘⟨ F.F-resp-≈ sol1-h-is-sol2-h ⟩∘⟨refl ⟩
-      D.α ∘ F.F₁ (sol2.f ∘ h.f) ∘ g.f  ≈⟨ refl⟩∘⟨ F.homomorphism ⟩∘⟨refl ⟩
-      D.α ∘ (F.F₁ sol2.f ∘ F.F₁ h.f) ∘ g.f  ≈⟨ refl⟩∘⟨ assoc ⟩
-      D.α ∘ F.F₁ sol2.f ∘ F.F₁ h.f ∘ g.f  ≈˘⟨ refl⟩∘⟨ refl⟩∘⟨ equation ⟩
-      D.α ∘ F.F₁ sol2.f ∘ B.α  ≈˘⟨ sol2.commutes ⟩
+      sol1.f            ≈⟨ sol-transformation sol1 ⟩
+      D.α ∘ F.F₁ (sol1.f ∘ h.f) ∘ g.f   ≈⟨ refl⟩∘⟨ F.F-resp-≈ sol1-h-is-sol2-h ⟩∘⟨refl ⟩
+      D.α ∘ F.F₁ (sol2.f ∘ h.f) ∘ g.f  ≈˘⟨ sol-transformation sol2 ⟩
       sol2.f
       ∎
     }
