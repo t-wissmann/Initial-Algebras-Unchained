@@ -281,12 +281,56 @@ forget-Coalgebra =
 
 open import Categories.Category.Cocomplete
 -- The F-Coalgebras are cocomplete if the underlying category is:
-F-Coalgebras-Cocomplete : (o' ℓ' e' : Level) → Cocomplete o' ℓ' e' C → Cocomplete o' ℓ' e' (F-Coalgebras F)
-F-Coalgebras-Cocomplete o' ℓ' e' C-Cocomplete {D} = λ (J : Functor D (F-Coalgebras F)) →
-  -- let
-  --   -- we first compute the colimit in C:
-  -- in
-  record { initial =
-    record { ⊥ = {!!} ;
-    ⊥-is-initial = {!!} }
-  }
+module _ where
+  open import Categories.Functor using (_∘F_)
+  open import Categories.Diagram.Colimit using (Colimit)
+  open import Categories.Diagram.Cocone
+  F-Coalgebras-Cocomplete : (o' ℓ' e' : Level) → Cocomplete o' ℓ' e' C → Cocomplete o' ℓ' e' (F-Coalgebras F)
+  F-Coalgebras-Cocomplete o' ℓ' e' C-Cocomplete {D} = λ (J : Functor D (F-Coalgebras F)) →
+    let
+      module J = Functor J
+      -- we first compute the colimit in C:
+      composed-diagram = forget-Coalgebra ∘F J
+      colim = C-Cocomplete composed-diagram
+      module colim = Colimit colim
+      -- Question: why does the following line work but not `K = colim.initial.⊥.N`?
+      K = Cocone.N colim.initial.⊥
+      -- for the coalgebra on K, we define a cocone with tip 'FK:'
+      FK-cocone : Cocone composed-diagram
+      FK-cocone =
+        let
+          open Functor F
+          open Category C
+          open HomReasoning
+        in
+        record { coapex = record {
+          -- for every object X in the diagram:
+          ψ = λ A →
+            F₁ (Cocone.ψ colim.initial.⊥ A) ∘ (F-Coalgebra.α (J.F₀ A))
+          ;
+          -- for every hom h in the diagram:
+          commute = λ {A} {A'} h →
+            let
+              module h = F-Coalgebra-Morphism (J.F₁ h)
+            in
+            begin
+            (F₁ (colim.proj A') ∘ F-Coalgebra.α (J.F₀ A')) ∘ h.f        ≈⟨ assoc ⟩
+            F₁ (colim.proj A') ∘ F-Coalgebra.α (J.F₀ A') ∘ h.f          ≈⟨ refl⟩∘⟨ h.commutes ⟩
+            F₁ (colim.proj A') ∘ F₁ h.f ∘ F-Coalgebra.α (J.F₀ A)        ≈⟨ sym-assoc ⟩
+            (F₁ (colim.proj A') ∘ F₁ h.f) ∘ F-Coalgebra.α (J.F₀ A)
+            ≈˘⟨ homomorphism ⟩∘⟨refl ⟩
+            F₁ (colim.proj A' ∘ h.f) ∘ F-Coalgebra.α (J.F₀ A)
+            ≈⟨ {!!} ⟩
+            F₁ (colim.proj A) ∘ F-Coalgebra.α (J.F₀ A)
+            ∎
+          }
+        }
+
+      -- and we then use the universal property of K to define a coalgebra on K:
+      k : F-Coalgebra-on F K
+      k = {!!}
+    in
+    record { initial =
+      record { ⊥ = {!!} ;
+      ⊥-is-initial = {!!} }
+    }
