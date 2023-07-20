@@ -279,32 +279,57 @@ forget-Coalgebra =
       ; F-resp-≈ = λ equal → equal
       }
 
-module _ {i : Level} where
-  record Sink : Set (suc i ⊔ o ⊔ ℓ) where
-    field
-      {I} : Set i
-      sink-dom : I → Category.Obj C
-      {sink-codom} : Category.Obj C
-      sink : (x : I) → C [ sink-dom x , sink-codom ]
+-- module _ {i : Level} where
+--   record Sink : Set (suc i ⊔ o ⊔ ℓ) where
+--     field
+--       {I} : Set i
+--       sink-dom : I → Category.Obj C
+--       {sink-codom} : Category.Obj C
+--       sink : (x : I) → C [ sink-dom x , sink-codom ]
 
-    -- the property whether a Sink is jointly epic:
-    jointly-epic : Set _
-    jointly-epic =
-      ∀ (Z : Category.Obj C) (g h : C [ sink-codom , Z ]) →
-        (∀ (x : I) → C [ C [ g ∘ sink x ] ≈ C [ h ∘ sink x ] ]) →
-        C [ g ≈ h ]
+-- the property whether a Sink is jointly epic:
+jointly-epic : ∀ {i : Level} {I : Set i} {dom : I → Category.Obj C} {codom : Category.Obj C}
+               (sink : (x : I) → C [ dom x , codom ]) → Set _
+jointly-epic {i} {I} {dom} {codom} sink =
+  ∀ (Z : Category.Obj C) (g h : C [ codom , Z ]) →
+    (∀ (x : I) → C [ C [ g ∘ sink x ] ≈ C [ h ∘ sink x ] ]) →
+    C [ g ≈ h ]
 
+-- open import Categories.Diagram.Cocone
+--
+-- sink-from-cocone : ∀ {o′ ℓ′ e′} {J : Category o′ ℓ′ e′} (G : Functor J C) → Cocone G → Sink
+-- sink-from-cocone = λ G cocone →
+--   record {
+--     sink-dom = Functor.F₀ G;
+--     sink = λ x → Cocone.ψ cocone x }
+
+open import Categories.Diagram.Colimit
 open import Categories.Diagram.Cocone
 
-sink-from-cocone : ∀ {o′ ℓ′ e′} {J : Category o′ ℓ′ e′} (G : Functor J C) → Cocone G → Sink
-sink-from-cocone = λ G cocone →
-  record {
-    sink-dom = Functor.F₀ G;
-    sink = λ x → Cocone.ψ cocone x }
-
--- jointly-epic = ∀ {i : Level} {I : Set i} {X : I → Category.Obj C} (f : (x : I) → Category._⇒_ C (X))
--- colimit-injection-jointly-epic : (o ℓ e : Level) {o′ ℓ′ e′ : Level} (C : Category o′ ℓ′ e′)
---   {J : Category o ℓ e} (F : Functor J C) (colim: Colimit F)
+-- TODO: how can I make G an implicit parameter in the following theorem/proof?
+colimit-is-jointly-epic : ∀ {o′ ℓ′ e′} {J : Category o′ ℓ′ e′} (G : Functor J C) →
+                          (colim : Colimit G) → jointly-epic (Colimit.proj colim)
+colimit-is-jointly-epic G colim Z g h x =
+  let
+    open Category C
+    open HomReasoning
+    module colim = Colimit colim
+    -- first, define a cocone on Z:
+    Z-cocone : Cocone G
+    Z-cocone = record {
+      N = Z ;
+        coapex = record {
+        ψ = λ X → g ∘ Colimit.proj colim X;
+        commute = λ {X} {X'} f →
+          begin
+          (g ∘ colim.proj X') ∘ Functor.F₁ G f ≈⟨ assoc ⟩
+          g ∘ (colim.proj X' ∘ Functor.F₁ G f) ≈⟨ refl⟩∘⟨ Colimit.colimit-commute colim f ⟩
+          g ∘ colim.proj X
+          ∎
+          --()
+          } }
+  in
+  {!!}
 
 open import Categories.Category.Cocomplete
 -- The F-Coalgebras are cocomplete if the underlying category is:
