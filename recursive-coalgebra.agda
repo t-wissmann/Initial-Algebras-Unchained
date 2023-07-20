@@ -309,26 +309,42 @@ open import Categories.Diagram.Cocone
 -- TODO: how can I make G an implicit parameter in the following theorem/proof?
 colimit-is-jointly-epic : ∀ {o′ ℓ′ e′} {J : Category o′ ℓ′ e′} (G : Functor J C) →
                           (colim : Colimit G) → jointly-epic (Colimit.proj colim)
-colimit-is-jointly-epic G colim Z g h x =
+colimit-is-jointly-epic G colim Z g h equalize-g-h =
   let
     open Category C
     open HomReasoning
     module colim = Colimit colim
-    -- first, define a cocone on Z:
+    -- first, define a cocone on Z via h:
     Z-cocone : Cocone G
     Z-cocone = record {
       N = Z ;
         coapex = record {
-        ψ = λ X → g ∘ Colimit.proj colim X;
+        ψ = λ X → h ∘ Colimit.proj colim X;
         commute = λ {X} {X'} f →
           begin
-          (g ∘ colim.proj X') ∘ Functor.F₁ G f ≈⟨ assoc ⟩
-          g ∘ (colim.proj X' ∘ Functor.F₁ G f) ≈⟨ refl⟩∘⟨ Colimit.colimit-commute colim f ⟩
-          g ∘ colim.proj X
+          (h ∘ colim.proj X') ∘ Functor.F₁ G f ≈⟨ assoc ⟩
+          h ∘ (colim.proj X' ∘ Functor.F₁ G f) ≈⟨ refl⟩∘⟨ Colimit.colimit-commute colim f ⟩
+          h ∘ colim.proj X
           ∎
           } }
+    -- -- TODO: why doesn't the proof work with the following definition of h-morph?
+    -- h-morph : Cocone⇒ _ colim.colimit Z-cocone
+    -- h-morph = IsInitial.! colim.initial.⊥-is-initial
+    -- g and h induce cocone morphisms:
+    h-morph : Cocone⇒ _ colim.colimit Z-cocone
+    h-morph = record
+      { arr = h ;
+      commute = λ {X} →
+        let
+          open Equiv
+        in
+        refl }
+    g-morph : Cocone⇒ _ colim.colimit Z-cocone
+    g-morph = record
+      { arr = g ;
+      commute = λ {X} → equalize-g-h X }
   in
-  {!!}
+  IsInitial.!-unique₂ colim.initial.⊥-is-initial g-morph h-morph
 
 open import Categories.Category.Cocomplete
 -- The F-Coalgebras are cocomplete if the underlying category is:
