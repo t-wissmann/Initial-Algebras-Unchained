@@ -326,7 +326,6 @@ colimit-is-jointly-epic G colim Z g h x =
           g ∘ (colim.proj X' ∘ Functor.F₁ G f) ≈⟨ refl⟩∘⟨ Colimit.colimit-commute colim f ⟩
           g ∘ colim.proj X
           ∎
-          --()
           } }
   in
   {!!}
