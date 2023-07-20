@@ -279,12 +279,40 @@ forget-Coalgebra =
       ; F-resp-≈ = λ equal → equal
       }
 
+module _ {i : Level} where
+  record Sink : Set (suc i ⊔ o ⊔ ℓ) where
+    field
+      {I} : Set i
+      sink-dom : I → Category.Obj C
+      {sink-codom} : Category.Obj C
+      sink : (x : I) → C [ sink-dom x , sink-codom ]
+
+    -- the property whether a Sink is jointly epic:
+    jointly-epic : Set _
+    jointly-epic =
+      ∀ (Z : Category.Obj C) (g h : C [ sink-codom , Z ]) →
+        (∀ (x : I) → C [ C [ g ∘ sink x ] ≈ C [ h ∘ sink x ] ]) →
+        C [ g ≈ h ]
+
+open import Categories.Diagram.Cocone
+
+sink-from-cocone : ∀ {o′ ℓ′ e′} {J : Category o′ ℓ′ e′} (G : Functor J C) → Cocone G → Sink
+sink-from-cocone = λ G cocone →
+  record {
+    sink-dom = Functor.F₀ G;
+    sink = λ x → Cocone.ψ cocone x }
+
+-- jointly-epic = ∀ {i : Level} {I : Set i} {X : I → Category.Obj C} (f : (x : I) → Category._⇒_ C (X))
+-- colimit-injection-jointly-epic : (o ℓ e : Level) {o′ ℓ′ e′ : Level} (C : Category o′ ℓ′ e′)
+--   {J : Category o ℓ e} (F : Functor J C) (colim: Colimit F)
+
 open import Categories.Category.Cocomplete
 -- The F-Coalgebras are cocomplete if the underlying category is:
 module _ where
   open import Categories.Functor using (_∘F_)
   open import Categories.Diagram.Colimit using (Colimit)
   open import Categories.Diagram.Cocone
+
   F-Coalgebras-Cocomplete : (o' ℓ' e' : Level) → Cocomplete o' ℓ' e' C → Cocomplete o' ℓ' e' (F-Coalgebras F)
   F-Coalgebras-Cocomplete o' ℓ' e' C-Cocomplete {D} = λ (J : Functor D (F-Coalgebras F)) →
     let
@@ -320,17 +348,74 @@ module _ where
             (F₁ (colim.proj A') ∘ F₁ h.f) ∘ F-Coalgebra.α (J.F₀ A)
             ≈˘⟨ homomorphism ⟩∘⟨refl ⟩
             F₁ (colim.proj A' ∘ h.f) ∘ F-Coalgebra.α (J.F₀ A)
-            ≈⟨ {!!} ⟩
+            ≈⟨ F-resp-≈ (colim.colimit-commute h) ⟩∘⟨refl ⟩
             F₁ (colim.proj A) ∘ F-Coalgebra.α (J.F₀ A)
             ∎
           }
         }
 
-      -- and we then use the universal property of K to define a coalgebra on K:
+      -- and we then use the universal property of K to define a coalgebra on K.
+      -- for that, we first use the universal property:
+      cocone-morph : Cocone⇒ _ colim.initial.⊥ FK-cocone
+      cocone-morph = IsInitial.! colim.initial.⊥-is-initial
       k : F-Coalgebra-on F K
-      k = {!!}
+      k = Cocone⇒.arr cocone-morph
+
+      K,k : F-Coalgebra F
+      K,k = record { A = K ; α = k }
+
+      -- the colimit injections/projections are all coalgebra morphisms:
+      coalg-inj : ∀ A → F-Coalgebra-Morphism (J.F₀ A) K,k
+      coalg-inj = λ A,α →
+        let
+          open Functor F
+          open Category C
+          open F-Coalgebra (J.F₀ A,α)
+          open HomReasoning
+          f = Cocone.ψ colim.initial.⊥ A,α
+        in
+        record {
+        -- the underlying morphism is just the ordinary colimit injection
+        f = f ;
+        commutes =
+            begin
+            k ∘ f   ≈⟨ Cocone⇒.commute cocone-morph ⟩
+            F₁ f ∘ α
+            ∎
+        }
     in
-    record { initial =
-      record { ⊥ = {!!} ;
-      ⊥-is-initial = {!!} }
+    record {
+      initial = record {
+        ⊥ = record {
+          coapex = record {
+            ψ = coalg-inj ;
+            commute = λ h →
+              -- for all connecting morphisms, we inherit the triangle commutativity
+              Cocone.commute colim.initial.⊥ h
+              } } ;
+        ⊥-is-initial =
+          record {
+            ! = λ {competing} →
+              let
+                -- for any other cocone in F-Coalgebras
+                module N = F-Coalgebra (Cocone.N competing)
+                module competing = Cocone competing
+                -- send the cocone down to C:
+                C-cocone : Cocone composed-diagram
+                C-cocone = record {
+                  coapex = record {
+                    ψ = λ X → F-Coalgebra-Morphism.f (competing.ψ X) ;
+                    commute = competing.commute
+                    } }
+                C-cocone-morph : Cocone⇒ _ colim.colimit C-cocone
+                C-cocone-morph = colim.initial.!
+              in
+              record {
+                arr =
+                  record {
+                    f = Cocone⇒.arr C-cocone-morph ;
+                    commutes = {!colim.!} } ;
+                commute = {!!} } ;
+            !-unique = {!!} }
+        }
     }
