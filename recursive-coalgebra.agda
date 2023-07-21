@@ -412,15 +412,14 @@ module _ where
           open Category C
           open F-Coalgebra (J.F₀ A,α)
           open HomReasoning
-          f = Cocone.ψ colim.initial.⊥ A,α
         in
         record {
         -- the underlying morphism is just the ordinary colimit injection
-        f = f ;
+        f = colim.proj A,α ;
         commutes =
             begin
-            k ∘ f   ≈⟨ Cocone⇒.commute cocone-morph ⟩
-            F₁ f ∘ α
+            k ∘ colim.proj A,α   ≈⟨ Cocone⇒.commute cocone-morph ⟩
+            F₁ (colim.proj A,α) ∘ α
             ∎
         }
     in
@@ -447,14 +446,41 @@ module _ where
                     ψ = λ X → F-Coalgebra-Morphism.f (competing.ψ X) ;
                     commute = competing.commute
                     } }
+
+                -- this induces a cocone morphism in C
                 C-cocone-morph : Cocone⇒ _ colim.colimit C-cocone
                 C-cocone-morph = colim.initial.!
+                -- which gives rise to the coalgebra morphism:
+                h : F-Coalgebra-Morphism K,k competing.N
+                h =
+                  let
+                    h = Cocone⇒.arr C-cocone-morph
+                    open Category C
+                    open Functor F
+                    open HomReasoning
+                  in
+                  record {
+                  f = h ;
+                  commutes = colimit-is-jointly-epic
+                    _ colim _ (N.α ∘ h) (F₁ h ∘ k) λ X →
+                      let
+                        module X = F-Coalgebra (J.F₀ X)
+                      in
+                      begin
+                        (N.α ∘ h) ∘ colim.proj X     ≈⟨ assoc ⟩
+                        N.α ∘ (h ∘ colim.proj X)     ≈⟨ refl⟩∘⟨ Cocone⇒.commute C-cocone-morph ⟩
+                        N.α ∘ Cocone.ψ C-cocone X    ≈⟨ F-Coalgebra-Morphism.commutes (competing.ψ X) ⟩
+                        F₁ (Cocone.ψ C-cocone X) ∘ X.α  ≈˘⟨ F-resp-≈ (Cocone⇒.commute C-cocone-morph) ⟩∘⟨refl ⟩
+                        F₁ (h ∘ colim.proj X) ∘ X.α ≈⟨ homomorphism ⟩∘⟨refl ⟩
+                        (F₁ h ∘ F₁ (colim.proj X)) ∘ X.α ≈⟨ assoc ⟩
+                        F₁ h ∘ (F₁ (colim.proj X) ∘ X.α) ≈˘⟨ refl⟩∘⟨ F-Coalgebra-Morphism.commutes (coalg-inj X) ⟩
+                        F₁ h ∘ (k ∘ colim.proj X) ≈˘⟨ assoc ⟩
+                        (F₁ h ∘ k) ∘ colim.proj X
+                      ∎
+                  }
               in
               record {
-                arr =
-                  record {
-                    f = Cocone⇒.arr C-cocone-morph ;
-                    commutes = {!colim.!} } ;
+                arr = h ;
                 commute = {!!} } ;
             !-unique = {!!} }
         }
