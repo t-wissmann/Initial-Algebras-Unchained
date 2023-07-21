@@ -492,8 +492,28 @@ module _ where
                     F-Coalgebra-Morphism.f (competing.ψ X)
                   ∎
                 } ;
-            !-unique = λ another-cocone-morph →
-              {!!}
+            !-unique = λ {competing} another-cocone-morph →
+              let
+                -- some redundancy:
+                module competing = Cocone competing
+                C-cocone : Cocone composed-diagram
+                C-cocone = record {
+                  coapex = record {
+                    ψ = λ X → F-Coalgebra-Morphism.f (competing.ψ X) ;
+                    commute = competing.commute
+                    } }
+                -- for the actual proof:
+                module another-cocone-morph = Cocone⇒ another-cocone-morph
+                -- for any other cocone moprhism,
+                -- we directly have one between the cocones in C
+                another-C-cocone-morph : Cocone⇒ _ colim.colimit C-cocone
+                another-C-cocone-morph = record {
+                  arr = F-Coalgebra-Morphism.f another-cocone-morph.arr ;
+                  commute = another-cocone-morph.commute
+                  }
+                -- colim.initial.⊥.!-unique another-C-cocone-morph
+              in
+              IsInitial.!-unique colim.initial.⊥-is-initial another-C-cocone-morph
             }
         }
     }
