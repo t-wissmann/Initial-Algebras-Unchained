@@ -85,13 +85,13 @@ open import Categories.Functor using (_∘F_)
 open import Categories.Diagram.Colimit using (Colimit)
 open import Categories.Diagram.Cocone
 
-F-Coalgebras-Cocomplete : (o' ℓ' e' : Level) → Cocomplete o' ℓ' e' C → Cocomplete o' ℓ' e' (F-Coalgebras F)
-F-Coalgebras-Cocomplete o' ℓ' e' C-Cocomplete {D} = λ (J : Functor D (F-Coalgebras F)) →
+F-Coalgebras-Colimit : {o' ℓ' e' : Level} → {D : Category o' ℓ' e'} → (J : Functor D (F-Coalgebras F))
+        → Colimit (forget-Coalgebra ∘F J) → Colimit J
+F-Coalgebras-Colimit {o'} {ℓ'} {e'} {D} J colim =
   let
     module J = Functor J
     -- we first compute the colimit in C:
     composed-diagram = forget-Coalgebra ∘F J
-    colim = C-Cocomplete composed-diagram
     module colim = Colimit colim
     -- Question: why does the following line work but not `K = colim.initial.⊥.N`?
     K = Cocone.N colim.initial.⊥
@@ -249,3 +249,7 @@ F-Coalgebras-Cocomplete o' ℓ' e' C-Cocomplete {D} = λ (J : Functor D (F-Coalg
           }
       }
   }
+
+F-Coalgebras-Cocomplete : (o' ℓ' e' : Level) → Cocomplete o' ℓ' e' C → Cocomplete o' ℓ' e' (F-Coalgebras F)
+F-Coalgebras-Cocomplete o' ℓ' e' C-Cocomplete {D} = λ (J : Functor D (F-Coalgebras F)) →
+  F-Coalgebras-Colimit J (C-Cocomplete (forget-Coalgebra ∘F J))
