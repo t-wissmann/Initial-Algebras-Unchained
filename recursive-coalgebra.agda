@@ -264,3 +264,9 @@ R-Coalgebras = FullSubCategory (F-Coalgebras F) R-Coalgebra.coalg
   where
     open import Categories.Category.SubCategory using (FullSubCategory)
 
+
+module _ where
+
+  open import Categories.Functor.Construction.SubCategory
+  forget-rec : Functor (R-Coalgebras) (F-Coalgebras F)
+  forget-rec = FullSub (F-Coalgebras F)
