@@ -270,3 +270,39 @@ module _ where
   open import Categories.Functor.Construction.SubCategory
   forget-rec : Functor (R-Coalgebras) (F-Coalgebras F)
   forget-rec = FullSub (F-Coalgebras F)
+
+open import Categories.Diagram.Colimit using (Colimit)
+open import Categories.Diagram.Cocone
+open import Categories.Functor using (_∘F_)
+
+R-Coalgebras-Colimit : {o' ℓ' e' : Level} → {D : Category o' ℓ' e'} → (J : Functor D R-Coalgebras)
+        → Colimit (forget-Coalgebra _ _ ∘F forget-rec ∘F  J) → Colimit J
+R-Coalgebras-Colimit J C-colim =
+  -- let
+  --   module C-colim = Colimit C-colim
+  --   Coalg-colim : Colimit (forget-rec ∘F J)
+  --   Coalg-colim = F-Coalgebras-Colimit _ C-colim
+  --   module Coalg-colim = Colimit Coalg-colim
+  --   R : R-Coalgebra
+  --   R = record {
+  --     coalg = Coalg-colim.coapex ;
+  --     ump = record {
+  --       recur = λ B →
+  --         let
+  --           -- consider an F-Algebra B
+  --           module B = F-Algebra B
+  --           -- we have a cocone from all the induced solutions:
+  --         in
+  --         {!!} ;
+  --       unique = {!!}
+  --       } }
+  -- in
+  ?
+  -- record {initial = record {
+  -- ⊥ = record {
+  --   N = record {
+  --     coalg = {!!} ;
+  --     ump = {!!} } ;
+  --   coapex = {!!} } ;
+  -- ⊥-is-initial = {!!}
+  -- }}

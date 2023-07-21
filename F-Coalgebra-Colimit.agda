@@ -2,7 +2,7 @@
 open import Categories.Category
 open import Categories.Functor using (Functor; Endofunctor)
 
-module F-Coalgebra-Colimit {o ℓ e} (C : Category o ℓ e) (F : Endofunctor C) where
+module F-Coalgebra-Colimit {o ℓ e} {C : Category o ℓ e} {F : Endofunctor C} where
 
 open import Level
 
@@ -10,21 +10,15 @@ open import Categories.Category.Construction.F-Coalgebras
 open import Categories.Functor.Coalgebra
 open import Categories.Object.Initial using (IsInitial)
 
--- the property whether a Sink is jointly epic:
-jointly-epic : ∀ {i : Level} {I : Set i} {dom : I → Category.Obj C} {codom : Category.Obj C}
-               (sink : (x : I) → C [ dom x , codom ]) → Set _
-jointly-epic {i} {I} {dom} {codom} sink =
-  ∀ (Z : Category.Obj C) (g h : C [ codom , Z ]) →
-    (∀ (x : I) → C [ C [ g ∘ sink x ] ≈ C [ h ∘ sink x ] ]) →
-    C [ g ≈ h ]
-
+open import Unchained-Utils
 
 open import Categories.Diagram.Colimit
 open import Categories.Diagram.Cocone
 
 -- TODO: how can I make G an implicit parameter in the following theorem/proof?
+-- TODO2: why does 'C' have to be an explicit parameter to jointly-epic?
 colimit-is-jointly-epic : ∀ {o′ ℓ′ e′} {J : Category o′ ℓ′ e′} (G : Functor J C) →
-                          (colim : Colimit G) → jointly-epic (Colimit.proj colim)
+                          (colim : Colimit G) → jointly-epic {C = C} (Colimit.proj colim)
 colimit-is-jointly-epic G colim Z g h equalize-g-h =
   let
     open Category C
