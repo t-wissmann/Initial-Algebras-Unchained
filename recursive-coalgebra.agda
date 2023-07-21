@@ -481,7 +481,19 @@ module _ where
               in
               record {
                 arr = h ;
-                commute = {!!} } ;
-            !-unique = {!!} }
+                commute = λ {X} →
+                  let
+                    open Category C
+                    module h = F-Coalgebra-Morphism h
+                    open HomReasoning
+                  in
+                  begin
+                    h.f ∘ colim.proj X     ≈⟨ Cocone⇒.commute C-cocone-morph ⟩
+                    F-Coalgebra-Morphism.f (competing.ψ X)
+                  ∎
+                } ;
+            !-unique = λ another-cocone-morph →
+              {!!}
+            }
         }
     }
