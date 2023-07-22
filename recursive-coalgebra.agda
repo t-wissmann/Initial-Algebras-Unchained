@@ -257,6 +257,8 @@ record R-Coalgebra : Set (o ⊔ ℓ ⊔ e) where
   field
     coalg : F-Coalgebra F
     ump : IsRecursive coalg
+  open F-Coalgebra coalg public
+  open IsRecursive ump public
 
 -- The recursive coalgebras form a full subcategory of F-Coalgebras:
 R-Coalgebras : Category (ℓ ⊔ o ⊔ e) (e ⊔ ℓ) e
@@ -276,28 +278,75 @@ open import Categories.Diagram.Cocone
 open import Categories.Functor using (_∘F_)
 
 R-Coalgebras-Colimit : {o' ℓ' e' : Level} → {D : Category o' ℓ' e'} → (J : Functor D R-Coalgebras)
-        → Colimit (forget-Coalgebra _ _ ∘F forget-rec ∘F  J) → Colimit J
+        → Colimit (forget-Coalgebra ∘F forget-rec ∘F  J) → Colimit J
 R-Coalgebras-Colimit J C-colim =
-  -- let
-  --   module C-colim = Colimit C-colim
-  --   Coalg-colim : Colimit (forget-rec ∘F J)
-  --   Coalg-colim = F-Coalgebras-Colimit _ C-colim
-  --   module Coalg-colim = Colimit Coalg-colim
-  --   R : R-Coalgebra
-  --   R = record {
-  --     coalg = Coalg-colim.coapex ;
-  --     ump = record {
-  --       recur = λ B →
-  --         let
-  --           -- consider an F-Algebra B
-  --           module B = F-Algebra B
-  --           -- we have a cocone from all the induced solutions:
-  --         in
-  --         {!!} ;
-  --       unique = {!!}
-  --       } }
-  -- in
-  ?
+  let
+    module J = Functor J
+    module C-colim = Colimit C-colim
+    module F = Functor F
+    Coalg-colim : Colimit (forget-rec ∘F J)
+    Coalg-colim = F-Coalgebras-Colimit _ C-colim
+    module Coalg-colim = Colimit Coalg-colim
+
+    -- every F-Algebra induces a competing cocone for the above colimit:
+    alg2cocone : F-Algebra F → Cocone (forget-Coalgebra ∘F forget-rec ∘F  J)
+    alg2cocone B =
+      let
+            module B = F-Algebra B
+      in
+      record {
+        N = B.A ;
+        coapex = record {
+          ψ = λ R →
+            let
+              module R = R-Coalgebra (J.F₀ R)
+            in
+            Solution.f (R.recur B) ;
+          commute = λ {R} {R'} h →
+            let
+              -- h is a coalg-hom from R to R':
+              module R = R-Coalgebra (J.F₀ R)
+              module R' = R-Coalgebra (J.F₀ R')
+              open Category C
+              open HomReasoning
+              open Equiv
+              module h = F-Coalgebra-Morphism (J.F₁ h)
+              module U = Functor (forget-Coalgebra ∘F forget-rec ∘F J)
+              module U' = Functor (forget-rec ∘F J)
+              -- we can use it to construct another solution from R to B:
+              sol : Solution R.coalg B
+              sol =
+                let
+                  module r' = Solution (R'.recur B)
+                in
+                record {
+                f = r'.f ∘ U.F₁ h;
+                commutes =
+                begin
+                r'.f ∘ U.F₁ h ≈⟨ r'.commutes ⟩∘⟨refl ⟩
+                (B.α ∘ (F.F₁ r'.f ∘ R'.α)) ∘ U.F₁ h ≈⟨ assoc ⟩
+                B.α ∘ ((F.F₁ r'.f ∘ R'.α) ∘ U.F₁ h) ≈⟨ refl⟩∘⟨ assoc ⟩
+                B.α ∘ (F.F₁ r'.f ∘ (R'.α ∘ U.F₁ h)) ≈⟨ refl⟩∘⟨ refl⟩∘⟨ h.commutes ⟩
+                B.α ∘ (F.F₁ r'.f ∘ (F.F₁ (U.F₁ h) ∘ R.α)) ≈⟨ refl⟩∘⟨ sym-assoc ⟩
+                B.α ∘ ((F.F₁ r'.f ∘ F.F₁ (U.F₁ h)) ∘ R.α) ≈˘⟨ refl⟩∘⟨ F.homomorphism ⟩∘⟨refl ⟩
+                B.α ∘ F.F₁ (r'.f ∘ U.F₁ h) ∘ R.α
+                ∎
+                }
+            in
+            R.unique B sol (R.recur B)
+        } }
+
+    -- we can then show that the colimit coalgebra must be recursive:
+    -- R : R-Coalgebra
+    -- R = record {
+    --   coalg = Coalg-colim.coapex ;
+    --   ump = record {
+    --     recur = λ B →
+    --       {!!} ;
+    --     unique = {!!}
+    --   } }
+  in
+  {!!}
   -- record {initial = record {
   -- ⊥ = record {
   --   N = record {
