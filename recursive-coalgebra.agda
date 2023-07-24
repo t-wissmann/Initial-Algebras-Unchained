@@ -390,22 +390,33 @@ R-Coalgebras-Colimit J C-colim =
             let
               open Category C
               open HomReasoning
-              module g = Solution g
-              module h = Solution h
+              module B = F-Algebra B
+              module R = R-Coalgebra (J.F₀ R)
+              -- we need to show that every solution in the colim induces a solution of R
+              proj-sol : Solution Coalg-colim.coapex B → Solution R.coalg B
+              proj-sol s =
+                let module s = Solution s in
+                record {
+                f = s.f ∘ C-colim.proj R ;
+                commutes =
+                  begin
+                  s.f ∘ C-colim.proj R
+                    ≈⟨ s.commutes ⟩∘⟨refl ⟩
+                  (B.α ∘ F.F₁ s.f ∘ F-Coalgebra.α Coalg-colim.coapex) ∘ C-colim.proj R
+                    ≈⟨ assoc ⟩
+                  B.α ∘ ((F.F₁ s.f ∘ F-Coalgebra.α Coalg-colim.coapex) ∘ C-colim.proj R)
+                    ≈⟨ refl⟩∘⟨ assoc ⟩
+                  B.α ∘ F.F₁ s.f ∘ F-Coalgebra.α Coalg-colim.coapex ∘ C-colim.proj R
+                    ≈⟨ refl⟩∘⟨ refl⟩∘⟨ F-Coalgebra-Morphism.commutes (Coalg-colim.proj R) ⟩
+                  B.α ∘ F.F₁ s.f ∘ F.F₁ (C-colim.proj R) ∘ R.α
+                    ≈˘⟨ refl⟩∘⟨ assoc ⟩
+                  B.α ∘ (F.F₁ s.f ∘ F.F₁ (C-colim.proj R)) ∘ R.α
+                    ≈˘⟨ refl⟩∘⟨ F.homomorphism ⟩∘⟨refl ⟩
+                  B.α ∘ F.F₁ (s.f ∘ C-colim.proj R) ∘ R.α
+                  ∎
+                }
             in
-            begin
-            g.f ∘ C-colim.proj R
-              ≈⟨ {!!} ⟩
-            h.f ∘ C-colim.proj R
-            ∎
+            R.unique B (proj-sol g) (proj-sol h)
         } }
   in
   FullSub-Colimit R-Coalgebra.coalg J Coalg-colim R (≅.refl (F-Coalgebras F))
-  -- record {initial = record {
-  -- ⊥ = record {
-  --   N = record {
-  --     coalg = {!!} ;
-  --     ump = {!!} } ;
-  --   coapex = {!!} } ;
-  -- ⊥-is-initial = {!!}
-  -- }}
