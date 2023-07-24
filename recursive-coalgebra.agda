@@ -11,7 +11,8 @@ open import Categories.Functor.Algebra hiding (iterate)
 open import Categories.Category using (Category)
 open import Categories.Category.Construction.F-Algebras
 open import Categories.Category.Construction.F-Coalgebras
-open import Categories.Morphism using (IsIso; Iso)
+open import Categories.Morphism using (IsIso; Iso; module ≅)
+import Categories.Morphism
 open import Categories.Object.Initial using (IsInitial)
 open import Function.Equality using (cong)
 open import Categories.Morphism.Reasoning
@@ -345,7 +346,7 @@ R-Coalgebras-Colimit J C-colim =
       coalg = Coalg-colim.coapex ;
       ump = {!!} }
   in
-  FullSub-Colimit R-Coalgebra.coalg J Coalg-colim R ?
+  FullSub-Colimit R-Coalgebra.coalg J Coalg-colim R (≅.refl (F-Coalgebras F))
   -- record {initial = record {
   -- ⊥ = record {
   --   N = record {
