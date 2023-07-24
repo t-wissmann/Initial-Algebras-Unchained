@@ -1,3 +1,4 @@
 name: initial-algebras.agda-lib
-depend: agda-categories
+depend:
+    agda-categories
 include: .
