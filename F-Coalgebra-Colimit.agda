@@ -148,8 +148,7 @@ F-Coalgebras-Colimit {o'} {ℓ'} {e'} {D} J colim =
                 in
                 record {
                 f = h ;
-                commutes = colimit-is-jointly-epic
-                  _ colim _ (N.α ∘ h) (F₁ h ∘ k) λ X →
+                commutes = colimit-is-jointly-epic colim λ X →
                     let
                       module X = F-Coalgebra (J.F₀ X)
                     in

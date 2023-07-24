@@ -352,11 +352,29 @@ R-Coalgebras-Colimit J C-colim =
         sol = C-colim.rep (alg2cocone B)
       in
       record { f = sol ;
-        commutes = colimit-is-jointly-epic (forget-Coalgebra ∘F forget-rec ∘F  J) C-colim B.A sol (B.α ∘ F.F₁ sol ∘ F-Coalgebra.α Coalg-colim.coapex)
-          λ A →
+        commutes = colimit-is-jointly-epic C-colim λ R →
+            let
+              module R = R-Coalgebra (J.F₀ R)
+              module R-sol = Solution (R.recur B)
+            in
             begin
-            sol ∘ C-colim.proj A ≈⟨ {!!} ⟩
-            (B.α ∘ F.F₁ sol ∘ F-Coalgebra.α Coalg-colim.coapex) ∘ C-colim.proj A
+            sol ∘ C-colim.proj R
+              ≈⟨ C-colim.commute ⟩
+            R-sol.f
+              ≈⟨ R-sol.commutes ⟩
+            B.α ∘ F.F₁ R-sol.f ∘ R.α
+              ≈˘⟨ refl⟩∘⟨ F.F-resp-≈ C-colim.commute ⟩∘⟨refl ⟩
+            B.α ∘ F.F₁ (sol ∘ C-colim.proj R) ∘ R.α
+              ≈⟨ refl⟩∘⟨ F.homomorphism ⟩∘⟨refl ⟩
+            B.α ∘ (F.F₁ sol ∘ F.F₁ (C-colim.proj R)) ∘ R.α
+              ≈⟨ refl⟩∘⟨ assoc ⟩
+            B.α ∘ F.F₁ sol ∘ (F.F₁ (C-colim.proj R) ∘ R.α)
+              ≈˘⟨ refl⟩∘⟨ refl⟩∘⟨ F-Coalgebra-Morphism.commutes (Coalg-colim.proj R) ⟩
+            B.α ∘ F.F₁ sol ∘ F-Coalgebra.α Coalg-colim.coapex ∘ C-colim.proj R
+              ≈˘⟨ refl⟩∘⟨  assoc ⟩
+            B.α ∘ (F.F₁ sol ∘ F-Coalgebra.α Coalg-colim.coapex) ∘ C-colim.proj R
+              ≈˘⟨  assoc ⟩
+            (B.α ∘ F.F₁ sol ∘ F-Coalgebra.α Coalg-colim.coapex) ∘ C-colim.proj R
             ∎
           }
 
@@ -364,7 +382,9 @@ R-Coalgebras-Colimit J C-colim =
     R : R-Coalgebra
     R = record {
       coalg = Coalg-colim.coapex ;
-      ump = {!!} }
+      ump = record {
+        recur = alg2solution;
+        unique = {!!} } }
   in
   FullSub-Colimit R-Coalgebra.coalg J Coalg-colim R (≅.refl (F-Coalgebras F))
   -- record {initial = record {

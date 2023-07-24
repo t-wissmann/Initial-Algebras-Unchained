@@ -25,13 +25,13 @@ open import Categories.Functor.Construction.SubCategory using (FullSub)
 jointly-epic : ∀ {i : Level} {I : Set i} {dom : I → Category.Obj C} {codom : Category.Obj C}
                (sink : (x : I) → C [ dom x , codom ]) → Set _
 jointly-epic {i} {I} {dom} {codom} sink =
-  ∀ (Z : Category.Obj C) (g h : C [ codom , Z ]) →
+  ∀ {Z : Category.Obj C} {g h : C [ codom , Z ]} →
     (∀ (x : I) → C [ C [ g ∘ sink x ] ≈ C [ h ∘ sink x ] ]) →
     C [ g ≈ h ]
 
-colimit-is-jointly-epic : ∀ {o′ ℓ′ e′} {J : Category o′ ℓ′ e′} (G : Functor J C) →
+colimit-is-jointly-epic : ∀ {o′ ℓ′ e′} {J : Category o′ ℓ′ e′} {G : Functor J C} →
                           (colim : Colimit G) → jointly-epic (Colimit.proj colim)
-colimit-is-jointly-epic G colim Z g h equalize-g-h =
+colimit-is-jointly-epic {G = G} colim {Z} {g} {h} equalize-g-h =
   let
     open Category C
     open HomReasoning
