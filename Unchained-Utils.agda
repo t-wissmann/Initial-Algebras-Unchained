@@ -29,6 +29,42 @@ jointly-epic {i} {I} {dom} {codom} sink =
     (∀ (x : I) → C [ C [ g ∘ sink x ] ≈ C [ h ∘ sink x ] ]) →
     C [ g ≈ h ]
 
+colimit-is-jointly-epic : ∀ {o′ ℓ′ e′} {J : Category o′ ℓ′ e′} (G : Functor J C) →
+                          (colim : Colimit G) → jointly-epic (Colimit.proj colim)
+colimit-is-jointly-epic G colim Z g h equalize-g-h =
+  let
+    open Category C
+    open HomReasoning
+    module colim = Colimit colim
+    -- first, define a cocone on Z via h:
+    Z-cocone : Cocone G
+    Z-cocone = record {
+      N = Z ;
+        coapex = record {
+        ψ = λ X → h ∘ Colimit.proj colim X;
+        commute = λ {X} {X'} f →
+          begin
+          (h ∘ colim.proj X') ∘ Functor.F₁ G f ≈⟨ assoc ⟩
+          h ∘ (colim.proj X' ∘ Functor.F₁ G f) ≈⟨ refl⟩∘⟨ Colimit.colimit-commute colim f ⟩
+          h ∘ colim.proj X
+          ∎
+          } }
+    -- -- TODO: why doesn't the proof work with the following definition of h-morph?
+    -- h-morph : Cocone⇒ _ colim.colimit Z-cocone
+    -- h-morph = IsInitial.! colim.initial.⊥-is-initial
+    -- g and h induce cocone morphisms:
+    h-morph : Cocone⇒ _ colim.colimit Z-cocone
+    h-morph = record
+      { arr = h ;
+      commute = λ {X} → Equiv.refl }
+    g-morph : Cocone⇒ _ colim.colimit Z-cocone
+    g-morph = record
+      { arr = g ;
+      commute = λ {X} → equalize-g-h X }
+  in
+  IsInitial.!-unique₂ colim.initial.⊥-is-initial g-morph h-morph
+
+
 -- FullSubCategory (F-Coalgebras F) R-Coalgebra.coalg
 FullSub-Colimit : {o' ℓ' e' i : Level}
                 → {D : Category o' ℓ' e'}

@@ -339,6 +339,26 @@ R-Coalgebras-Colimit J C-colim =
             in
             R.unique B sol (R.recur B)
         } }
+    --
+    -- the induced solution for an algebra
+    alg2solution : (B : F-Algebra F) → Solution Coalg-colim.coapex B
+    alg2solution B =
+      let
+        module B = F-Algebra B
+        open Category C
+        open HomReasoning
+
+        sol : C [ F-Coalgebra.A Coalg-colim.coapex , B.A ]
+        sol = C-colim.rep (alg2cocone B)
+      in
+      record { f = sol ;
+        commutes = colimit-is-jointly-epic (forget-Coalgebra ∘F forget-rec ∘F  J) C-colim B.A sol (B.α ∘ F.F₁ sol ∘ F-Coalgebra.α Coalg-colim.coapex)
+          λ A →
+            begin
+            sol ∘ C-colim.proj A ≈⟨ {!!} ⟩
+            (B.α ∘ F.F₁ sol ∘ F-Coalgebra.α Coalg-colim.coapex) ∘ C-colim.proj A
+            ∎
+          }
 
     -- we can then show that the colimit coalgebra must be recursive:
     R : R-Coalgebra
