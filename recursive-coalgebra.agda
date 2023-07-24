@@ -74,6 +74,7 @@ record IsRecursive (X : F-Coalgebra F) : Set (o ⊔ ℓ ⊔ e) where
     unique : (B : F-Algebra F) → (g h : Solution X B) →
       morph g ≈ morph h
 
+
 -- whenever a recursive coalgebra is an iso, it is the initial algebra:
 -- [CUV06, Prop. 7(a)]
 iso-recursive⇒initial :
@@ -384,7 +385,20 @@ R-Coalgebras-Colimit J C-colim =
       coalg = Coalg-colim.coapex ;
       ump = record {
         recur = alg2solution;
-        unique = {!!} } }
+        unique = λ B g h →
+          colimit-is-jointly-epic C-colim λ R →
+            let
+              open Category C
+              open HomReasoning
+              module g = Solution g
+              module h = Solution h
+            in
+            begin
+            g.f ∘ C-colim.proj R
+              ≈⟨ {!!} ⟩
+            h.f ∘ C-colim.proj R
+            ∎
+        } }
   in
   FullSub-Colimit R-Coalgebra.coalg J Coalg-colim R (≅.refl (F-Coalgebras F))
   -- record {initial = record {
