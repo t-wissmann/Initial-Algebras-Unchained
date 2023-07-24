@@ -15,7 +15,10 @@ open import Categories.Morphism using (IsIso; Iso)
 open import Categories.Object.Initial using (IsInitial)
 open import Function.Equality using (cong)
 open import Categories.Morphism.Reasoning
+
 open import F-Coalgebra-Colimit
+open import Unchained-Utils
+
 
 -- We first recap some lemmas from:
 --   [CUV06] Venanzio Capretta, Tarmo Uustalu, and Varmo Vene.
@@ -337,16 +340,12 @@ R-Coalgebras-Colimit J C-colim =
         } }
 
     -- we can then show that the colimit coalgebra must be recursive:
-    -- R : R-Coalgebra
-    -- R = record {
-    --   coalg = Coalg-colim.coapex ;
-    --   ump = record {
-    --     recur = λ B →
-    --       {!!} ;
-    --     unique = {!!}
-    --   } }
+    R : R-Coalgebra
+    R = record {
+      coalg = Coalg-colim.coapex ;
+      ump = {!!} }
   in
-  {!!}
+  FullSub-Colimit R-Coalgebra.coalg J Coalg-colim R ?
   -- record {initial = record {
   -- ⊥ = record {
   --   N = record {
