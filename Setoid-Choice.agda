@@ -41,7 +41,7 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
             cocone-morph = Colim.rep-cocone construction.colimit
             module cocone-morph = Cocone⇒ cocone-morph
         in
-        construction-choice (cocone-morph.arr ⟨$⟩ x)
+        cocone-morph.arr ⟨$⟩ x
 
     colimit-inject : Σ[ i ∈ D.Obj ] (Setoid.Carrier (J.F₀ i)) → Setoid.Carrier Colim.coapex
     colimit-inject (i , elem) = Colim.proj i ⟨$⟩ elem
