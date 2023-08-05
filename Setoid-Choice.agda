@@ -58,15 +58,17 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
                             Colim.coapex [[ x ≈ colimit-inject (colimit-choice x)]]
     colimit-choice-correct {top-level-x} =
         let
-        -- the identity cocone morphism:
+        -- we show the equality by the uniqueness of cocone morphisms, so we
+        -- construct a couple of cocone morphisms for the above equation.
+        -- 1. the identity cocone morphism:
         id-cmorph : Cocone⇒ _ Colim.colimit Colim.colimit
         id-cmorph = Category.id (Cocones _)
 
-        -- for another endomorphism on Colim, we first take the choice:
+        -- 2a. for another endomorphism on Colim, we first take the choice:
         choice-cmorph : Cocone⇒ _ Colim.colimit construction.colimit
         choice-cmorph = Colim.rep-cocone construction.colimit
 
-        -- and then inject back
+        -- 2b. and then inject back
         inject-cmorph : Cocone⇒ _ construction.colimit Colim.colimit
         inject-cmorph = construction.rep-cocone Colim.colimit
         module inject-cmorph = Cocone⇒ inject-cmorph
