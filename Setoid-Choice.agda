@@ -3,19 +3,20 @@ module Setoid-Choice where
 open import Level
 open import Relation.Binary using (Setoid; Preorder; Rel)
 open import Relation.Binary.Construct.Closure.SymmetricTransitive as ST using (Plus⇔; minimal)
-open import Agda.Builtin.Equality using (_≡_)
+open import Agda.Builtin.Equality using (_≡_) renaming (refl to refl-by-def)
 
 open import Agda.Builtin.Sigma
 open import Data.Product
 open import Relation.Binary.Bundles using (Setoid)
 open import Function.Equality
 
-open import Categories.Category using (Category; _[_,_]; _[_≈_])
+open import Categories.Category using (Category; _[_,_]; _[_≈_]; _[_∘_])
 open import Categories.Functor
 open import Categories.Category.Instance.Setoids
 open import Categories.Category.Cocomplete
 open import Categories.Diagram.Cocone
 open import Categories.Diagram.Colimit
+open import Categories.Object.Initial
 open import Categories.Category.Construction.Cocones using (Cocones)
 open import Categories.Category.Instance.Properties.Setoids.Cocomplete
 
@@ -52,10 +53,8 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
         open Setoid renaming (_≈_ to _⊢_≈_)
         colimit-choice-correct : ∀ {x : Setoid.Carrier Colim.coapex} →
                                 Colim.coapex ⊢ x ≈ colimit-inject (colimit-choice x)
-        colimit-choice-correct {x} =
+        colimit-choice-correct {top-level-x} =
           let
-            (i , elem) = colimit-choice x
-
             -- the identity cocone morphism:
             id-cmorph : Cocone⇒ _ Colim.colimit Colim.colimit
             id-cmorph = Category.id (Cocones _)
@@ -70,6 +69,14 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
             module inject-cmorph = Cocone⇒ inject-cmorph
 
             inject-cmorph-correct : ∀ x → Π._⟨$⟩_ inject-cmorph.arr x ≡ colimit-inject x
-            inject-cmorph-correct x = {!!}
+            inject-cmorph-correct x = refl-by-def
+
+            same-cocone-morph : Cocones J [ id-cmorph ≈ (Cocones J [ inject-cmorph ∘ choice-cmorph ]) ]
+            same-cocone-morph =
+              -- TODO: why is this so long?
+              IsInitial.!-unique₂
+                (Initial.⊥-is-initial Colim.initial)
+                id-cmorph
+                (Cocones J [ inject-cmorph ∘ choice-cmorph ])
           in
-          {!!}
+          same-cocone-morph (refl Colim.coapex)
