@@ -25,16 +25,15 @@ import Relation.Binary.Reasoning.Setoid as RS
 
 module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ c) (o ⊔ ℓ ⊔ c ⊔ ℓ'))) where
   construction = Setoids-Cocomplete o ℓ e c ℓ' J
+  open Setoid renaming (_≈_ to _[[_≈_]])
   module construction = Colimit construction
   module D = Category D
   module J = Functor J
 
-  construction-choice : Setoid.Carrier construction.coapex → Σ[ i ∈ D.Obj ] (Setoid.Carrier (J.F₀ i))
-  construction-choice (i , elem) = i , elem
-
   module _ (Colim : Colimit J) where
-    -- given an element in the carrier set of a colimit,
-    -- choose an object in the diagram and an element there
+    -- Given an element in the carrier set of a colimit,
+    -- choose an object in the diagram scheme and an element in the corresponding
+    -- set in the diagram:
     module Colim = Colimit Colim
     colimit-choice : Setoid.Carrier Colim.coapex → Σ[ i ∈ D.Obj ] (Setoid.Carrier (J.F₀ i))
     colimit-choice x =
@@ -46,37 +45,37 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
         in
         cocone-morph.arr ⟨$⟩ x
 
+    -- The other direction is simply the colimit injection: we just use it
+    -- as a shorthand when showing that `colimit-choice` is correct:
     colimit-inject : Σ[ i ∈ D.Obj ] (Setoid.Carrier (J.F₀ i)) → Setoid.Carrier Colim.coapex
     colimit-inject (i , elem) = Colim.proj i ⟨$⟩ elem
 
-    module _ where
-        open Setoid renaming (_≈_ to _[[_≈_]])
-        colimit-choice-correct : ∀ {x : Setoid.Carrier Colim.coapex} →
-                                Colim.coapex [[ x ≈ colimit-inject (colimit-choice x)]]
-        colimit-choice-correct {top-level-x} =
-          let
-            -- the identity cocone morphism:
-            id-cmorph : Cocone⇒ _ Colim.colimit Colim.colimit
-            id-cmorph = Category.id (Cocones _)
+    colimit-choice-correct : ∀ {x : Setoid.Carrier Colim.coapex} →
+                            Colim.coapex [[ x ≈ colimit-inject (colimit-choice x)]]
+    colimit-choice-correct {top-level-x} =
+        let
+        -- the identity cocone morphism:
+        id-cmorph : Cocone⇒ _ Colim.colimit Colim.colimit
+        id-cmorph = Category.id (Cocones _)
 
-            -- for another endomorphism on Colim, we first take the choice:
-            choice-cmorph : Cocone⇒ _ Colim.colimit construction.colimit
-            choice-cmorph = Colim.rep-cocone construction.colimit
+        -- for another endomorphism on Colim, we first take the choice:
+        choice-cmorph : Cocone⇒ _ Colim.colimit construction.colimit
+        choice-cmorph = Colim.rep-cocone construction.colimit
 
-            -- and then inject back
-            inject-cmorph : Cocone⇒ _ construction.colimit Colim.colimit
-            inject-cmorph = construction.rep-cocone Colim.colimit
-            module inject-cmorph = Cocone⇒ inject-cmorph
+        -- and then inject back
+        inject-cmorph : Cocone⇒ _ construction.colimit Colim.colimit
+        inject-cmorph = construction.rep-cocone Colim.colimit
+        module inject-cmorph = Cocone⇒ inject-cmorph
 
-            inject-cmorph-correct : ∀ x → Π._⟨$⟩_ inject-cmorph.arr x ≡ colimit-inject x
-            inject-cmorph-correct x = refl-by-def
+        inject-cmorph-correct : ∀ x → Π._⟨$⟩_ inject-cmorph.arr x ≡ colimit-inject x
+        inject-cmorph-correct x = refl-by-def
 
-            same-cocone-morph : Cocones J [ id-cmorph ≈ (Cocones J [ inject-cmorph ∘ choice-cmorph ]) ]
-            same-cocone-morph =
-              -- TODO: why is this so long?
-              IsInitial.!-unique₂
-                (Initial.⊥-is-initial Colim.initial)
-                id-cmorph
-                (Cocones J [ inject-cmorph ∘ choice-cmorph ])
-          in
-          same-cocone-morph (refl Colim.coapex)
+        same-cocone-morph : Cocones J [ id-cmorph ≈ (Cocones J [ inject-cmorph ∘ choice-cmorph ]) ]
+        same-cocone-morph =
+            -- TODO: why is this so long?
+            IsInitial.!-unique₂
+            (Initial.⊥-is-initial Colim.initial)
+            id-cmorph
+            (Cocones J [ inject-cmorph ∘ choice-cmorph ])
+        in
+        same-cocone-morph (refl Colim.coapex)
