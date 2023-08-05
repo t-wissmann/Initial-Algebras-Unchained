@@ -46,9 +46,13 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
         cocone-morph.arr ⟨$⟩ x
 
     -- The other direction is simply the colimit injection: we just use it
-    -- as a shorthand when showing that `colimit-choice` is correct:
+    -- as a shorthand in the correctness statement.
     colimit-inject : Σ[ i ∈ D.Obj ] (Setoid.Carrier (J.F₀ i)) → Setoid.Carrier Colim.coapex
     colimit-inject (i , elem) = Colim.proj i ⟨$⟩ elem
+
+    -- The correctness of `colimit-choice`: given `x` in the colimit,
+    -- if we choose some element somewhere in the diagram, then injecting
+    -- it into the colimit yields `x` again:
 
     colimit-choice-correct : ∀ {x : Setoid.Carrier Colim.coapex} →
                             Colim.coapex [[ x ≈ colimit-inject (colimit-choice x)]]
