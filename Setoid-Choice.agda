@@ -69,7 +69,7 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
             inject-cmorph = construction.rep-cocone Colim.colimit
             module inject-cmorph = Cocone⇒ inject-cmorph
 
-            inject-cmorph-correct : Π._⟨$⟩_ inject-cmorph.arr ≡ colimit-inject
-            inject-cmorph-correct = {!!}
+            inject-cmorph-correct : ∀ x → Π._⟨$⟩_ inject-cmorph.arr x ≡ colimit-inject x
+            inject-cmorph-correct x = {!!}
           in
           {!!}
