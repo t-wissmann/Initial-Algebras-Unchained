@@ -3,6 +3,7 @@ module Setoid-Choice where
 open import Level
 open import Relation.Binary using (Setoid; Preorder; Rel)
 open import Relation.Binary.Construct.Closure.SymmetricTransitive as ST using (Plus⇔; minimal)
+open import Agda.Builtin.Equality using (_≡_)
 
 open import Agda.Builtin.Sigma
 open import Data.Product
@@ -68,7 +69,7 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
             inject-cmorph = construction.rep-cocone Colim.colimit
             module inject-cmorph = Cocone⇒ inject-cmorph
 
-            -- inject-cmorph-correct : _ ⊢ (Π._⟨$⟩_ inject-cmorph.arr) ≈ colimit-inject
-            -- inject-cmorph-correct = refl
+            inject-cmorph-correct : Π._⟨$⟩_ inject-cmorph.arr ≡ colimit-inject
+            inject-cmorph-correct = {!!}
           in
           {!!}
