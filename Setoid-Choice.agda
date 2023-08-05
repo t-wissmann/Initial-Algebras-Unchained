@@ -9,7 +9,7 @@ open import Data.Product
 open import Relation.Binary.Bundles using (Setoid)
 open import Function.Equality
 
-open import Categories.Category using (Category; _[_,_])
+open import Categories.Category using (Category; _[_,_]; _[_≈_])
 open import Categories.Functor
 open import Categories.Category.Instance.Setoids
 open import Categories.Category.Cocomplete
@@ -48,9 +48,9 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
     colimit-inject (i , elem) = Colim.proj i ⟨$⟩ elem
 
     module _ where
-        open Setoid renaming (_≈_ to _[_≈_])
+        open Setoid renaming (_≈_ to _⊢_≈_)
         colimit-choice-correct : ∀ {x : Setoid.Carrier Colim.coapex} →
-                                Colim.coapex [ x ≈ colimit-inject (colimit-choice x) ]
+                                Colim.coapex ⊢ x ≈ colimit-inject (colimit-choice x)
         colimit-choice-correct {x} =
           let
             (i , elem) = colimit-choice x
@@ -68,7 +68,7 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
             inject-cmorph = construction.rep-cocone Colim.colimit
             module inject-cmorph = Cocone⇒ inject-cmorph
 
-            -- inject-cmorph-correct : Setoids [ (Π._⟨$⟩_ inject-cmorph.arr) ≈ colimit-inject ]
-            -- inject-cmorph-correct = ?
+            -- inject-cmorph-correct : _ ⊢ (Π._⟨$⟩_ inject-cmorph.arr) ≈ colimit-inject
+            -- inject-cmorph-correct = refl
           in
           {!!}
