@@ -15,6 +15,7 @@ open import Categories.Category.Instance.Setoids
 open import Categories.Category.Cocomplete
 open import Categories.Diagram.Cocone
 open import Categories.Diagram.Colimit
+open import Categories.Category.Construction.Cocones using (Cocones)
 open import Categories.Category.Instance.Properties.Setoids.Cocomplete
 
 import Categories.Category.Construction.Cocones as Coc
@@ -53,8 +54,21 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
         colimit-choice-correct {x} =
           let
             (i , elem) = colimit-choice x
-            -- the cocone morphism from the construction to the opaq colimit:
-            2opaq = Cocone⇒ _ construction.colimit Colim.colimit
-            2opaq = construction.rep-cocone Colim.colimit
+
+            -- the identity cocone morphism:
+            id-cmorph : Cocone⇒ _ Colim.colimit Colim.colimit
+            id-cmorph = Category.id (Cocones _)
+
+            -- for another endomorphism on Colim, we first take the choice:
+            choice-cmorph : Cocone⇒ _ Colim.colimit construction.colimit
+            choice-cmorph = Colim.rep-cocone construction.colimit
+
+            -- and then inject back
+            inject-cmorph : Cocone⇒ _ construction.colimit Colim.colimit
+            inject-cmorph = construction.rep-cocone Colim.colimit
+            module inject-cmorph = Cocone⇒ inject-cmorph
+
+            -- inject-cmorph-correct : Setoids [ (Π._⟨$⟩_ inject-cmorph.arr) ≈ colimit-inject ]
+            -- inject-cmorph-correct = ?
           in
           {!!}
