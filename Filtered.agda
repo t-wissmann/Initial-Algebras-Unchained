@@ -56,25 +56,23 @@ record filtered : Set (o ⊔ ℓ ⊔ e) where
 
   close-span-morph₁ : ∀ {X Y Z : Obj} (y : X ⇒ Y) (z : X ⇒ Z) → (Y ⇒ close-span-obj y z)
   close-span-morph₁ {X} {Y} {Z} y z =
-    fuse-morph (is-above₁ Y Z ∘ y) (is-above₂ Y Z ∘ z)
-      ∘ (is-above₁ Y Z)
+    fuse-morph _ _ ∘ (is-above₁ Y Z)
 
   close-span-morph₂ : ∀ {X Y Z : Obj} (y : X ⇒ Y) (z : X ⇒ Z) → (Z ⇒ close-span-obj y z)
   close-span-morph₂ {X} {Y} {Z} y z =
-    fuse-morph (is-above₁ Y Z ∘ y) (is-above₂ Y Z ∘ z)
-      ∘ (is-above₂ Y Z)
+    fuse-morph _ _ ∘ (is-above₂ Y Z)
 
   close-span-commutes : ∀ {X Y Z : Obj} (y : X ⇒ Y) (z : X ⇒ Z) →
-        (close-span-morph₁ y z ∘ y) ≈ (close-span-morph₂ y z ∘ z)
+      (close-span-morph₁ y z ∘ y) ≈ (close-span-morph₂ y z ∘ z)
   close-span-commutes {X} {Y} {Z} y z =
     let
       open HomReasoning
     in
-    {!!}
-    -- {!!} (
-    -- close-span-morph₁ y z ∘ y     ≈⟨⟩
-    -- (fuse-morph _ _ ∘ (is-above₁ Y Z)) ∘ y ≈⟨ {!!} ⟩
-    -- close-span-morph₂ y z ∘ z
-    -- )
-    -- (fuse-morph _ _ ∘ (is-above₁ Y Z)) ∘ y ≈⟨ ? ⟩
-    -- (fuse-morph _ _ ∘ (is-above₂ Y Z)) ∘ z
+    begin
+    close-span-morph₁ y z ∘ y     ≡⟨⟩
+    (fuse-morph _ _ ∘ (is-above₁ Y Z)) ∘ y ≈⟨ assoc ⟩
+    fuse-morph _ _ ∘ ((is-above₁ Y Z) ∘ y) ≈⟨ fuse-prop _ _ ⟩
+    fuse-morph _ _ ∘ ((is-above₂ Y Z) ∘ z) ≈⟨ sym-assoc ⟩
+    (fuse-morph _ _ ∘ (is-above₂ Y Z)) ∘ z ≡⟨⟩
+    close-span-morph₂ y z ∘ z
+    ∎
