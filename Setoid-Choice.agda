@@ -17,7 +17,6 @@ open import Categories.Category.Cocomplete
 open import Categories.Diagram.Cocone
 open import Categories.Diagram.Colimit
 open import Categories.Object.Initial
-open import Function.Equality as SΠ renaming (id to ⟶-id)
 import Relation.Binary.Reasoning.Setoid as SetoidR
 open import Categories.Category.Construction.Cocones using (Cocones)
 open import Categories.Category.Instance.Properties.Setoids.Cocomplete
@@ -127,5 +126,55 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
         (J.F₁ f ⟨$⟩ y)
         ∎
         }
-    filter-identification-constr fil {X} {Z} x z (Plus⇔.forth⁺ {_} {Y , y} {_} (f , fx≈y) y≈z) = {!!}
-    filter-identification-constr fil {X} {Z} x z (Plus⇔.back⁺ {_} {Y , y} {_} (f , fy≈x) y≈z) = {!!}
+    filter-identification-constr fil {X} {Z} x z (Plus⇔.forth⁺ {_} {Y , y} {_} (f , fx≈y) y≈z) =
+      let
+        -- easy recursive case:
+        -- f sends x to y and we have a bound of y and z:
+        y∨z = filter-identification-constr fil y z y≈z
+        module y∨z = identified-in-diagram y∨z
+      in
+      record {
+        B = y∨z.B ;
+        inj₁ = D [ y∨z.inj₁ ∘ f ] ;
+        inj₂ = y∨z.inj₂ ;
+        identifies =
+        let
+            open SetoidR (J.F₀ y∨z.B)
+        in
+        begin
+        J.F₁ (D [ y∨z.inj₁ ∘ f ]) ⟨$⟩ x ≈⟨ J.homomorphism (refl (J.F₀ X)) ⟩
+        J.F₁ y∨z.inj₁ ⟨$⟩ (J.F₁ f ⟨$⟩ x) ≈⟨ cong (J.F₁ y∨z.inj₁) fx≈y ⟩
+        J.F₁ y∨z.inj₁ ⟨$⟩ y             ≈⟨ y∨z.identifies ⟩
+        J.F₁ y∨z.inj₂ ⟨$⟩ z
+        ∎
+      }
+    filter-identification-constr fil {X} {Z} x z (Plus⇔.back⁺ {_} {Y , y} {_} (f , fy≈x) y≈z) =
+      let
+        -- non-trivial recursive case, because we now use filteredness:
+        -- f sends y to x and we have a bound V of y and z:
+        -- X <- Y -> V <- Z
+        V = filter-identification-constr fil y z y≈z
+        module V = identified-in-diagram V
+
+        open filtered fil
+
+        -- the new upper bound and the two injections
+        W = close-span-obj f V.inj₁
+        w₁ = close-span-morph₁ f V.inj₁
+        w₂ = close-span-morph₂ f V.inj₁
+      in
+      record {
+        B = W;
+        inj₁ = w₁;
+        inj₂ = D [ w₂ ∘ V.inj₂ ] ;
+        identifies =
+        let
+            open SetoidR (J.F₀ (close-span-obj f V.inj₁))
+        in
+        begin
+        J.F₁ w₁ ⟨$⟩ x               ≈˘⟨ cong (J.F₁ w₁) fy≈x ⟩
+        J.F₁ w₁ ⟨$⟩ (J.F₁ f ⟨$⟩ y)   ≈⟨ {!!} ⟩
+        J.F₁ w₂ ⟨$⟩ ((J.F₁ V.inj₂) ⟨$⟩ z) ≈˘⟨ J.homomorphism (refl (J.F₀ Z)) ⟩
+        J.F₁ (D [ w₂ ∘ V.inj₂ ]) ⟨$⟩ z
+        ∎
+      }
