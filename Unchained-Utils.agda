@@ -5,21 +5,29 @@ open import Categories.Functor using (Functor)
 module Unchained-Utils {o ℓ e} {C : Category o ℓ e} where
 
 open import Level
+open import Agda.Builtin.Sigma
 
 open import Categories.Category.Construction.F-Coalgebras
 open import Categories.Category.Construction.Cocones using (Cocones)
 open import Categories.Functor.Coalgebra
-open import Categories.Morphism using (_≅_)
+open import Categories.Morphism C -- open the module with the category C fixed.
 open import Categories.Object.Initial using (IsInitial)
+
+open import Categories.Category.Core
 
 open import Categories.Diagram.Colimit using (Colimit; transport-by-iso)
 open import Categories.Diagram.Cocone
 open import Categories.Diagram.Cocone.Properties
 open import Categories.Functor using (_∘F_)
 open import Agda.Builtin.Equality
+open import Categories.Morphism.Reasoning
+open import Categories.Morphism.Reasoning.Core
+
 
 open import Categories.Category.SubCategory
 open import Categories.Functor.Construction.SubCategory using (FullSub)
+
+module C = Category C
 
 -- the property whether a Sink is jointly epic:
 jointly-epic : ∀ {i : Level} {I : Set i} {dom : I → Category.Obj C} {codom : Category.Obj C}
@@ -64,8 +72,10 @@ colimit-is-jointly-epic {G = G} colim {Z} {g} {h} equalize-g-h =
   in
   IsInitial.!-unique₂ colim.initial.⊥-is-initial g-morph h-morph
 
-
--- FullSubCategory (F-Coalgebras F) R-Coalgebra.coalg
+-- Lemma:
+-- Consider a diagram J in a full subcategory of C with a colimit in C.
+-- If there is an object in the subcategory isomorphic to the C-colimit
+-- then this gives rise to a colimit of J in the subcategory
 FullSub-Colimit : {o' ℓ' e' i : Level}
                 → {D : Category o' ℓ' e'}
                 → {I : Set i}
@@ -73,7 +83,7 @@ FullSub-Colimit : {o' ℓ' e' i : Level}
                 → (J : Functor D (FullSubCategory C U))
                 → (C-colim : Colimit (FullSub C ∘F  J))
                 → (lifted-colim-obj : I)
-                → _≅_ C (Colimit.coapex C-colim) (U lifted-colim-obj)
+                → Colimit.coapex C-colim ≅ U lifted-colim-obj
                 → Colimit J
 FullSub-Colimit {D = D} {I = I} U J plain-C-colim lifted-colim-obj iso =
   let
@@ -128,3 +138,5 @@ FullSub-Colimit {D = D} {I = I} U J plain-C-colim lifted-colim-obj iso =
       }
   in
   record { initial = record { ⊥ = Sub-Cocone ; ⊥-is-initial = Sub-Cocone-initial } }
+
+
