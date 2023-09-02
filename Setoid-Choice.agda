@@ -17,6 +17,8 @@ open import Categories.Category.Cocomplete
 open import Categories.Diagram.Cocone
 open import Categories.Diagram.Colimit
 open import Categories.Object.Initial
+open import Function.Equality as SΠ renaming (id to ⟶-id)
+import Relation.Binary.Reasoning.Setoid as SetoidR
 open import Categories.Category.Construction.Cocones using (Cocones)
 open import Categories.Category.Instance.Properties.Setoids.Cocomplete
 open import Filtered
@@ -99,7 +101,7 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
         B : D.Obj
         inj₁ : D [ X , B ]
         inj₂ : D [ Y , B ]
-        identifies : J.F₀ B [[ J.F₁ inj₁ ⟨$⟩ x ≈ J.F₁ inj₁ ⟨$⟩ x ]]
+        identifies : J.F₀ B [[ J.F₁ inj₁ ⟨$⟩ x ≈ J.F₁ inj₂ ⟨$⟩ y ]]
 
     -- We first show the lemma for the canonically constructed colimit.
     -- For the constructed colimit, we know that ≈ means that x and y
@@ -107,7 +109,19 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
     filter-identification-constr : (filtered D) → ∀ {X Y : D.Obj} → (x : J₀ X) (y : J₀ Y)
        → construction.coapex [[ construction.proj X ⟨$⟩ x ≈ construction.proj Y ⟨$⟩ y ]]
        → identified-in-diagram x y
-    filter-identification-constr fil {X} {Y} x y (Plus⇔.forth (f , fx≈y)) = {!!}
+    filter-identification-constr fil {X} {Y} x y (Plus⇔.forth (f , fx≈y)) =
+      record { B = Y ; inj₁ = f ; inj₂ = D.id ; identifies =
+        let
+          open SetoidR (J.F₀ Y)
+        in
+        -- FIXME:
+        begin
+        (J.F₁ f ⟨$⟩ x)  ≈⟨ fx≈y ⟩
+        y              ≡⟨⟩
+        (⟶-id ⟨$⟩ y)  ≈˘⟨ J.identity (refl (J.F₀ Y)) ⟩
+        (J.F₁ D.id ⟨$⟩ y)
+        ∎
+        }
     filter-identification-constr fil {X} {Y} x y (Plus⇔.back (f , fy≈x)) = {!!}
     filter-identification-constr fil {X} {Z} x z (Plus⇔.forth⁺ {_} {Y , y} {_} (f , fx≈y) y≈z) = {!!}
     filter-identification-constr fil {X} {Z} x z (Plus⇔.back⁺ {_} {Y , y} {_} (f , fy≈x) y≈z) = {!!}
