@@ -19,6 +19,7 @@ open import Categories.Diagram.Colimit
 open import Categories.Object.Initial
 open import Categories.Category.Construction.Cocones using (Cocones)
 open import Categories.Category.Instance.Properties.Setoids.Cocomplete
+open import Filtered
 
 import Categories.Category.Construction.Cocones as Coc
 import Relation.Binary.Reasoning.Setoid as RS
@@ -85,3 +86,28 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
             (Cocones J [ inject-cmorph ∘ choice-cmorph ])
         in
         same-cocone-morph (refl Colim.coapex)
+
+
+
+    -- Lemma: if two elements are idenitfied in the colimit of a filtered diagram,
+    -- then they are already identified somewhere in the diagram
+    J₀ : D.Obj → Set _
+    J₀ i = Setoid.Carrier (J.F₀ i)
+
+    record identified-in-diagram {X Y : D.Obj} (x : J₀ X) (y : J₀ Y) : Set (o ⊔ ℓ ⊔ c ⊔ ℓ') where
+      field
+        B : D.Obj
+        inj₁ : D [ X , B ]
+        inj₂ : D [ Y , B ]
+        identifies : J.F₀ B [[ J.F₁ inj₁ ⟨$⟩ x ≈ J.F₁ inj₁ ⟨$⟩ x ]]
+
+    -- We first show the lemma for the canonically constructed colimit.
+    -- For the constructed colimit, we know that ≈ means that x and y
+    -- are connected by a zigzag. So we can recurse over the zigzag structure.
+    filter-identification-constr : (filtered D) → ∀ {X Y : D.Obj} → (x : J₀ X) (y : J₀ Y)
+       → construction.coapex [[ construction.proj X ⟨$⟩ x ≈ construction.proj Y ⟨$⟩ y ]]
+       → identified-in-diagram x y
+    filter-identification-constr fil {X} {Y} x y (Plus⇔.forth (f , fx≈y)) = {!!}
+    filter-identification-constr fil {X} {Y} x y (Plus⇔.back (f , fy≈x)) = {!!}
+    filter-identification-constr fil {X} {Z} x z (Plus⇔.forth⁺ {_} {Y , y} {_} (f , fx≈y) y≈z) = {!!}
+    filter-identification-constr fil {X} {Z} x z (Plus⇔.back⁺ {_} {Y , y} {_} (f , fy≈x) y≈z) = {!!}

@@ -3,7 +3,7 @@ open import Categories.Category
 open import Categories.Functor using (Functor)
 
 
-module Filtered {o ℓ e} {C : Category o ℓ e} where
+module Filtered {o ℓ e} (C : Category o ℓ e) where
 
 open import Level
 
