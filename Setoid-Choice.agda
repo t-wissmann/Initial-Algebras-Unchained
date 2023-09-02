@@ -111,17 +111,21 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
        → identified-in-diagram x y
     filter-identification-constr fil {X} {Y} x y (Plus⇔.forth (f , fx≈y)) =
       record { B = Y ; inj₁ = f ; inj₂ = D.id ; identifies =
-        let
-          open SetoidR (J.F₀ Y)
-        in
-        -- FIXME:
+        let open SetoidR (J.F₀ Y) in
         begin
         (J.F₁ f ⟨$⟩ x)  ≈⟨ fx≈y ⟩
-        y              ≡⟨⟩
-        (⟶-id ⟨$⟩ y)  ≈˘⟨ J.identity (refl (J.F₀ Y)) ⟩
+        y              ≈˘⟨ J.identity (refl (J.F₀ Y)) ⟩
         (J.F₁ D.id ⟨$⟩ y)
         ∎
         }
-    filter-identification-constr fil {X} {Y} x y (Plus⇔.back (f , fy≈x)) = {!!}
+    filter-identification-constr fil {X} {Y} x y (Plus⇔.back (f , fy≈x)) =
+      record { B = X ; inj₁ = D.id ; inj₂ = f ; identifies =
+        let open SetoidR (J.F₀ X) in
+        begin
+        (J.F₁ D.id ⟨$⟩ x)  ≈⟨ J.identity (refl (J.F₀ X)) ⟩
+        x                 ≈˘⟨ fy≈x ⟩
+        (J.F₁ f ⟨$⟩ y)
+        ∎
+        }
     filter-identification-constr fil {X} {Z} x z (Plus⇔.forth⁺ {_} {Y , y} {_} (f , fx≈y) y≈z) = {!!}
     filter-identification-constr fil {X} {Z} x z (Plus⇔.back⁺ {_} {Y , y} {_} (f , fy≈x) y≈z) = {!!}
