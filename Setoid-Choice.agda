@@ -97,9 +97,13 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
 
     record identified-in-diagram {X Y : D.Obj} (x : J₀ X) (y : J₀ Y) : Set (o ⊔ ℓ ⊔ c ⊔ ℓ') where
       field
+        -- that two elements x and y are identified in the diagram means that
+        -- 1. there is an object B in the diagram
         B : D.Obj
+        -- 2. which is above X and Y
         inj₁ : D [ X , B ]
         inj₂ : D [ Y , B ]
+        -- 3. such that both x and y are sent to the same element in B
         identifies : J.F₀ B [[ J.F₁ inj₁ ⟨$⟩ x ≈ J.F₁ inj₂ ⟨$⟩ y ]]
 
     -- We first show the lemma for the canonically constructed colimit.
