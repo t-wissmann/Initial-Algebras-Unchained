@@ -173,7 +173,10 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
         in
         begin
         J.F₁ w₁ ⟨$⟩ x               ≈˘⟨ cong (J.F₁ w₁) fy≈x ⟩
-        J.F₁ w₁ ⟨$⟩ (J.F₁ f ⟨$⟩ y)   ≈⟨ {!!} ⟩
+        J.F₁ w₁ ⟨$⟩ (J.F₁ f ⟨$⟩ y)   ≈˘⟨ J.homomorphism (refl (J.F₀ Y)) ⟩
+        J.F₁ (D [ w₁ ∘ f ]) ⟨$⟩ y   ≈⟨ J.F-resp-≈ (close-span-commutes f V.inj₁) (refl (J.F₀ Y)) ⟩
+        J.F₁ (D [ w₂ ∘ V.inj₁ ]) ⟨$⟩ y   ≈⟨ J.homomorphism (refl (J.F₀ Y)) ⟩
+        J.F₁ w₂ ⟨$⟩ ((J.F₁ V.inj₁) ⟨$⟩ y) ≈⟨ cong (J.F₁ w₂) V.identifies ⟩
         J.F₁ w₂ ⟨$⟩ ((J.F₁ V.inj₂) ⟨$⟩ z) ≈˘⟨ J.homomorphism (refl (J.F₀ Z)) ⟩
         J.F₁ (D [ w₂ ∘ V.inj₂ ]) ⟨$⟩ z
         ∎
