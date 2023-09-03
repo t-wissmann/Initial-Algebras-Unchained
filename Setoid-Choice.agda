@@ -181,3 +181,22 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
         J.F₁ (D [ w₂ ∘ V.inj₂ ]) ⟨$⟩ z
         ∎
       }
+
+    filter-identification-colim : (filtered D) → ∀ {X Y : D.Obj} → (x : J₀ X) (y : J₀ Y)
+       → Colim.coapex [[ Colim.proj X ⟨$⟩ x ≈ Colim.proj Y ⟨$⟩ y ]]
+       → identified-in-diagram x y
+    filter-identification-colim fil {X} {Y} x y x≈y =
+      filter-identification-constr fil x y constr⊢x≈y
+      where
+        -- the unique cocone morphism:
+        u = Colim.rep-cocone construction.colimit
+        module u = Cocone⇒ u
+
+        open SetoidR (construction.coapex)
+        constr⊢x≈y =
+          begin
+          construction.proj X ⟨$⟩ x ≈˘⟨ u.commute (refl (J.F₀ X)) ⟩
+          u.arr ⟨$⟩ (Colim.proj X ⟨$⟩ x) ≈⟨ cong u.arr x≈y ⟩
+          u.arr ⟨$⟩ (Colim.proj Y ⟨$⟩ y) ≈⟨ u.commute (refl (J.F₀ Y)) ⟩
+          construction.proj Y ⟨$⟩ y
+          ∎
