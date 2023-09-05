@@ -32,6 +32,20 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
   module D = Category D
   module J = Functor J
 
+  J₀ : D.Obj → Set _
+  J₀ i = Setoid.Carrier (J.F₀ i)
+
+  record identified-in-diagram {X Y : D.Obj} (x : J₀ X) (y : J₀ Y) : Set (o ⊔ ℓ ⊔ c ⊔ ℓ') where
+      field
+        -- that two elements x and y are identified in the diagram means that
+        -- 1. there is an object B in the diagram
+        B : D.Obj
+        -- 2. which is above X and Y
+        inj₁ : D [ X , B ]
+        inj₂ : D [ Y , B ]
+        -- 3. such that both x and y are sent to the same element in B
+        identifies : J.F₀ B [[ J.F₁ inj₁ ⟨$⟩ x ≈ J.F₁ inj₂ ⟨$⟩ y ]]
+
   module _ (Colim : Colimit J) where
     -- Given an element in the carrier set of a colimit,
     -- choose an object in the diagram scheme and an element in the corresponding
@@ -89,22 +103,8 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
         same-cocone-morph (refl Colim.coapex)
 
 
-
     -- Lemma: if two elements are idenitfied in the colimit of a filtered diagram,
-    -- then they are already identified somewhere in the diagram
-    J₀ : D.Obj → Set _
-    J₀ i = Setoid.Carrier (J.F₀ i)
-
-    record identified-in-diagram {X Y : D.Obj} (x : J₀ X) (y : J₀ Y) : Set (o ⊔ ℓ ⊔ c ⊔ ℓ') where
-      field
-        -- that two elements x and y are identified in the diagram means that
-        -- 1. there is an object B in the diagram
-        B : D.Obj
-        -- 2. which is above X and Y
-        inj₁ : D [ X , B ]
-        inj₂ : D [ Y , B ]
-        -- 3. such that both x and y are sent to the same element in B
-        identifies : J.F₀ B [[ J.F₁ inj₁ ⟨$⟩ x ≈ J.F₁ inj₂ ⟨$⟩ y ]]
+    -- then they are already identified somewhere in the diagram.
 
     -- We first show the lemma for the canonically constructed colimit.
     -- For the constructed colimit, we know that ≈ means that x and y
@@ -204,3 +204,41 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
           u.arr ⟨$⟩ (Colim.proj Y ⟨$⟩ y) ≈⟨ u.commute (refl (J.F₀ Y)) ⟩
           construction.proj Y ⟨$⟩ y
           ∎
+
+
+  -- the next results characterize: when is a Cocone a Colimit in Setoids?
+  IsLimitting : Cocone J → Set _
+  IsLimitting = IsInitial (Cocones J)
+
+  open import Function.Equality using (_⟶_)
+  -- (f: A ⟶ B)
+  record KernelPairs {o'' e'' : Level} {A B : Setoid o'' e''} (f : A ⟶ B) : Set (o'' ⊔ e'') where
+    field
+        pr₁ : Setoid.Carrier A
+        pr₂ : Setoid.Carrier A
+        identified : B [[ f ⟨$⟩ pr₁ ≈ f ⟨$⟩ pr₂ ]]
+
+  module _ (C : Cocone J) where
+    module C = Cocone C
+
+    record comes-from-diagram (x : Setoid.Carrier C.N) : Set (o ⊔ ℓ ⊔ c ⊔ ℓ') where
+      field
+        i : D.Obj
+        preimage : Setoid.Carrier (J.F₀ i)
+        x-sent-to-c : C.N [[ ((C.ψ i) ⟨$⟩ preimage) ≈ x ]]
+
+
+    -- lemma: A cocone is colimitting if the following conditions
+    -- are met:
+    -- 1. every element in the Cocone Setoid is in the image
+    --    of some colimit injection
+    -- 2. whenever two elements in a set in the diagram are
+    --    identified in the cocone, then they are already
+    --    identified within the diagram.
+    filtered-colimiting : (filtered D) →
+      (∀ (x : Setoid.Carrier C.N) → comes-from-diagram x) →
+      (∀ {i : D.Obj} (k : KernelPairs (C.ψ i)) →
+        identified-in-diagram (KernelPairs.pr₁ k) (KernelPairs.pr₂ k)) →
+      -- ^- wow, agda managed to infer that (pr₁ k) is of shape J₀ X for some X
+      IsLimitting C
+    filtered-colimiting = {!!}
