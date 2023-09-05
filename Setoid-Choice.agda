@@ -318,7 +318,18 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
           in
           record {
             arr = f-well-def ;
-            commute = {!!}
+            commute = λ {X} {x} {x'} x≈x' →
+              let
+                P = get-preimage (C.ψ X ⟨$⟩ x)
+                module P = comes-from-diagram P
+                open SetoidR (E.N)
+              in
+              begin
+              f (C.ψ X ⟨$⟩ x)         ≡⟨⟩
+              E.ψ P.i ⟨$⟩ P.preimage         ≈⟨ {!!} ⟩
+              E.ψ X ⟨$⟩ x             ≈⟨ cong (E.ψ X) x≈x' ⟩
+              E.ψ X ⟨$⟩ x'
+              ∎
             }
       in
       record { ! = ump _ ; !-unique = {!!} }
