@@ -109,10 +109,10 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
     -- We first show the lemma for the canonically constructed colimit.
     -- For the constructed colimit, we know that ≈ means that x and y
     -- are connected by a zigzag. So we can recurse over the zigzag structure.
-    filter-identification-constr : (filtered D) → ∀ {X Y : D.Obj} → (x : J₀ X) (y : J₀ Y)
+    filtered-identification-constr : (filtered D) → ∀ {X Y : D.Obj} → (x : J₀ X) (y : J₀ Y)
        → construction.coapex [[ construction.proj X ⟨$⟩ x ≈ construction.proj Y ⟨$⟩ y ]]
        → identified-in-diagram x y
-    filter-identification-constr fil {X} {Y} x y (Plus⇔.forth (f , fx≈y)) =
+    filtered-identification-constr fil {X} {Y} x y (Plus⇔.forth (f , fx≈y)) =
       record { B = Y ; inj₁ = f ; inj₂ = D.id ; identifies =
         let open SetoidR (J.F₀ Y) in
         begin
@@ -121,7 +121,7 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
         (J.F₁ D.id ⟨$⟩ y)
         ∎
         }
-    filter-identification-constr fil {X} {Y} x y (Plus⇔.back (f , fy≈x)) =
+    filtered-identification-constr fil {X} {Y} x y (Plus⇔.back (f , fy≈x)) =
       record { B = X ; inj₁ = D.id ; inj₂ = f ; identifies =
         let open SetoidR (J.F₀ X) in
         begin
@@ -130,11 +130,11 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
         (J.F₁ f ⟨$⟩ y)
         ∎
         }
-    filter-identification-constr fil {X} {Z} x z (Plus⇔.forth⁺ {_} {Y , y} {_} (f , fx≈y) y≈z) =
+    filtered-identification-constr fil {X} {Z} x z (Plus⇔.forth⁺ {_} {Y , y} {_} (f , fx≈y) y≈z) =
       let
         -- easy recursive case:
         -- f sends x to y and we have a bound of y and z:
-        y∨z = filter-identification-constr fil y z y≈z
+        y∨z = filtered-identification-constr fil y z y≈z
         module y∨z = identified-in-diagram y∨z
       in
       record {
@@ -152,12 +152,12 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
         J.F₁ y∨z.inj₂ ⟨$⟩ z
         ∎
       }
-    filter-identification-constr fil {X} {Z} x z (Plus⇔.back⁺ {_} {Y , y} {_} (f , fy≈x) y≈z) =
+    filtered-identification-constr fil {X} {Z} x z (Plus⇔.back⁺ {_} {Y , y} {_} (f , fy≈x) y≈z) =
       let
         -- non-trivial recursive case, because we now use filteredness:
         -- f sends y to x and we have a bound V of y and z:
         -- X <- Y -> V <- Z
-        V = filter-identification-constr fil y z y≈z
+        V = filtered-identification-constr fil y z y≈z
         module V = identified-in-diagram V
 
         open filtered fil
@@ -186,11 +186,11 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
         ∎
       }
 
-    filter-identification-colim : (filtered D) → ∀ {X Y : D.Obj} → (x : J₀ X) (y : J₀ Y)
+    filtered-identification-colim : (filtered D) → ∀ {X Y : D.Obj} → (x : J₀ X) (y : J₀ Y)
        → Colim.coapex [[ Colim.proj X ⟨$⟩ x ≈ Colim.proj Y ⟨$⟩ y ]]
        → identified-in-diagram x y
-    filter-identification-colim fil {X} {Y} x y x≈y =
-      filter-identification-constr fil x y constr⊢x≈y
+    filtered-identification-colim fil {X} {Y} x y x≈y =
+      filtered-identification-constr fil x y constr⊢x≈y
       where
         -- the unique cocone morphism:
         u = Colim.rep-cocone construction.colimit
