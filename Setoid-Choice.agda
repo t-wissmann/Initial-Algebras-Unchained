@@ -348,7 +348,7 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
               in
               begin
               f (C.ψ X ⟨$⟩ x)         ≡⟨⟩
-              E.ψ P.i ⟨$⟩ P.preimage         ≈⟨ {!!} ⟩
+              E.ψ P.i ⟨$⟩ P.preimage  ≈⟨ lemma P.preimage x P.x-sent-to-c ⟩
               E.ψ X ⟨$⟩ x             ≈⟨ cong (E.ψ X) x≈x' ⟩
               E.ψ X ⟨$⟩ x'
               ∎
