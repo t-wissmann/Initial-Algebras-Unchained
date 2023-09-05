@@ -231,26 +231,27 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
 
     -- lemma: A cocone is colimitting if the following conditions
     -- are met:
+    -- 0. the diagram D has upper bounds
     -- 1. every element in the Cocone Setoid is in the image
     --    of some colimit injection
     -- 2. whenever two elements in a set in the diagram are
     --    identified in the cocone, then they are already
     --    identified within the diagram.
-    filtered-colimiting : (filtered D) →
+    bounded-colimiting : (has-upper-bounds D) →
       (∀ (x : Setoid.Carrier C.N) → comes-from-diagram x) →
       (∀ {i : D.Obj} (k : KernelPairs (C.ψ i)) →
         identified-in-diagram (KernelPairs.pr₁ k) (KernelPairs.pr₂ k)) →
       -- ^- wow, agda managed to infer that (pr₁ k) is of shape J₀ X for some X
       IsLimitting C
-    filtered-colimiting fil get-preimage identify =
+    bounded-colimiting bounds get-preimage get-identifier =
       let
         ump : ∀ (E : Cocone J) → Cocone⇒ _ C E
         ump E =
           let
             module E = Cocone E
 
-            f-plain : Setoid.Carrier C.N → Setoid.Carrier E.N
-            f-plain x =
+            f : Setoid.Carrier C.N → Setoid.Carrier E.N
+            f x =
               let
                 preim = get-preimage x
                 module preim = comes-from-diagram preim
@@ -258,20 +259,58 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
               E.ψ preim.i ⟨$⟩ preim.preimage
             f-well-def : C.N ⟶ E.N
             f-well-def = record
-              { _⟨$⟩_ = f-plain ; cong =
+              { _⟨$⟩_ = f ; cong =
               λ {x} {y} x≈y →
                 let
                   X = get-preimage x
+                  module X = comes-from-diagram X
                   Y = get-preimage y
+                  module Y = comes-from-diagram Y
+                  -- x and y might come from different sets
+                  -- in the diagram, but we can take their union:
+                  module B = has-upper-bounds bounds
+
+                  V = B.upper-bound X.i Y.i
+                  inj-X = B.is-above₁ X.i Y.i
+                  inj-Y = B.is-above₂ X.i Y.i
+
+                  x-in-V = (J.F₁ inj-X ⟨$⟩ X.preimage)
+                  y-in-V = (J.F₁ inj-Y ⟨$⟩ Y.preimage)
+
+                  refl-auto : ∀ {i : D.Obj} {elem : J₀ i} → J.F₀ i [[ elem ≈ elem ]]
+                  refl-auto {i} = refl (J.F₀ i)
+
+
+                  -- but having them in the same object does not yet
+                  -- imply that they are identified. They are identified
+                  -- by the second assumption:
+                  ident : identified-in-diagram x-in-V y-in-V
+                  ident = get-identifier (record {
+                    pr₁ = x-in-V ; pr₂ = y-in-V ; identified =
+                    let open SetoidR (C.N) in
+                    begin
+                    C.ψ V ⟨$⟩ (J.F₁ inj-X ⟨$⟩ X.preimage) ≈⟨ C.commute inj-X (refl-auto) ⟩
+                    C.ψ X.i ⟨$⟩ X.preimage               ≈⟨ X.x-sent-to-c ⟩
+                    x ≈⟨ x≈y ⟩ y                         ≈˘⟨ Y.x-sent-to-c ⟩
+                    C.ψ Y.i ⟨$⟩ Y.preimage               ≈˘⟨ C.commute inj-Y (refl-auto) ⟩
+                    C.ψ V ⟨$⟩ (J.F₁ inj-Y ⟨$⟩ Y.preimage)
+                    ∎
+                    })
+
+                  open SetoidR (E.N)
                 in
-                {!!}
+                begin
+                f x ≡⟨⟩
+                E.ψ X.i ⟨$⟩ X.preimage ≈˘⟨ E.commute inj-X refl-auto ⟩
+                E.ψ V ⟨$⟩ (J.F₁ inj-X ⟨$⟩ X.preimage) ≈⟨ cong (E.ψ V) {!!} ⟩
+                E.ψ V ⟨$⟩ (J.F₁ inj-Y ⟨$⟩ Y.preimage) ≈⟨ E.commute inj-Y refl-auto ⟩
+                E.ψ Y.i ⟨$⟩ Y.preimage ≡⟨⟩
+                f y
+                ∎
               }
           in
           record {
-            arr =
-              record {
-                _⟨$⟩_ = f-plain ;
-                cong = {!!} } ;
+            arr = f-well-def ;
             commute = {!!}
             }
       in
