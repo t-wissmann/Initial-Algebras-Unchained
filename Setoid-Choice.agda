@@ -257,6 +257,14 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
                 module preim = comes-from-diagram preim
               in
               E.ψ preim.i ⟨$⟩ preim.preimage
+
+            lemma : ∀ {X Y : D.Obj} (x : J₀ X) (y : J₀ Y) →
+                      C.N [[ C.ψ X ⟨$⟩ x ≈ C.ψ Y ⟨$⟩ y ]] →
+                      E.N [[ E.ψ X ⟨$⟩ x ≈ E.ψ Y ⟨$⟩ y ]]
+            lemma {X} {Y} x y eq-in-C =
+              -- TODO: move parts from f-well-def here
+              {!!}
+
             f-well-def : C.N ⟶ E.N
             f-well-def = record
               { _⟨$⟩_ = f ; cong =
@@ -322,6 +330,20 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
               let
                 P = get-preimage (C.ψ X ⟨$⟩ x)
                 module P = comes-from-diagram P
+                -- module B = has-upper-bounds bounds
+                -- V = B.upper-bound X P.i
+                -- x-in-V = J.F₁ (B.is-above₁ X P.i) ⟨$⟩ x
+                -- pi-in-V = J.F₁ (B.is-above₂ X P.i) ⟨$⟩ P.preimage
+                -- ident : identified-in-diagram x-in-V pi-in-V
+                -- ident = get-identifier (record { pr₁ = x-in-V ; pr₂ = pi-in-V;
+                --   identified =
+                --   let open SetoidR (C.N) in
+                --   begin
+                --   C.ψ V ⟨$⟩ x-in-V ≈⟨ {!!} ⟩
+                --   C.ψ V ⟨$⟩ pi-in-V
+                --   ∎
+                --   })
+
                 open SetoidR (E.N)
               in
               begin
