@@ -1,3 +1,4 @@
+{-# OPTIONS --without-K #-}
 module Setoid-Choice where
 
 open import Level
@@ -241,4 +242,37 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
         identified-in-diagram (KernelPairs.pr₁ k) (KernelPairs.pr₂ k)) →
       -- ^- wow, agda managed to infer that (pr₁ k) is of shape J₀ X for some X
       IsLimitting C
-    filtered-colimiting = {!!}
+    filtered-colimiting fil get-preimage identify =
+      let
+        ump : ∀ (E : Cocone J) → Cocone⇒ _ C E
+        ump E =
+          let
+            module E = Cocone E
+
+            f-plain : Setoid.Carrier C.N → Setoid.Carrier E.N
+            f-plain x =
+              let
+                preim = get-preimage x
+                module preim = comes-from-diagram preim
+              in
+              E.ψ preim.i ⟨$⟩ preim.preimage
+            f-well-def : C.N ⟶ E.N
+            f-well-def = record
+              { _⟨$⟩_ = f-plain ; cong =
+              λ {x} {y} x≈y →
+                let
+                  X = get-preimage x
+                  Y = get-preimage y
+                in
+                {!!}
+              }
+          in
+          record {
+            arr =
+              record {
+                _⟨$⟩_ = f-plain ;
+                cong = {!!} } ;
+            commute = {!!}
+            }
+      in
+      record { ! = ump _ ; !-unique = {!!} }
