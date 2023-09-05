@@ -296,13 +296,14 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
                     C.ψ V ⟨$⟩ (J.F₁ inj-Y ⟨$⟩ Y.preimage)
                     ∎
                     })
+                  module ident = identified-in-diagram ident
 
                   open SetoidR (E.N)
                 in
                 begin
                 f x ≡⟨⟩
                 E.ψ X.i ⟨$⟩ X.preimage ≈˘⟨ E.commute inj-X refl-auto ⟩
-                E.ψ V ⟨$⟩ (J.F₁ inj-X ⟨$⟩ X.preimage) ≈⟨ cong (E.ψ V) {!!} ⟩
+                E.ψ V ⟨$⟩ (J.F₁ inj-X ⟨$⟩ X.preimage) ≈⟨ {!!} ⟩ -- TODO: use 'ident'
                 E.ψ V ⟨$⟩ (J.F₁ inj-Y ⟨$⟩ Y.preimage) ≈⟨ E.commute inj-Y refl-auto ⟩
                 E.ψ Y.i ⟨$⟩ Y.preimage ≡⟨⟩
                 f y
