@@ -301,11 +301,17 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
                   open SetoidR (E.N)
                 in
                 begin
-                f x ≡⟨⟩
-                E.ψ X.i ⟨$⟩ X.preimage ≈˘⟨ E.commute inj-X refl-auto ⟩
-                E.ψ V ⟨$⟩ (J.F₁ inj-X ⟨$⟩ X.preimage) ≈⟨ {!!} ⟩ -- TODO: use 'ident'
-                E.ψ V ⟨$⟩ (J.F₁ inj-Y ⟨$⟩ Y.preimage) ≈⟨ E.commute inj-Y refl-auto ⟩
-                E.ψ Y.i ⟨$⟩ Y.preimage ≡⟨⟩
+                f x                                     ≡⟨⟩
+                E.ψ X.i ⟨$⟩ X.preimage                   ≈˘⟨ E.commute inj-X refl-auto ⟩
+                E.ψ V ⟨$⟩ (J.F₁ inj-X ⟨$⟩ X.preimage)     ≡⟨⟩
+                E.ψ V ⟨$⟩ x-in-V                         ≈˘⟨ E.commute ident.inj₁ refl-auto ⟩
+                E.ψ ident.B ⟨$⟩ (J.F₁ ident.inj₁ ⟨$⟩ x-in-V)
+                    ≈⟨ cong (E.ψ ident.B) ident.identifies ⟩
+                E.ψ ident.B ⟨$⟩ (J.F₁ ident.inj₂ ⟨$⟩ y-in-V)
+                                                        ≈⟨ E.commute ident.inj₂ refl-auto ⟩
+                E.ψ V ⟨$⟩ y-in-V                         ≡⟨⟩
+                E.ψ V ⟨$⟩ (J.F₁ inj-Y ⟨$⟩ Y.preimage)     ≈⟨ E.commute inj-Y refl-auto ⟩
+                E.ψ Y.i ⟨$⟩ Y.preimage                   ≡⟨⟩
                 f y
                 ∎
               }
