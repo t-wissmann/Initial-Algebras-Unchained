@@ -245,11 +245,66 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
       IsLimitting C
     bounded-colimiting bounds get-preimage get-identifier =
       let
+        refl-auto : ∀ {i : D.Obj} {elem : J₀ i} → J.F₀ i [[ elem ≈ elem ]]
+        refl-auto {i} = refl (J.F₀ i)
+
+        -- the lemma says that whenever two elements x y from
+        -- somewhere in the diagram are identified in the cocone C,
+        -- then they must be identified in any other cocone, too.
+        -- (We have E as the first parameter to make the application
+        -- of this lemma easier)
+        lemma : ∀ (E : Cocone J) →
+                ∀ {X Y : D.Obj} (x : J₀ X) (y : J₀ Y) →
+                  C.N [[ C.ψ X ⟨$⟩ x ≈ C.ψ Y ⟨$⟩ y ]] →
+                  (Cocone.N E) [[ Cocone.ψ E X ⟨$⟩ x ≈ Cocone.ψ E Y ⟨$⟩ y ]]
+        lemma E {X} {Y} x y eq-in-C =
+          let
+            module E = Cocone E
+            module B = has-upper-bounds bounds
+
+            V = B.upper-bound X Y
+            inj-X = B.is-above₁ X Y
+            inj-Y = B.is-above₂ X Y
+
+            x-in-V = (J.F₁ inj-X ⟨$⟩ x)
+            y-in-V = (J.F₁ inj-Y ⟨$⟩ y)
+
+            -- but having them in the same object does not yet
+            -- imply that they are identified already.
+            -- They are identified in the diagram by the second assumption:
+            ident : identified-in-diagram x-in-V y-in-V
+            ident = get-identifier (record {
+              pr₁ = x-in-V ; pr₂ = y-in-V ; identified =
+              let open SetoidR (C.N) in
+              begin
+              C.ψ V ⟨$⟩ (J.F₁ inj-X ⟨$⟩ x) ≈⟨ C.commute inj-X (refl-auto) ⟩
+              C.ψ X ⟨$⟩ x                 ≈⟨ eq-in-C ⟩
+              C.ψ Y ⟨$⟩ y                 ≈˘⟨ C.commute inj-Y (refl-auto) ⟩
+              C.ψ V ⟨$⟩ (J.F₁ inj-Y ⟨$⟩ y)
+              ∎
+              })
+            module ident = identified-in-diagram ident
+
+            -- now we can show that they must be identified in E, too:
+            open SetoidR (E.N)
+          in
+          begin
+          E.ψ X ⟨$⟩ x                   ≈˘⟨ E.commute inj-X refl-auto ⟩
+          E.ψ V ⟨$⟩ (J.F₁ inj-X ⟨$⟩ x)   ≡⟨⟩
+          E.ψ V ⟨$⟩ x-in-V              ≈˘⟨ E.commute ident.inj₁ refl-auto ⟩
+          E.ψ ident.B ⟨$⟩ (J.F₁ ident.inj₁ ⟨$⟩ x-in-V)
+              ≈⟨ cong (E.ψ ident.B) ident.identifies ⟩
+          E.ψ ident.B ⟨$⟩ (J.F₁ ident.inj₂ ⟨$⟩ y-in-V)
+                                        ≈⟨ E.commute ident.inj₂ refl-auto ⟩
+          E.ψ V ⟨$⟩ y-in-V              ≡⟨⟩
+          E.ψ V ⟨$⟩ (J.F₁ inj-Y ⟨$⟩ y)   ≈⟨ E.commute inj-Y refl-auto ⟩
+          E.ψ Y ⟨$⟩ y
+          ∎
+
         ump : ∀ (E : Cocone J) → Cocone⇒ _ C E
         ump E =
           let
             module E = Cocone E
-
             f : Setoid.Carrier C.N → Setoid.Carrier E.N
             f x =
               let
@@ -257,55 +312,6 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
                 module preim = comes-from-diagram preim
               in
               E.ψ preim.i ⟨$⟩ preim.preimage
-
-            lemma : ∀ {X Y : D.Obj} (x : J₀ X) (y : J₀ Y) →
-                      C.N [[ C.ψ X ⟨$⟩ x ≈ C.ψ Y ⟨$⟩ y ]] →
-                      E.N [[ E.ψ X ⟨$⟩ x ≈ E.ψ Y ⟨$⟩ y ]]
-            lemma {X} {Y} x y eq-in-C =
-              let
-                module B = has-upper-bounds bounds
-
-                V = B.upper-bound X Y
-                inj-X = B.is-above₁ X Y
-                inj-Y = B.is-above₂ X Y
-
-                x-in-V = (J.F₁ inj-X ⟨$⟩ x)
-                y-in-V = (J.F₁ inj-Y ⟨$⟩ y)
-
-                refl-auto : ∀ {i : D.Obj} {elem : J₀ i} → J.F₀ i [[ elem ≈ elem ]]
-                refl-auto {i} = refl (J.F₀ i)
-
-                -- but having them in the same object does not yet
-                -- imply that they are identified already.
-                -- They are identified in the diagram by the second assumption:
-                ident : identified-in-diagram x-in-V y-in-V
-                ident = get-identifier (record {
-                  pr₁ = x-in-V ; pr₂ = y-in-V ; identified =
-                  let open SetoidR (C.N) in
-                  begin
-                  C.ψ V ⟨$⟩ (J.F₁ inj-X ⟨$⟩ x) ≈⟨ C.commute inj-X (refl-auto) ⟩
-                  C.ψ X ⟨$⟩ x                 ≈⟨ eq-in-C ⟩
-                  C.ψ Y ⟨$⟩ y                 ≈˘⟨ C.commute inj-Y (refl-auto) ⟩
-                  C.ψ V ⟨$⟩ (J.F₁ inj-Y ⟨$⟩ y)
-                  ∎
-                  })
-                module ident = identified-in-diagram ident
-
-                -- now we can show that they must be identified in E, too:
-                open SetoidR (E.N)
-              in
-              begin
-              E.ψ X ⟨$⟩ x                   ≈˘⟨ E.commute inj-X refl-auto ⟩
-              E.ψ V ⟨$⟩ (J.F₁ inj-X ⟨$⟩ x)   ≡⟨⟩
-              E.ψ V ⟨$⟩ x-in-V              ≈˘⟨ E.commute ident.inj₁ refl-auto ⟩
-              E.ψ ident.B ⟨$⟩ (J.F₁ ident.inj₁ ⟨$⟩ x-in-V)
-                  ≈⟨ cong (E.ψ ident.B) ident.identifies ⟩
-              E.ψ ident.B ⟨$⟩ (J.F₁ ident.inj₂ ⟨$⟩ y-in-V)
-                                           ≈⟨ E.commute ident.inj₂ refl-auto ⟩
-              E.ψ V ⟨$⟩ y-in-V              ≡⟨⟩
-              E.ψ V ⟨$⟩ (J.F₁ inj-Y ⟨$⟩ y)   ≈⟨ E.commute inj-Y refl-auto ⟩
-              E.ψ Y ⟨$⟩ y
-              ∎
 
             f-well-def : C.N ⟶ E.N
             f-well-def = record
@@ -318,7 +324,7 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
                   module Y = comes-from-diagram Y
                   open SetoidR (C.N)
                 in
-                lemma X.preimage Y.preimage (
+                lemma E X.preimage Y.preimage (
                 begin
                 C.ψ X.i ⟨$⟩ X.preimage ≈⟨ X.x-sent-to-c ⟩
                 x                     ≈⟨ x≈y ⟩
@@ -338,10 +344,39 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
               in
               begin
               f (C.ψ X ⟨$⟩ x)         ≡⟨⟩
-              E.ψ P.i ⟨$⟩ P.preimage  ≈⟨ lemma P.preimage x P.x-sent-to-c ⟩
+              E.ψ P.i ⟨$⟩ P.preimage  ≈⟨ lemma E P.preimage x P.x-sent-to-c ⟩
               E.ψ X ⟨$⟩ x             ≈⟨ cong (E.ψ X) x≈x' ⟩
               E.ψ X ⟨$⟩ x'
               ∎
             }
       in
-      record { ! = ump _ ; !-unique = {!!} }
+      record {
+        ! = ump _ ;
+        !-unique = λ {E} w {x} {y} x≈y →
+          let
+            module E = Cocone E
+            module w = Cocone⇒ w
+            f = Cocone⇒.arr (ump E)
+            module y = comes-from-diagram (get-preimage y)
+            module x = comes-from-diagram (get-preimage x)
+
+            preimages-identified =
+              -- show that x.preimage and y.preimage
+              -- are sent to the same in C.N
+              let open SetoidR (C.N) in
+              begin
+              C.ψ x.i ⟨$⟩ x.preimage ≈⟨ x.x-sent-to-c ⟩
+              x                     ≈⟨ x≈y ⟩
+              y                     ≈˘⟨ y.x-sent-to-c ⟩
+              C.ψ y.i ⟨$⟩ y.preimage
+              ∎
+
+            open SetoidR (E.N)
+          in
+          begin
+          f ⟨$⟩ x         ≈⟨ lemma E x.preimage y.preimage preimages-identified ⟩
+          E.ψ y.i ⟨$⟩ y.preimage                  ≈˘⟨ w.commute refl-auto ⟩
+          w.arr ⟨$⟩ (C.ψ y.i ⟨$⟩ y.preimage)       ≈⟨ cong w.arr y.x-sent-to-c ⟩
+          w.arr ⟨$⟩ y
+          ∎
+      }
