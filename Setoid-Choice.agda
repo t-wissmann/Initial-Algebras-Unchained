@@ -229,9 +229,8 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
         x-sent-to-c : C.N [[ ((C.ψ i) ⟨$⟩ preimage) ≈ x ]]
 
 
-    -- lemma: A cocone is colimitting if the following conditions
-    -- are met:
-    -- 0. the diagram D has upper bounds
+    -- Lemma: For a diagram with upper bounds, a cocone is colimitting if the
+    -- following conditions are met:
     -- 1. every element in the Cocone Setoid is in the image
     --    of some colimit injection
     -- 2. whenever two elements in a set in the diagram are
