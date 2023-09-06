@@ -262,8 +262,50 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
                       C.N [[ C.ψ X ⟨$⟩ x ≈ C.ψ Y ⟨$⟩ y ]] →
                       E.N [[ E.ψ X ⟨$⟩ x ≈ E.ψ Y ⟨$⟩ y ]]
             lemma {X} {Y} x y eq-in-C =
-              -- TODO: move parts from f-well-def here
-              {!!}
+              let
+                module B = has-upper-bounds bounds
+
+                V = B.upper-bound X Y
+                inj-X = B.is-above₁ X Y
+                inj-Y = B.is-above₂ X Y
+
+                x-in-V = (J.F₁ inj-X ⟨$⟩ x)
+                y-in-V = (J.F₁ inj-Y ⟨$⟩ y)
+
+                refl-auto : ∀ {i : D.Obj} {elem : J₀ i} → J.F₀ i [[ elem ≈ elem ]]
+                refl-auto {i} = refl (J.F₀ i)
+
+                -- but having them in the same object does not yet
+                -- imply that they are identified already.
+                -- They are identified in the diagram by the second assumption:
+                ident : identified-in-diagram x-in-V y-in-V
+                ident = get-identifier (record {
+                  pr₁ = x-in-V ; pr₂ = y-in-V ; identified =
+                  let open SetoidR (C.N) in
+                  begin
+                  C.ψ V ⟨$⟩ (J.F₁ inj-X ⟨$⟩ x) ≈⟨ C.commute inj-X (refl-auto) ⟩
+                  C.ψ X ⟨$⟩ x                 ≈⟨ eq-in-C ⟩
+                  C.ψ Y ⟨$⟩ y                 ≈˘⟨ C.commute inj-Y (refl-auto) ⟩
+                  C.ψ V ⟨$⟩ (J.F₁ inj-Y ⟨$⟩ y)
+                  ∎
+                  })
+                module ident = identified-in-diagram ident
+
+                -- now we can show that they must be identified in E, too:
+                open SetoidR (E.N)
+              in
+              begin
+              E.ψ X ⟨$⟩ x                   ≈˘⟨ E.commute inj-X refl-auto ⟩
+              E.ψ V ⟨$⟩ (J.F₁ inj-X ⟨$⟩ x)   ≡⟨⟩
+              E.ψ V ⟨$⟩ x-in-V              ≈˘⟨ E.commute ident.inj₁ refl-auto ⟩
+              E.ψ ident.B ⟨$⟩ (J.F₁ ident.inj₁ ⟨$⟩ x-in-V)
+                  ≈⟨ cong (E.ψ ident.B) ident.identifies ⟩
+              E.ψ ident.B ⟨$⟩ (J.F₁ ident.inj₂ ⟨$⟩ y-in-V)
+                                           ≈⟨ E.commute ident.inj₂ refl-auto ⟩
+              E.ψ V ⟨$⟩ y-in-V              ≡⟨⟩
+              E.ψ V ⟨$⟩ (J.F₁ inj-Y ⟨$⟩ y)   ≈⟨ E.commute inj-Y refl-auto ⟩
+              E.ψ Y ⟨$⟩ y
+              ∎
 
             f-well-def : C.N ⟶ E.N
             f-well-def = record
@@ -274,54 +316,16 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
                   module X = comes-from-diagram X
                   Y = get-preimage y
                   module Y = comes-from-diagram Y
-                  -- x and y might come from different sets
-                  -- in the diagram, but we can take their union:
-                  module B = has-upper-bounds bounds
-
-                  V = B.upper-bound X.i Y.i
-                  inj-X = B.is-above₁ X.i Y.i
-                  inj-Y = B.is-above₂ X.i Y.i
-
-                  x-in-V = (J.F₁ inj-X ⟨$⟩ X.preimage)
-                  y-in-V = (J.F₁ inj-Y ⟨$⟩ Y.preimage)
-
-                  refl-auto : ∀ {i : D.Obj} {elem : J₀ i} → J.F₀ i [[ elem ≈ elem ]]
-                  refl-auto {i} = refl (J.F₀ i)
-
-
-                  -- but having them in the same object does not yet
-                  -- imply that they are identified. They are identified
-                  -- by the second assumption:
-                  ident : identified-in-diagram x-in-V y-in-V
-                  ident = get-identifier (record {
-                    pr₁ = x-in-V ; pr₂ = y-in-V ; identified =
-                    let open SetoidR (C.N) in
-                    begin
-                    C.ψ V ⟨$⟩ (J.F₁ inj-X ⟨$⟩ X.preimage) ≈⟨ C.commute inj-X (refl-auto) ⟩
-                    C.ψ X.i ⟨$⟩ X.preimage               ≈⟨ X.x-sent-to-c ⟩
-                    x ≈⟨ x≈y ⟩ y                         ≈˘⟨ Y.x-sent-to-c ⟩
-                    C.ψ Y.i ⟨$⟩ Y.preimage               ≈˘⟨ C.commute inj-Y (refl-auto) ⟩
-                    C.ψ V ⟨$⟩ (J.F₁ inj-Y ⟨$⟩ Y.preimage)
-                    ∎
-                    })
-                  module ident = identified-in-diagram ident
-
-                  open SetoidR (E.N)
+                  open SetoidR (C.N)
                 in
+                lemma X.preimage Y.preimage (
                 begin
-                f x                                     ≡⟨⟩
-                E.ψ X.i ⟨$⟩ X.preimage                   ≈˘⟨ E.commute inj-X refl-auto ⟩
-                E.ψ V ⟨$⟩ (J.F₁ inj-X ⟨$⟩ X.preimage)     ≡⟨⟩
-                E.ψ V ⟨$⟩ x-in-V                         ≈˘⟨ E.commute ident.inj₁ refl-auto ⟩
-                E.ψ ident.B ⟨$⟩ (J.F₁ ident.inj₁ ⟨$⟩ x-in-V)
-                    ≈⟨ cong (E.ψ ident.B) ident.identifies ⟩
-                E.ψ ident.B ⟨$⟩ (J.F₁ ident.inj₂ ⟨$⟩ y-in-V)
-                                                        ≈⟨ E.commute ident.inj₂ refl-auto ⟩
-                E.ψ V ⟨$⟩ y-in-V                         ≡⟨⟩
-                E.ψ V ⟨$⟩ (J.F₁ inj-Y ⟨$⟩ Y.preimage)     ≈⟨ E.commute inj-Y refl-auto ⟩
-                E.ψ Y.i ⟨$⟩ Y.preimage                   ≡⟨⟩
-                f y
+                C.ψ X.i ⟨$⟩ X.preimage ≈⟨ X.x-sent-to-c ⟩
+                x                     ≈⟨ x≈y ⟩
+                y                     ≈˘⟨ Y.x-sent-to-c ⟩
+                C.ψ Y.i ⟨$⟩ Y.preimage
                 ∎
+                )
               }
           in
           record {
@@ -330,20 +334,6 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
               let
                 P = get-preimage (C.ψ X ⟨$⟩ x)
                 module P = comes-from-diagram P
-                -- module B = has-upper-bounds bounds
-                -- V = B.upper-bound X P.i
-                -- x-in-V = J.F₁ (B.is-above₁ X P.i) ⟨$⟩ x
-                -- pi-in-V = J.F₁ (B.is-above₂ X P.i) ⟨$⟩ P.preimage
-                -- ident : identified-in-diagram x-in-V pi-in-V
-                -- ident = get-identifier (record { pr₁ = x-in-V ; pr₂ = pi-in-V;
-                --   identified =
-                --   let open SetoidR (C.N) in
-                --   begin
-                --   C.ψ V ⟨$⟩ x-in-V ≈⟨ {!!} ⟩
-                --   C.ψ V ⟨$⟩ pi-in-V
-                --   ∎
-                --   })
-
                 open SetoidR (E.N)
               in
               begin
