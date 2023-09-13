@@ -7,6 +7,7 @@ open import Categories.Diagram.Colimit using (Colimit)
 open import Categories.Diagram.Cocone
 open import Categories.Diagram.Cocone.Properties
 open import Categories.Category.Construction.Cocones
+open import Categories.Category.SubCategory
 open import Categories.Object.Initial
 open import Categories.Category.Construction.Thin
 open import Categories.Category.Cocomplete
@@ -53,25 +54,39 @@ preserves-colimit : (J : Functor 𝒟 𝒞) → (F : Functor 𝒞 ℰ) → Set _
 preserves-colimit J F =
   ∀ (colim : Colimit J) → IsInitial (Cocones (F ∘F J)) (F-map-Coconeˡ F (Colimit.colimit colim))
 
+-- For each family of fp objects and another objects, we have a slice category:
+-- _↓_ : {I : Set o'} → (𝒞-fp : I → 𝒞.Obj) → 𝒞.Obj → Category o' ℓ e
+-- _↓_ {I} 𝒞-fp X = SubCategory ? (record {
+--   U = 𝒞-fp ;
+--   R = {!!} ;
+--   Rid = {!!} ;
+--   _∘R_ = {!!} })
+
 module _ (P : Category o' ℓ' e' → Set prop-level) where
   presented : 𝒞.Obj → Set _
   presented X =
-   ∀ (𝒟 : Category o' ℓ' e') →    -- forall diagram schemes
-   P 𝒟 →                          -- satisfying P
-   (J : Functor 𝒟 𝒞) →            -- and all their diagrams
-   preserves-colimit J (Hom[ 𝒞 ][ X ,-]) -- the hom-functor preserves all (existing) colimits
+    ∀ (𝒟 : Category o' ℓ' e') →    -- forall diagram schemes
+    P 𝒟 →                          -- satisfying P
+    (J : Functor 𝒟 𝒞) →            -- and all their diagrams
+    preserves-colimit J (Hom[ 𝒞 ][ X ,-]) -- the hom-functor preserves all (existing) colimits
 
 
   record LocallyPresentable (P : Category o' ℓ' e' → Set prop-level)
          : Set (o ⊔ suc (ℓ ⊔ e ⊔ o' ⊔ ℓ' ⊔ e' ⊔ prop-level)) where
     field
-      -- a (small)family (resp 'set) of objects
+      -- a (small)family (resp. 'set') of objects
       I : Set o'
       𝒞-fp : I → 𝒞.Obj
       -- and every element of this family is fp
       all-I-fp : ∀ (i : I) → presented (𝒞-fp i)
-      -- we have all colimits
-      𝒞-cocomplete : Cocomplete o' ℓ' e' 𝒞
+      -- we have all colimits in 𝒞
+      𝒞-colim : Cocomplete o' ℓ' e' 𝒞
+      -- for each object, we have a diagram scheme
+      fp↓_ : ∀ (X : 𝒞.Obj) → Category o' ℓ' e'
+      -- and a diagram
+      object-diagram : ∀ (X : 𝒞.Obj) → Functor (fp↓ X) (FullSubCategory 𝒞 𝒞-fp)
+      -- object-via-fp : ∀ (X : 𝒞.Obj) → 𝒞-colim (object-diagram X)
+
 
 
 
