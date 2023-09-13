@@ -9,6 +9,7 @@ open import Categories.Diagram.Cocone.Properties
 open import Categories.Category.Construction.Cocones
 open import Categories.Object.Initial
 open import Categories.Category.Construction.Thin
+open import Categories.Category.Cocomplete
 
 open import Categories.Functor using (_∘F_)
 
@@ -69,6 +70,8 @@ module _ (P : Category o' ℓ' e' → Set prop-level) where
       𝒞-fp : I → 𝒞.Obj
       -- and every element of this family is fp
       all-I-fp : ∀ (i : I) → presented (𝒞-fp i)
+      -- we have all colimits
+      𝒞-cocomplete : Cocomplete o' ℓ' e' 𝒞
 
 
 
