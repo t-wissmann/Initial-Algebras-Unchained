@@ -27,7 +27,7 @@ open import Relation.Binary using (Poset)
 -- same concepts, because they both boil down to having bounds for any finite
 -- set of elements. The advantage is that we do not need any ordinals at all.
 --
-module LFP {o ℓ e} {𝒞 : Category o ℓ e} (κ : Set ℓ) where
+module LFP {o ℓ e} {𝒞 : Category o ℓ e} where
 
 module 𝒞 = Category 𝒞
 
@@ -41,6 +41,8 @@ private
     o' ℓ' e' : Level
     -- diagram scheme:
     𝒟 : Category o' ℓ' e'
+    -- property of a diagram scheme:
+    prop-level : Level
     -- some other category
     o'' ℓ'' e'' : Level
     ℰ : Category o'' ℓ'' e''
@@ -50,26 +52,30 @@ preserves-colimit : (J : Functor 𝒟 𝒞) → (F : Functor 𝒞 ℰ) → Set _
 preserves-colimit J F =
   ∀ (colim : Colimit J) → IsInitial (Cocones (F ∘F J)) (F-map-Coconeˡ F (Colimit.colimit colim))
 
-is-upper-bound : { o' ℓ₁ ℓ₂ : _ } → (P : Poset o' ℓ₁ ℓ₂) → (fam : κ → Poset.Carrier P) → (b : Poset.Carrier P) → Set _
-is-upper-bound P fam b = ∀ (x : κ) → fam x ≤ b
-  where open Poset P
+module _ (P : Category o' ℓ' e' → Set prop-level) where
+  presented : 𝒞.Obj → Set _
+  presented X =
+   ∀ (𝒟 : Category o' ℓ' e') →    -- forall diagram schemes
+   P 𝒟 →                          -- satisfying P
+   (J : Functor 𝒟 𝒞) →            -- and all their diagrams
+   preserves-colimit J (Hom[ 𝒞 ][ X ,-]) -- the hom-functor preserves all (existing) colimits
 
-record UpperBound { o' ℓ₁ ℓ₂ : _ } (P : Poset o' ℓ₁ ℓ₂) (fam : κ → Poset.Carrier P) : Set (suc (o' ⊔ ℓ₁ ⊔ ℓ₂) ⊔ ℓ) where
-  field
-    bound : Poset.Carrier P
-    is-above : is-upper-bound P fam bound
 
-directed : { o' ℓ₁ ℓ₂ : _ } → (P : Poset o' ℓ₁ ℓ₂) → Set _
-directed P = ∀ (fam : κ → Poset.Carrier P) → UpperBound P fam
+  record LocallyPresentable (P : Category o' ℓ' e' → Set prop-level)
+         : Set (o ⊔ suc (ℓ ⊔ e ⊔ o' ⊔ ℓ' ⊔ e' ⊔ prop-level)) where
+    field
+      -- a (small)family (resp 'set) of objects
+      I : Set o'
+      𝒞-fp : I → 𝒞.Obj
+      -- and every element of this family is fp
+      all-I-fp : ∀ (i : I) → presented (𝒞-fp i)
 
-non-empty : { o' ℓ₁ ℓ₂ : _ } → (P : Poset o' ℓ₁ ℓ₂) → Set _
-non-empty P = Poset.Carrier P
 
-is-presented : { o' e' ℓ₁ ℓ₂ : Level } → 𝒞.Obj → Set _
-is-presented {o'} {e'} {ℓ₁} {ℓ₂} X =
-  ∀ (P : Poset o' ℓ₁ ℓ₂) →    -- forall diagram schemes
-  non-empty P →               -- which are non-empty
-  directed P →                -- and are directed
-  (J : Functor (Thin e' P) 𝒞) →  -- and all their diagrams
-  preserves-colimit J (Hom[ 𝒞 ][ X ,-]) -- the hom-functor preserves all (existing) colimits
 
+-- is-presented : { o' e' ℓ₁ ℓ₂ : Level } → 𝒞.Obj → Set _
+-- is-presented {o'} {e'} {ℓ₁} {ℓ₂} X =
+--   ∀ (P : Poset o' ℓ₁ ℓ₂) →    -- forall diagram schemes
+--   non-empty P →               -- which are non-empty
+--   directed P →                -- and are directed
+--   (J : Functor (Thin e' P) 𝒞) →  -- and all their diagrams
+--   preserves-colimit J (Hom[ 𝒞 ][ X ,-]) -- the hom-functor preserves all (existing) colimits

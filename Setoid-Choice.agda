@@ -23,6 +23,7 @@ open import Categories.Category.Construction.Cocones using (Cocones)
 open import Categories.Category.Instance.Properties.Setoids.Cocomplete
 open import Filtered
 
+open import Unchained-Utils using (IsLimitting)
 import Categories.Category.Construction.Cocones as Coc
 import Relation.Binary.Reasoning.Setoid as RS
 
@@ -208,9 +209,6 @@ module _ {o ℓ e} c ℓ' {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
 
 
   -- the next results characterize: when is a Cocone a Colimit in Setoids?
-  IsLimitting : Cocone J → Set _
-  IsLimitting = IsInitial (Cocones J)
-
   open import Function.Equality using (_⟶_)
   -- (f: A ⟶ B)
   record KernelPairs {o'' e'' : Level} {A B : Setoid o'' e''} (f : A ⟶ B) : Set (o'' ⊔ e'') where

@@ -139,4 +139,6 @@ FullSub-Colimit {D = D} {I = I} U J plain-C-colim lifted-colim-obj iso =
   in
   record { initial = record { ⊥ = Sub-Cocone ; ⊥-is-initial = Sub-Cocone-initial } }
 
-
+-- The property that a cocone is Colimitting/Limitting:
+IsLimitting : {o' ℓ' e' : Level} {D : Category o' ℓ' e'} {J : Functor D C} → Cocone J → Set _
+IsLimitting cocone = IsInitial (Cocones _) cocone
