@@ -4,13 +4,17 @@ open import Level
 open import Categories.Category
 open import Categories.Functor using (Functor)
 open import Categories.Diagram.Colimit using (Colimit)
-open import Categories.Diagram.Cocone
 open import Categories.Diagram.Cocone.Properties
 open import Categories.Category.Construction.Cocones
 open import Categories.Category.SubCategory
+open import Categories.Functor.Construction.SubCategory
 open import Categories.Object.Initial
 open import Categories.Category.Construction.Thin
 open import Categories.Category.Cocomplete
+open import Categories.Category.Slice
+open import Data.Product
+
+open import Unchained-Utils
 
 open import Categories.Functor using (_∘F_)
 
@@ -33,6 +37,7 @@ module LFP {o ℓ e} {𝒞 : Category o ℓ e} where
 
 module 𝒞 = Category 𝒞
 
+open import Categories.Functor.Slice (𝒞) using (Forgetful)
 open import Categories.Functor.Hom
 
 open Hom
@@ -55,12 +60,23 @@ preserves-colimit J F =
   ∀ (colim : Colimit J) → IsInitial (Cocones (F ∘F J)) (F-map-Coconeˡ F (Colimit.colimit colim))
 
 -- For each family of fp objects and another objects, we have a slice category:
--- _↓_ : {I : Set o'} → (𝒞-fp : I → 𝒞.Obj) → 𝒞.Obj → Category o' ℓ e
--- _↓_ {I} 𝒞-fp X = SubCategory ? (record {
---   U = 𝒞-fp ;
---   R = {!!} ;
---   Rid = {!!} ;
---   _∘R_ = {!!} })
+Cat[_↓_] : {I : Set o'} → (𝒞-fp : I → 𝒞.Obj) → 𝒞.Obj → Category (o' ⊔ ℓ) (ℓ ⊔ e) e
+Cat[_↓_]  {I = I} 𝒞-fp X = FullSubCategory (Slice 𝒞 X) objects
+  where
+    open Category 𝒞
+    objects : Σ[ i ∈ I ] (𝒞-fp i ⇒ X) → Category.Obj (Slice 𝒞 X)
+    objects (i , i⇒X) = sliceobj i⇒X
+
+-- and an obvious forgetful functor (resp. diagram)
+Functor[_↓_] : {I : Set o'} → (𝒞-fp : I → 𝒞.Obj) → (X : 𝒞.Obj) → Functor (Cat[ 𝒞-fp ↓ X ]) 𝒞
+Functor[_↓_]  𝒞-fp X = Forgetful ∘F (FullSub _)
+
+-- which has a canonical Cocone: X itself
+Cocone[_↓_] : {I : Set o'} → (𝒞-fp : I → 𝒞.Obj) → (X : 𝒞.Obj) → Cocone (Functor[ 𝒞-fp ↓ X ])
+Cocone[_↓_]  𝒞-fp X = record { coapex = record {
+    ψ = λ (i , i⇒X) → i⇒X ;
+    commute = Slice⇒.△
+  } }
 
 module _ (P : Category o' ℓ' e' → Set prop-level) where
   presented : 𝒞.Obj → Set _
@@ -71,21 +87,16 @@ module _ (P : Category o' ℓ' e' → Set prop-level) where
     preserves-colimit J (Hom[ 𝒞 ][ X ,-]) -- the hom-functor preserves all (existing) colimits
 
 
-  record LocallyPresentable (P : Category o' ℓ' e' → Set prop-level)
+  record WeaklyLFP (P : Category o' ℓ' e' → Set prop-level)
          : Set (o ⊔ suc (ℓ ⊔ e ⊔ o' ⊔ ℓ' ⊔ e' ⊔ prop-level)) where
     field
       -- a (small)family (resp. 'set') of objects
       I : Set o'
       𝒞-fp : I → 𝒞.Obj
-      -- and every element of this family is fp
+      -- of which every element is fp:
       all-I-fp : ∀ (i : I) → presented (𝒞-fp i)
-      -- we have all colimits in 𝒞
-      𝒞-colim : Cocomplete o' ℓ' e' 𝒞
-      -- for each object, we have a diagram scheme
-      fp↓_ : ∀ (X : 𝒞.Obj) → Category o' ℓ' e'
-      -- and a diagram
-      object-diagram : ∀ (X : 𝒞.Obj) → Functor (fp↓ X) (FullSubCategory 𝒞 𝒞-fp)
-      -- object-via-fp : ∀ (X : 𝒞.Obj) → 𝒞-colim (object-diagram X)
+      -- And all other objects are built from those fp objects:
+      -- build-object : ∀ (X : 𝒞.Obj) → IsLimitting (Cocone[ 𝒞-fp ↓ X])
 
 
 
