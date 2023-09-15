@@ -90,13 +90,13 @@ module _ (P : Category o' ℓ' e' → Set prop-level) where
   record WeaklyLFP (P : Category o' ℓ' e' → Set prop-level)
          : Set (o ⊔ suc (ℓ ⊔ e ⊔ o' ⊔ ℓ' ⊔ e' ⊔ prop-level)) where
     field
-      -- a (small)family (resp. 'set') of objects
+      -- a (small)family (resp. 'set') of objects ...
       I : Set o'
       𝒞-fp : I → 𝒞.Obj
-      -- of which every element is fp:
+      -- ... of which every element is fp:
       all-I-fp : ∀ (i : I) → presented (𝒞-fp i)
-      -- And all other objects are built from those fp objects:
-      build-object : ∀ (X : 𝒞.Obj) → IsLimitting (Cocone[ 𝒞-fp ↓ X ])
+      -- All other objects are built from those fp objects:
+      build-from-fp : ∀ (X : 𝒞.Obj) → IsLimitting (Cocone[ 𝒞-fp ↓ X ])
 
 
 
