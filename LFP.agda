@@ -96,7 +96,7 @@ module _ (P : Category o' ℓ' e' → Set prop-level) where
       -- of which every element is fp:
       all-I-fp : ∀ (i : I) → presented (𝒞-fp i)
       -- And all other objects are built from those fp objects:
-      -- build-object : ∀ (X : 𝒞.Obj) → IsLimitting (Cocone[ 𝒞-fp ↓ X])
+      build-object : ∀ (X : 𝒞.Obj) → IsLimitting (Cocone[ 𝒞-fp ↓ X ])
 
 
 
