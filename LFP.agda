@@ -33,7 +33,7 @@ open import Relation.Binary using (Poset)
 -- same concepts, because they both boil down to having bounds for any finite
 -- set of elements. The advantage is that we do not need any ordinals at all.
 --
-module LFP {o ℓ e} {𝒞 : Category o ℓ e} where
+module LFP {o ℓ e} (𝒞 : Category o ℓ e) where
 
 module 𝒞 = Category 𝒞
 
@@ -87,8 +87,7 @@ module _ (P : Category o' ℓ' e' → Set prop-level) where
     preserves-colimit J (Hom[ 𝒞 ][ X ,-]) -- the hom-functor preserves all (existing) colimits
 
 
-  record WeaklyLFP (P : Category o' ℓ' e' → Set prop-level)
-         : Set (o ⊔ suc (ℓ ⊔ e ⊔ o' ⊔ ℓ' ⊔ e' ⊔ prop-level)) where
+  record WeaklyLFP : Set (o ⊔ suc (ℓ ⊔ e ⊔ o' ⊔ ℓ' ⊔ e' ⊔ prop-level)) where
     field
       -- a (small)family (resp. 'set') of objects ...
       I : Set o'
