@@ -14,7 +14,7 @@ open import Data.Fin
 open import Relation.Binary.PropositionalEquality
 open import Relation.Binary.PropositionalEquality.Properties
 
-module Setoid-LFP where
+module Setoids-LFP where
 
 private
   variable

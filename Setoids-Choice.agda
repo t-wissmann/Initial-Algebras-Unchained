@@ -1,5 +1,5 @@
 {-# OPTIONS --without-K #-}
-module Setoid-Choice where
+module Setoids-Choice where
 
 open import Level
 open import Relation.Binary using (Setoid; Preorder; Rel)
