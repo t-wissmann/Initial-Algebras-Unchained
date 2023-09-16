@@ -9,6 +9,7 @@ open import Filtered renaming (filtered to filtered-general)
 open import LFP
 open import Data.Nat.Base
 open import Data.Fin
+open import Relation.Binary.PropositionalEquality.Properties renaming (setoid to ≡-setoid)
 
 module Setoid-LFP where
 
@@ -20,10 +21,11 @@ private
 filtered : Category o ℓ ℓ → Set _
 filtered = filtered-general
 
-setoids-LFP : WeaklyLFP (Setoids o ℓ) filtered
+
+setoids-LFP : WeaklyLFP (Setoids o o) filtered
 setoids-LFP = record {
   I = ℕ ;
-  𝒞-fp = λ n → {!!} ;
+  𝒞-fp = λ n → ≡-setoid {!!};
   all-I-fp = λ i 𝒟 x J → {!!} ;
   build-from-fp = {!!}
   }
