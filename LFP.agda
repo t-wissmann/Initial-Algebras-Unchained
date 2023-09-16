@@ -78,7 +78,7 @@ Cocone[_↓_]  𝒞-fp X = record { coapex = record {
     commute = Slice⇒.△
   } }
 
-module _ (P : Category o' ℓ' e' → Set prop-level) where
+module _ (o' ℓ' e' : _) (P : Category o' ℓ' e' → Set prop-level) where
   presented : 𝒞.Obj → Set _
   presented X =
     ∀ (𝒟 : Category o' ℓ' e') →    -- forall diagram schemes
