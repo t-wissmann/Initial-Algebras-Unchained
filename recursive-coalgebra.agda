@@ -65,14 +65,13 @@ solution-precompose {B} {D} {A} sol mor =
   }
 
 record IsRecursive (X : F-Coalgebra F) : Set (o ⊔ ℓ ⊔ e) where
-  open Category C
   morph = Solution.f
   field
     -- there is at least one solution:
     recur : (B : F-Algebra F) → Solution X B
     -- there is at most one solution:
     unique : (B : F-Algebra F) → (g h : Solution X B) →
-      morph g ≈ morph h
+      C [ morph g ≈ morph h ]
 
 
 -- whenever a recursive coalgebra is an iso, it is the initial algebra:
