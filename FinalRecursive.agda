@@ -22,6 +22,14 @@ private
     𝒟 : Category ℓ ℓ ℓ
     prop-level : Level
 
+-- the following disables universe level checking.
+-- This might be a workaround to the isse, but does it lead to
+-- (known) inconsistencies?
+{-# NO_UNIVERSE_CHECK #-}
+record IsRecursiveHack {ℓ} : Set ℓ where
+  field
+    foo : (A : Set ℓ) → A
+
 -- The global assumptions:
 module _
   (P : Category ℓ ℓ ℓ → Set prop-level)
