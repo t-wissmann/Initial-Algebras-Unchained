@@ -4,7 +4,12 @@ open import Level
 open import Categories.Category
 open import Categories.Functor using (Functor)
 open import Categories.Category.Cocomplete
+open import Categories.Diagram.Colimit
+open import Categories.Category.Construction.F-Coalgebras
+open import Categories.Functor.Construction.SubCategory using (FullSub)
 open import Categories.Functor using (Functor; Endofunctor)
+
+open import Categories.Functor.Coalgebra
 
 open import Data.Product
 open import LFP
@@ -41,13 +46,37 @@ module _
   module 𝒞-lfp = WeaklyLFP 𝒞-lfp
   module F = Functor F
 
-  R-Coalgebras-fp : Category ℓ ℓ ℓ
-  R-Coalgebras-fp = FullSubCategory (R-Coalgebras) {!!}
+  record FinCoalgebra : Set (ℓ) where
+    field
+      carrier : 𝒞-lfp.I
+      structure : 𝒞 [ (𝒞-lfp.𝒞-fp carrier) , F.F₀(𝒞-lfp.𝒞-fp carrier) ]
+
+    coalgebra : F-Coalgebra F
+    coalgebra = to-Coalgebra structure
+
+  record FinCoalgebraProp {p-lev : Level} (P : F-Coalgebra F → Set p-lev) : Set (ℓ ⊔ p-lev) where
+    field
+      fin-coalg : FinCoalgebra
+      satisfies : P (FinCoalgebra.coalgebra fin-coalg)
+    open FinCoalgebra fin-coalg public
+
+  FCPSubCat : {p-lev : Level} (P : F-Coalgebra F → Set p-lev) → Category (ℓ ⊔ p-lev) ℓ ℓ
+  FCPSubCat P = FullSubCategory (F-Coalgebras F) {I = FinCoalgebraProp P} FinCoalgebraProp.coalgebra
     where
       open import Categories.Category.SubCategory using (FullSubCategory)
-      open Category 𝒞
-      open Functor F
-      -- Here, we have an issue: how can we define the family of fp R-Coalgebras
-      -- such that it lives on the level ℓ and does not require level o?
-      -- family : Σ[ i ∈ 𝒞-lfp.I ](?)
-      -- family = {!!}
+
+  FinRCoalgebra : Set (o ⊔ ℓ)
+  FinRCoalgebra = FinCoalgebraProp {o ⊔ ℓ} IsRecursive
+
+  inj-FinRCoalgebra : FinRCoalgebra → R-Coalgebra
+  inj-FinRCoalgebra coalg = record { coalg = coalgebra ; ump = satisfies }
+    where open FinCoalgebraProp coalg
+
+  R-Coalgebras-fp : Category (o ⊔ ℓ) ℓ ℓ
+  R-Coalgebras-fp = FullSubCategory (R-Coalgebras) inj-FinRCoalgebra
+    where open import Categories.Category.SubCategory using (FullSubCategory)
+
+  R-Coalgebras-fp-functor : Functor R-Coalgebras-fp (F-Coalgebras F)
+  R-Coalgebras-fp-functor = FullSub (F-Coalgebras F)
+
+  module _ (fin-join : Colimit R-Coalgebras-fp-functor) where
