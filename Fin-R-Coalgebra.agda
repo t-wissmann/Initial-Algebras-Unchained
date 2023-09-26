@@ -10,8 +10,6 @@ import Categories.Functor.Coalgebra as Coalg
 open import Categories.Functor.Construction.SubCategory
 open import Categories.Diagram.Colimit
 
-
-
 module Fin-R-Coalgebra {o ℓ e}
   {P-level : Level}
   {Idx : Set ℓ}
@@ -22,9 +20,11 @@ module Fin-R-Coalgebra {o ℓ e}
   where
 
 open import recursive-coalgebra 𝒞 F
+open import LFP 𝒞
 
-module 𝒞 = Category 𝒞
-module F = Functor F
+private
+  module 𝒞 = Category 𝒞
+  module F = Functor F
 
 record FinCoalgebra : Set (ℓ ⊔ P-level) where
   -- A finite coalgebra with a property: Essentially, it lives on level ℓ,
@@ -58,3 +58,8 @@ record LFinCoalgebra {o' ℓ' e'} : Set (o ⊔ ℓ ⊔ e ⊔ P-level ⊔ suc (o'
     D : Functor 𝒟 FinCoalgebras
     -- 3. and a colimit in all coalgebras:
     colim : Colimit (FinCoalgebras-to-Coalg ∘F D)
+
+  open Colimit colim public
+
+  to-Coalgebra : F-Coalgebra F
+  to-Coalgebra = coapex

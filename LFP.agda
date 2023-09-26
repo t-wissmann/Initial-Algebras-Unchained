@@ -35,7 +35,8 @@ open import Relation.Binary using (Poset)
 --
 module LFP {o ℓ e} (𝒞 : Category o ℓ e) where
 
-module 𝒞 = Category 𝒞
+private
+  module 𝒞 = Category 𝒞
 
 open import Categories.Functor.Slice (𝒞) using (Forgetful)
 open import Categories.Functor.Hom
@@ -90,12 +91,18 @@ module _ (o' ℓ' e' : _) (P : Category o' ℓ' e' → Set prop-level) where
   record WeaklyLFP : Set (o ⊔ suc (ℓ ⊔ e ⊔ o' ⊔ ℓ' ⊔ e' ⊔ prop-level)) where
     field
       -- a (small)family (resp. 'set') of objects ...
-      I : Set o'
-      𝒞-fp : I → 𝒞.Obj
+      Idx : Set o'
+      fin : Idx → 𝒞.Obj
       -- ... of which every element is fp:
-      all-I-fp : ∀ (i : I) → presented (𝒞-fp i)
+      fin-presented : ∀ (i : Idx) → presented (fin i)
       -- All other objects are built from those fp objects:
-      build-from-fp : ∀ (X : 𝒞.Obj) → IsLimitting (Cocone[ 𝒞-fp ↓ X ])
+      build-from-fin : ∀ (X : 𝒞.Obj) → IsLimitting (Cocone[ fin ↓ X ])
+
+    canonical-diagram-scheme : ∀ (X : 𝒞.Obj) → Category (o' ⊔ ℓ) (e ⊔ ℓ) e
+    canonical-diagram-scheme X = Cat[ fin ↓ X ]
+
+    canonical-colimit : ∀ (X : 𝒞.Obj) → Colimit (Functor[ fin ↓ X ])
+    canonical-colimit X = Colimit-from-prop (build-from-fin X)
 
 
 
