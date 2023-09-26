@@ -2,9 +2,7 @@
 
 mkdir -p _html/
 
-for i in *.agda ; do
-    agda --html --html-dir=_html/ "$i"
-done
+agda --html --html-dir=_html/ "index.agda"
 
-echo "open the doc in your browser: file://`pwd`/_html/"
+echo "open the doc in your browser: file://`pwd`/_html/index.html"
 
