@@ -6,6 +6,7 @@ open import Categories.Functor using (Functor; _∘F_)
 open import Categories.Functor.Hom
 open import Categories.Category.Cocomplete
 open import Categories.Diagram.Colimit
+open import Agda.Builtin.Equality
 open import Categories.Category.Construction.F-Coalgebras
 open import Categories.Functor.Construction.SubCategory using (FullSub)
 open import Categories.Functor using (Functor; Endofunctor)
@@ -17,6 +18,7 @@ open import Data.Product
 open import LFP
 open import Filtered
 open import Unchained-Utils
+open import Setoids-Choice
 
 -- intuitively:
 -- o : level of 'classes'
@@ -28,6 +30,7 @@ module FinalRecursive {o ℓ e fil-level}
   (𝒞-lfp : WeaklyLFP 𝒞 ℓ ℓ ℓ Fil)
   where
 
+module 𝒞 = Category 𝒞
 open import recursive-coalgebra 𝒞 F
 
 record FinitaryRecursive (coalg : F-Coalgebra F) : Set (o ⊔ suc ℓ ⊔ suc e ⊔ fil-level) where
@@ -73,18 +76,25 @@ iterate-LProp-Coalgebra coalg-colim 𝒟-filtered F-preserves-colim =
 
     -- -- the object assignment of new the diagram:
     D₀' : 𝒟.Obj → F-Coalgebra F
-    D₀' = λ (i , i⇒FA) →
+    D₀' = λ (P , P⇒FA) →
       let
         -- the hom functor 𝒞(i, -) preserves the above colimit F(A,α)
-        hom-colim : Colimit (Hom[ 𝒞 ][ (𝒞-lfp.fin i) ,-] ∘F (F ∘F coalg-colim.carrier-diagram))
+        hom-colim : Colimit (Hom[ 𝒞 ][ (𝒞-lfp.fin P) ,-] ∘F (F ∘F coalg-colim.carrier-diagram))
         hom-colim = Colimit-from-prop
-          (𝒞-lfp.fin-presented i
+          (𝒞-lfp.fin-presented P
             coalg-colim.𝒟 -- the diagram scheme
             𝒟-filtered    -- the fact that the diagram scheme is filtered
             (F ∘F coalg-colim.carrier-diagram)
             F-coalg-colim)
+        module hom-colim = Colimit hom-colim
+        -- the 'preservation' means that they have the same carrier:
+        _ : hom-colim.coapex ≡ 𝒞.hom-setoid {𝒞-lfp.fin P} {F₀ A}
+        _ = refl
+        -- so we can now find out where above pointing i⇒FA comes from
+        --X,x , pointing = colimit-choice
+
       in
-      {!proj₂ i!}
+      {!!}
   in
   record {
     𝒟 = 𝒟 ; -- maybe we can use the same diagram
