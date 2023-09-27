@@ -43,9 +43,9 @@ Fin≈ n = setoid (Fin n)
 
 setoids-LFP : WeaklyLFP (Setoids 0ℓ 0ℓ) 0ℓ 0ℓ 0ℓ filtered
 setoids-LFP = record {
-  I = ℕ ;
-  𝒞-fp = Fin≈ ;
-  all-I-fp = λ n 𝒟 𝒟-filtered J colim →
+  Idx = ℕ ;
+  fin = Fin≈ ;
+  fin-presented = λ n 𝒟 𝒟-filtered J colim →
     let
       open Hom (Setoids 0ℓ 0ℓ)
       hom-n = Hom[ (Fin≈ n) ,-]
@@ -58,5 +58,5 @@ setoids-LFP = record {
       (filtered.bounds 𝒟-filtered)
       (λ (f : Fin≈ n ⇒ colim.coapex) → {!!})
       λ k → {!!};
-  build-from-fp = {!!}
+  build-from-fin = λ X → ?
   }
