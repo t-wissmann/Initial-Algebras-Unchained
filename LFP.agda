@@ -15,6 +15,7 @@ open import Categories.Category.Slice
 open import Data.Product
 
 open import Unchained-Utils
+open import Filtered
 
 open import Categories.Functor using (_∘F_)
 
@@ -55,11 +56,6 @@ private
     o'' ℓ'' e'' : Level
     ℰ : Category o'' ℓ'' e''
 
--- The property that a functor F preserves the colimit of diagram J:
-preserves-colimit : (J : Functor 𝒟 𝒞) → (F : Functor 𝒞 ℰ) → Set _
-preserves-colimit J F =
-  ∀ (colim : Colimit J) → IsInitial (Cocones (F ∘F J)) (F-map-Coconeˡ F (Colimit.colimit colim))
-
 -- For each family of fp objects and another objects, we have a slice category:
 Cat[_↓_] : {I : Set o'} → (𝒞-fp : I → 𝒞.Obj) → 𝒞.Obj → Category (o' ⊔ ℓ) (ℓ ⊔ e) e
 Cat[_↓_]  {I = I} 𝒞-fp X = FullSubCategory (Slice 𝒞 X) objects
@@ -97,11 +93,16 @@ module _ (o' ℓ' e' : _) (P : Category o' ℓ' e' → Set prop-level) where
       fin-presented : ∀ (i : Idx) → presented (fin i)
       -- All other objects are built from those fp objects:
       build-from-fin : ∀ (X : 𝒞.Obj) → IsLimitting (Cocone[ fin ↓ X ])
+      -- and moreover every canonical diagram is filtered
+      canonical-has-prop : ∀ (X : 𝒞.Obj) → filtered (Cat[ fin ↓ X ])
 
     canonical-diagram-scheme : ∀ (X : 𝒞.Obj) → Category (o' ⊔ ℓ) (e ⊔ ℓ) e
     canonical-diagram-scheme X = Cat[ fin ↓ X ]
 
-    canonical-colimit : ∀ (X : 𝒞.Obj) → Colimit (Functor[ fin ↓ X ])
+    canonical-diagram : ∀ (X : 𝒞.Obj) → Functor (canonical-diagram-scheme X) 𝒞
+    canonical-diagram X = Functor[ fin ↓ X ]
+
+    canonical-colimit : ∀ (X : 𝒞.Obj) → Colimit (canonical-diagram X)
     canonical-colimit X = Colimit-from-prop (build-from-fin X)
 
 

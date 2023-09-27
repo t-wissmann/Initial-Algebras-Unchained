@@ -29,6 +29,15 @@ open import Categories.Functor.Construction.SubCategory using (FullSub)
 
 module C = Category C
 
+
+-- The property that a functor F preserves the colimit of diagram J:
+preserves-colimit : {o' o'' ℓ' ℓ'' e' e'' : _} →
+  {𝒟 : Category o' ℓ' e'} →
+  {ℰ : Category o'' ℓ'' e''} →
+  (J : Functor 𝒟 C) → (F : Functor C ℰ) → Set _
+preserves-colimit J F =
+  ∀ (colim : Colimit J) → IsInitial (Cocones (F ∘F J)) (F-map-Coconeˡ F (Colimit.colimit colim))
+
 -- the property whether a Sink is jointly epic:
 jointly-epic : ∀ {i : Level} {I : Set i} {dom : I → Category.Obj C} {codom : Category.Obj C}
                (sink : (x : I) → C [ dom x , codom ]) → Set _

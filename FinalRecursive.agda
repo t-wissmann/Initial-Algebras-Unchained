@@ -2,12 +2,14 @@
 open import Level
 
 open import Categories.Category
-open import Categories.Functor using (Functor)
+open import Categories.Functor using (Functor; _∘F_)
+open import Categories.Functor.Hom
 open import Categories.Category.Cocomplete
 open import Categories.Diagram.Colimit
 open import Categories.Category.Construction.F-Coalgebras
 open import Categories.Functor.Construction.SubCategory using (FullSub)
 open import Categories.Functor using (Functor; Endofunctor)
+open import Data.Product
 
 open import Categories.Functor.Coalgebra
 
@@ -22,20 +24,35 @@ open import Unchained-Utils
 module FinalRecursive {o ℓ e fil-level}
   (𝒞 : Category o ℓ e)
   (F : Endofunctor 𝒞)
-  (Fil : Category ℓ ℓ ℓ → Set fil-level) -- some variant of 'filtered'
+  (Fil : ∀ {o' ℓ' e' : Level} → Category o' ℓ' e' → Set fil-level) -- some variant of 'filtered'
   (𝒞-lfp : WeaklyLFP 𝒞 ℓ ℓ ℓ Fil)
   where
 
-module 𝒞-lfp = WeaklyLFP 𝒞-lfp
 open import recursive-coalgebra 𝒞 F
-open import Fin-R-Coalgebra 𝒞 F 𝒞-lfp.fin IsRecursive
 
--- whenever (A,α) is locally finite, then so is (FA,Fα)
-iterate-LFinCoalgebra : LFinCoalgebra → LFinCoalgebra
-iterate-LFinCoalgebra coalg-colim =
+record FinitaryRecursive (coalg : F-Coalgebra F) : Set (o ⊔ suc ℓ ⊔ suc e ⊔ fil-level) where
+  -- the property that a coalgebra
+  field
+    -- 1. has finite carrier
+    finite-carrier : presented 𝒞 ℓ ℓ ℓ Fil (F-Coalgebra.A coalg)
+    -- 2. is recursive
+    is-recursive : IsRecursive coalg
+
+
+module 𝒞-lfp = WeaklyLFP 𝒞-lfp
+open import Prop-Coalgebra 𝒞 F FinitaryRecursive
+
+-- -- whenever (A,α) is locally finite, then so is (FA,Fα)
+iterate-LProp-Coalgebra : (coalg : LProp-Coalgebra)
+                      → Fil (LProp-Coalgebra.𝒟 coalg)
+                      -- ^- coalg is a colimit of a filtered diagram
+                      → preserves-colimit (LProp-Coalgebra.carrier-diagram coalg) F
+                      -- ^- F preserves the colimit 'coalg'
+                      → LProp-Coalgebra
+iterate-LProp-Coalgebra coalg-colim 𝒟-filtered F-preserves-colim =
   let
     -- the provided coalgebra:
-    module coalg-colim = LFinCoalgebra coalg-colim
+    module coalg-colim = LProp-Coalgebra coalg-colim
     open F-Coalgebra coalg-colim.to-Coalgebra
     -- ^- this brings A and α into scope
     open Functor F
@@ -44,8 +61,37 @@ iterate-LFinCoalgebra coalg-colim =
     -- finite objects:
     FA-colim = 𝒞-lfp.canonical-colimit (F₀ A)
     module FA-colim = Colimit FA-colim
+
+    𝒟 = 𝒞-lfp.canonical-diagram-scheme (F₀ A)
+    module 𝒟 = Category 𝒟
+    D = 𝒞-lfp.canonical-diagram (F₀ A)
+    module D = Functor D
+
+    -- -- At the same time, F(A,α) is a colimit of coalgebras, which
+    -- -- is preserved by F:
+    F-coalg-colim = Colimit-from-prop (F-preserves-colim coalg-colim.carrier-colim)
+
+    -- -- the object assignment of new the diagram:
+    D₀' : 𝒟.Obj → F-Coalgebra F
+    D₀' = λ (i , i⇒FA) →
+      let
+        -- the hom functor 𝒞(i, -) preserves the above colimit F(A,α)
+        hom-colim : Colimit (Hom[ 𝒞 ][ (𝒞-lfp.fin i) ,-] ∘F (F ∘F coalg-colim.carrier-diagram))
+        hom-colim = Colimit-from-prop
+          (𝒞-lfp.fin-presented i
+            coalg-colim.𝒟 -- the diagram scheme
+            𝒟-filtered    -- the fact that the diagram scheme is filtered
+            (F ∘F coalg-colim.carrier-diagram)
+            F-coalg-colim)
+      in
+      {!proj₂ i!}
   in
-  {!!}
+  record {
+    𝒟 = 𝒟 ; -- maybe we can use the same diagram
+    D = {!!} ;
+    all-have-prop = {!!} ;
+    carrier-colim = {!!}
+  }
 -- module _
 --   (P : Category ℓ ℓ ℓ → Set prop-level)
 --   (P-implies-filtered : ∀ (𝒟 : _) → P 𝒟 → filtered 𝒟)

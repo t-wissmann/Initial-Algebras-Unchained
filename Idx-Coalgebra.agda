@@ -10,7 +10,9 @@ import Categories.Functor.Coalgebra as Coalg
 open import Categories.Functor.Construction.SubCategory
 open import Categories.Diagram.Colimit
 
-module Fin-R-Coalgebra {o ℓ e}
+-- Coalgebras where the carrier comes from a fixed family of objects
+
+module Idx-Coalgebra {o ℓ e}
   {P-level : Level}
   {Idx : Set ℓ}
   (𝒞 : Category o ℓ e)
@@ -19,15 +21,12 @@ module Fin-R-Coalgebra {o ℓ e}
   (P : F-Coalgebra F → Set P-level)  -- a property of coalgebras
   where
 
-open import recursive-coalgebra 𝒞 F
-open import LFP 𝒞
-
 private
   module 𝒞 = Category 𝒞
   module F = Functor F
 
-record FinCoalgebra : Set (ℓ ⊔ P-level) where
-  -- A finite coalgebra with a property: Essentially, it lives on level ℓ,
+record Idx-Coalgebra : Set (ℓ ⊔ P-level) where
+  -- A idx coalgebra with a property: Essentially, it lives on level ℓ,
   -- because the carrier is itself just the index of a finite object and then a
   -- coalgebra structure on the corresponding 𝒞 object:
   field
@@ -42,24 +41,9 @@ record FinCoalgebra : Set (ℓ ⊔ P-level) where
   to-Coalgebra = Coalg.to-Coalgebra structure
 
 -- the full subcategory of finite coalgebras:
-FinCoalgebras : Category (ℓ ⊔ P-level) (e ⊔ ℓ) e
-FinCoalgebras = FullSubCategory (F-Coalgebras F) FinCoalgebra.to-Coalgebra
+Idx-Coalgebras : Category (ℓ ⊔ P-level) (e ⊔ ℓ) e
+Idx-Coalgebras = FullSubCategory (F-Coalgebras F) Idx-Coalgebra.to-Coalgebra
 
 -- the forgetful functor to (plain) F-Coalgebras
-FinCoalgebras-to-Coalg : Functor FinCoalgebras (F-Coalgebras F)
-FinCoalgebras-to-Coalg = FullSub (F-Coalgebras F)
-
-record LFinCoalgebra {o' ℓ' e'} : Set (o ⊔ ℓ ⊔ e ⊔ P-level ⊔ suc (o' ⊔ ℓ' ⊔ e')) where
-  -- A locally finite coalgebra is a colimit of finite coalgebras.
-  field
-    -- So it consists of: 1. a diagram scheme
-    𝒟 : Category o' ℓ' e'
-    -- 2. a diagram in finite coalgebras:
-    D : Functor 𝒟 FinCoalgebras
-    -- 3. and a colimit in all coalgebras:
-    colim : Colimit (FinCoalgebras-to-Coalg ∘F D)
-
-  open Colimit colim public
-
-  to-Coalgebra : F-Coalgebra F
-  to-Coalgebra = coapex
+Idx-Coalgebras-to-Coalg : Functor Idx-Coalgebras (F-Coalgebras F)
+Idx-Coalgebras-to-Coalg = FullSub (F-Coalgebras F)

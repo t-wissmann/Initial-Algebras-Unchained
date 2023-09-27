@@ -28,7 +28,8 @@ import recursive-coalgebra
 
 
 -- new properties of finite (recursive) coalgebras
-import Fin-R-Coalgebra
+import Idx-Coalgebra
+import Prop-Coalgebra
 
 -- Some properties of Setoids:
 import Setoids-Choice -- a weak choice principle for preimages of elements of colimits
