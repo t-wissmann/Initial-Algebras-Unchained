@@ -59,6 +59,11 @@ iterate-LProp-Coalgebra coalg-colim 𝒟-filtered F-preserves-colim =
     open F-Coalgebra coalg-colim.to-Coalgebra
     -- ^- this brings A and α into scope
     open Functor F
+    open Category 𝒞
+    -- ^ we only reason in 𝒞
+
+    module F = Functor F
+
     -- We show that (FA,Fα) is a colimit by taking the
     -- diagram scheme from the fact that FA is a colimit of
     -- finite objects:
@@ -70,40 +75,54 @@ iterate-LProp-Coalgebra coalg-colim 𝒟-filtered F-preserves-colim =
     D = 𝒞-lfp.canonical-diagram (F₀ A)
     module D = Functor D
 
+    -- the new diagram: commuting triangles of objects P in the colimit
+    -- of FA such that P factors through some coalgebra-colimit injection:
+    --
+    --          P  -----> Carrier( F(A,α) )
+    --          |                     ^
+    --          |                     |
+    --          |                     |
+    --          '-------> Carrier( F(X,x) )
+    triangles =
+      Σ[ P ∈ 𝒟.Obj ]
+      Σ[ X ∈ (Category.Obj coalg-colim.𝒟) ]
+      Σ[ p ∈ (D.₀ P ⇒ (F.₀ (F-Coalgebra.A (Functor.₀ coalg-colim.D X)))) ]
+        (FA-colim.proj P ≈ F.₁ (coalg-colim.carrier-colim.proj X) ∘ p)
+
     -- -- At the same time, F(A,α) is a colimit of coalgebras, which
     -- -- is preserved by F:
     F-coalg-colim = Colimit-from-prop (F-preserves-colim coalg-colim.carrier-colim)
 
     -- -- the object assignment of new the diagram:
-    D₀' : 𝒟.Obj → F-Coalgebra F
-    D₀' = λ (P , P⇒FA) →
-      let
-        -- the hom functor 𝒞(i, -) preserves the above colimit F(A,α)
-        hom-colim : Colimit (Hom[ 𝒞 ][ (𝒞-lfp.fin P) ,-] ∘F (F ∘F coalg-colim.carrier-diagram))
-        hom-colim = Colimit-from-prop
-          (𝒞-lfp.fin-presented P
-            coalg-colim.𝒟 -- the diagram scheme
-            𝒟-filtered    -- the fact that the diagram scheme is filtered
-            (F ∘F coalg-colim.carrier-diagram)
-            F-coalg-colim)
-        module hom-colim = Colimit hom-colim
-        -- the 'preservation' means that they have the same carrier:
-        _ : hom-colim.coapex ≡ 𝒞.hom-setoid {𝒞-lfp.fin P} {F₀ A}
-        _ = refl
-        -- so we can now find out where above pointing i⇒FA comes from
-        X,x , P⇒FX = colimit-choice hom-colim P⇒FA
+    -- D₀' : 𝒟.Obj → F-Coalgebra F
+    -- D₀' = λ (P , P⇒FA) →
+    --   let
+    --     -- the hom functor 𝒞(i, -) preserves the above colimit F(A,α)
+    --     hom-colim : Colimit (Hom[ 𝒞 ][ (𝒞-lfp.fin P) ,-] ∘F (F ∘F coalg-colim.carrier-diagram))
+    --     hom-colim = Colimit-from-prop
+    --       (𝒞-lfp.fin-presented P
+    --         coalg-colim.𝒟 -- the diagram scheme
+    --         𝒟-filtered    -- the fact that the diagram scheme is filtered
+    --         (F ∘F coalg-colim.carrier-diagram)
+    --         F-coalg-colim)
+    --     module hom-colim = Colimit hom-colim
+    --     -- the 'preservation' means that they have the same carrier:
+    --     _ : hom-colim.coapex ≡ 𝒞.hom-setoid {𝒞-lfp.fin P} {F₀ A}
+    --     _ = refl
+    --     -- so we can now find out where above pointing i⇒FA comes from
+    --     X,x , P⇒FX = colimit-choice hom-colim P⇒FA
 
-        X = F-Coalgebra.A (Functor.₀ coalg-colim.D X,x)
-        x = F-Coalgebra.α (Functor.₀ coalg-colim.D X,x)
+    --     X = F-Coalgebra.A (Functor.₀ coalg-colim.D X,x)
+    --     x = F-Coalgebra.α (Functor.₀ coalg-colim.D X,x)
 
-        _ : (𝒞-lfp.fin P) 𝒞.⇒ (F₀ X)
-        _ = P⇒FX
+    --     _ : (𝒞-lfp.fin P) 𝒞.⇒ (F₀ X)
+    --     _ = P⇒FX
 
-      in
-      {!!}
+    --   in
+    --   {!!}
   in
   record {
-    𝒟 = 𝒟 ; -- maybe we can use the same diagram
+    𝒟 = 𝒟 ;
     D = {!!} ;
     all-have-prop = {!!} ;
     carrier-colim = {!!}
