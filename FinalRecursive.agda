@@ -91,7 +91,13 @@ iterate-LProp-Coalgebra coalg-colim 𝒟-filtered F-preserves-colim =
         _ : hom-colim.coapex ≡ 𝒞.hom-setoid {𝒞-lfp.fin P} {F₀ A}
         _ = refl
         -- so we can now find out where above pointing i⇒FA comes from
-        --X,x , pointing = colimit-choice
+        X,x , P⇒FX = colimit-choice hom-colim P⇒FA
+
+        X = F-Coalgebra.A (Functor.₀ coalg-colim.D X,x)
+        x = F-Coalgebra.α (Functor.₀ coalg-colim.D X,x)
+
+        _ : (𝒞-lfp.fin P) 𝒞.⇒ (F₀ X)
+        _ = P⇒FX
 
       in
       {!!}
