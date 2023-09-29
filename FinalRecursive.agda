@@ -32,6 +32,7 @@ module FinalRecursive {o ℓ e fil-level}
 
 module 𝒞 = Category 𝒞
 open import recursive-coalgebra 𝒞 F
+open import Hom-Colimit-Choice
 
 record FinitaryRecursive (coalg : F-Coalgebra F) : Set (o ⊔ suc ℓ ⊔ suc e ⊔ fil-level) where
   -- the property that a coalgebra
@@ -87,40 +88,58 @@ iterate-LProp-Coalgebra coalg-colim 𝒟-filtered F-preserves-colim =
     --          |                     |
     --          |                     |
     --          '-------> Carrier( F(X,x) )
-    triangles =
-      Σ[ P ∈ 𝒟.Obj ]
-      Σ[ X ∈ (Category.Obj coalg-colim.𝒟) ]
-      Σ[ p ∈ (D.₀ P ⇒ (F.₀ (F-Coalgebra.A (Functor.₀ coalg-colim.D X)))) ]
-        (FA-colim.proj P ≈ F.₁ (coalg-colim.carrier-colim.proj X) ∘ p)
+    -- triangles =
+    --   Σ[ P ∈ 𝒟.Obj ]
+    --   Σ[ X ∈ (Category.Obj coalg-colim.𝒟) ]
+    --   Σ[ p ∈ (D.₀ P ⇒ (F.₀ (F-Coalgebra.A (Functor.₀ coalg-colim.D X)))) ]
+    --     (FA-colim.proj P ≈ F.₁ (coalg-colim.carrier-colim.proj X) ∘ p)
 
-    -- -- in fact, every P can be extended to such a triangle:
-    P-to-triangle : 𝒟.Obj → triangles
+    -- -- -- in fact, every P can be extended to such a triangle:
+    -- P-to-triangle : 𝒟.Obj → triangles
+    -- P-to-triangle P =
+    --   let
+    --     (idx , _) = P
+    --     -- the hom functor 𝒞(i, -) preserves the above colimit F(A,α)
+    --     hom-colim : Colimit (Hom[ 𝒞 ][ (𝒞-lfp.fin idx) ,-] ∘F (F ∘F coalg-colim.carrier-diagram))
+    --     hom-colim = Colimit-from-prop
+    --       (𝒞-lfp.fin-presented idx
+    --         coalg-colim.𝒟 -- the diagram scheme
+    --         𝒟-filtered    -- the fact that the diagram scheme is filtered
+    --         (F ∘F coalg-colim.carrier-diagram)
+    --         F-coalg-colim)
+    --     module hom-colim = Colimit hom-colim
+    --     -- the 'preservation' means that they have the same carrier:
+    --     _ : hom-colim.coapex ≡ 𝒞.hom-setoid {𝒞-lfp.fin idx} {F₀ A}
+    --     _ = refl
+    --     -- so we can now find out where above pointing i⇒FA comes from
+    --     X,x , P⇒FX = colimit-choice hom-colim (FA-colim.proj P)
+
+    --     X = F-Coalgebra.A (Functor.₀ coalg-colim.D X,x)
+    --     x = F-Coalgebra.α (Functor.₀ coalg-colim.D X,x)
+
+    --     _ : (𝒞-lfp.fin idx) ⇒ (F₀ X)
+    --     _ = P⇒FX
+
+    --   in
+    --   P , (X,x , (P⇒FX , colimit-choice-correct {!!} )) -- !{!colimit-choice-correct hom-colim {FA-colim.proj P}!})) -- colimit-choice-correct hom-colim )) -- use: colimit-choice-correct
+    all-triangles =
+      Σ[ P ∈ 𝒟.Obj ]
+      Triangle F-coalg-colim (FA-colim.proj P)
+    P-to-triangle : 𝒟.Obj → all-triangles
     P-to-triangle P =
       let
         (idx , _) = P
-        -- the hom functor 𝒞(i, -) preserves the above colimit F(A,α)
-        hom-colim : Colimit (Hom[ 𝒞 ][ (𝒞-lfp.fin idx) ,-] ∘F (F ∘F coalg-colim.carrier-diagram))
-        hom-colim = Colimit-from-prop
-          (𝒞-lfp.fin-presented idx
+        DP-preserves-colim =
+          𝒞-lfp.fin-presented
+            idx
             coalg-colim.𝒟 -- the diagram scheme
-            𝒟-filtered    -- the fact that the diagram scheme is filtered
+            𝒟-filtered    -- ... which is filtered
             (F ∘F coalg-colim.carrier-diagram)
-            F-coalg-colim)
-        module hom-colim = Colimit hom-colim
-        -- the 'preservation' means that they have the same carrier:
-        _ : hom-colim.coapex ≡ 𝒞.hom-setoid {𝒞-lfp.fin idx} {F₀ A}
-        _ = refl
-        -- so we can now find out where above pointing i⇒FA comes from
-        X,x , P⇒FX = colimit-choice hom-colim (FA-colim.proj P)
-
-        X = F-Coalgebra.A (Functor.₀ coalg-colim.D X,x)
-        x = F-Coalgebra.α (Functor.₀ coalg-colim.D X,x)
-
-        _ : (𝒞-lfp.fin idx) ⇒ (F₀ X)
-        _ = P⇒FX
-
       in
-      P , (X,x , (P⇒FX , colimit-choice-correct {!!} )) -- !{!colimit-choice-correct hom-colim {FA-colim.proj P}!})) -- colimit-choice-correct hom-colim )) -- use: colimit-choice-correct
+      P ,
+      hom-colim-choice F-coalg-colim (D.₀ P)
+        DP-preserves-colim
+        (FA-colim.proj P)
   in
   {!!}
 -- module _

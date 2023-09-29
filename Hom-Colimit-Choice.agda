@@ -26,12 +26,13 @@ module Hom-Colimit-Choice
 
 open Hom 𝒞
 
-module 𝒞 = Category 𝒞
-module colim = Colimit colim
-module 𝒟 = Category 𝒟
-module D = Functor D
+private
+    module 𝒞 = Category 𝒞
+    module colim = Colimit colim
+    module 𝒟 = Category 𝒟
+    module D = Functor D
 
-open Category 𝒞
+    open Category 𝒞
 
 record Triangle {P : 𝒞.Obj} (p : P ⇒ colim.coapex) : Set (o' ⊔ ℓ ⊔ e) where
   -- a factorization of a morphism through the diagram.
