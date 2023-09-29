@@ -12,6 +12,7 @@ open import Categories.Object.Initial
 open import Categories.Category.Construction.Thin
 open import Categories.Category.Cocomplete
 open import Categories.Category.Slice
+open import Categories.Functor.Construction.LiftSetoids
 open import Data.Product
 
 open import Unchained-Utils
@@ -81,7 +82,7 @@ module _ (o' ℓ' e' : _) (P : Category o' ℓ' e' → Set prop-level) where
     ∀ (𝒟 : Category o' ℓ' e') →    -- forall diagram schemes
     P 𝒟 →                          -- satisfying P
     (J : Functor 𝒟 𝒞) →            -- and all their diagrams
-    preserves-colimit J (Hom[ 𝒞 ][ X ,-]) -- the hom-functor preserves all (existing) colimits
+    preserves-colimit J (LiftSetoids (ℓ ⊔ o' ⊔ ℓ' ⊔ e') (e ⊔ e') ∘F Hom[ 𝒞 ][ X ,-]) -- the hom-functor preserves all (existing) colimits
 
 
   record WeaklyLFP : Set (o ⊔ suc (ℓ ⊔ e ⊔ o' ⊔ ℓ' ⊔ e' ⊔ prop-level)) where

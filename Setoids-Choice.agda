@@ -74,7 +74,10 @@ module _ {o ℓ e c ℓ'} {D : Category o ℓ e} {J : Functor D (Setoids (o ⊔ 
     -- it into the colimit yields `x` again:
 
     colimit-choice-correct : ∀ {x : Setoid.Carrier Colim.coapex} →
-                            Colim.coapex [[ x ≈ colimit-inject (colimit-choice x)]]
+                            Colim.coapex [[
+                              x ≈
+                                Colim.proj (fst (colimit-choice x))
+                                  ⟨$⟩ (snd (colimit-choice x)) ]]
     colimit-choice-correct {top-level-x} =
         let
         -- we show the equality by the uniqueness of cocone morphisms, so we

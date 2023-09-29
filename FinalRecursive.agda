@@ -120,7 +120,7 @@ iterate-LProp-Coalgebra coalg-colim 𝒟-filtered F-preserves-colim =
         _ = P⇒FX
 
       in
-      P , (X,x , (P⇒FX , colimit-choice-correct ? )) -- !{!colimit-choice-correct hom-colim {FA-colim.proj P}!})) -- colimit-choice-correct hom-colim )) -- use: colimit-choice-correct
+      P , (X,x , (P⇒FX , colimit-choice-correct {!!} )) -- !{!colimit-choice-correct hom-colim {FA-colim.proj P}!})) -- colimit-choice-correct hom-colim )) -- use: colimit-choice-correct
   in
   {!!}
 -- module _
