@@ -17,6 +17,7 @@ open import Relation.Binary.PropositionalEquality
 open import Relation.Binary.PropositionalEquality.Properties
 open import Categories.Diagram.Cocone.Properties
 open import Categories.Diagram.Colimit using (Colimit)
+open import Categories.Functor.Construction.LiftSetoids
 
 open import Setoids-Colimit
 
@@ -41,22 +42,27 @@ private
 Fin≈ : ℕ → Setoid 0ℓ 0ℓ
 Fin≈ n = setoid (Fin n)
 
+Fin-is-presented : ∀ (n : ℕ) → presented (Setoids 0ℓ 0ℓ) 0ℓ 0ℓ 0ℓ filtered (Fin≈ n)
+Fin-is-presented n 𝒟 𝒟-filtered J colim =
+  let
+    open Hom (Setoids 0ℓ 0ℓ)
+    hom-n = Hom[ (Fin≈ n) ,-]
+    lift-hom-n = LiftSetoids 0ℓ 0ℓ ∘F hom-n
+    module colim = Colimit colim
+    open Category (Setoids 0ℓ 0ℓ)
+  in
+  bounded-colimiting
+    (lift-hom-n ∘F J)
+    (F-map-Coconeˡ lift-hom-n (colim.colimit))
+    (filtered.bounds 𝒟-filtered)
+    (λ (lift f ) → {!!})
+    λ k → {!!}
+
+
 setoids-LFP : WeaklyLFP (Setoids 0ℓ 0ℓ) 0ℓ 0ℓ 0ℓ filtered
 setoids-LFP = record {
   Idx = ℕ ;
   fin = Fin≈ ;
-  fin-presented = λ n 𝒟 𝒟-filtered J colim →
-    let
-      open Hom (Setoids 0ℓ 0ℓ)
-      hom-n = Hom[ (Fin≈ n) ,-]
-      module colim = Colimit colim
-      open Category (Setoids 0ℓ 0ℓ)
-    in
-    bounded-colimiting
-      (hom-n ∘F J)
-      (F-map-Coconeˡ hom-n (colim.colimit))
-      (filtered.bounds 𝒟-filtered)
-      (λ (f : Fin≈ n ⇒ colim.coapex) → {!!})
-      λ k → {!!};
-  build-from-fin = λ X → ?
+  fin-presented = Fin-is-presented ;
+  build-from-fin = λ X → {!!}
   }
