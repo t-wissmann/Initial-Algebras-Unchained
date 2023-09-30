@@ -94,7 +94,7 @@ Fin-is-presented n 𝒟 𝒟-filtered J colim =
           in
           begin
           (f ⟨$⟩ k)                   ≈⟨ colimit-choice-correct colim ⟩
-          colim.proj X ⟨$⟩ xₖ         ≈⟨ {!!} ⟩
+          colim.proj X ⟨$⟩ xₖ         ≈˘⟨ colim.colimit-commute connecting-morph (Setoid.refl _) ⟩
           (colim.proj B ∘ J.₁ connecting-morph) ⟨$⟩ xₖ        ≡⟨⟩
           colim.proj B ⟨$⟩ (J.₁ connecting-morph ⟨$⟩ xₖ)       ≡⟨⟩
           colim.proj B ⟨$⟩ (g k)
