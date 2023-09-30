@@ -17,6 +17,7 @@ open import Data.Product
 open import Function.Equality hiding (setoid; _∘_; id)
 open import Relation.Binary.PropositionalEquality
 open import Relation.Binary.PropositionalEquality.Properties
+open import Relation.Binary.PropositionalEquality using (→-to-⟶)
 open import Categories.Diagram.Cocone.Properties
 open import Categories.Diagram.Colimit using (Colimit)
 open import Categories.Functor.Construction.LiftSetoids
@@ -101,11 +102,7 @@ Fin-is-presented n 𝒟 𝒟-filtered J colim =
           ∎
 
         g≈ : Fin≈ n ⇒ J.₀ B
-        g≈ = record {
-          _⟨$⟩_ = g ;
-          cong = λ {k} {k'} eq →
-            {!!}
-          }
+        g≈ = →-to-⟶ g
       in
       record {
         i = B ;
