@@ -2,6 +2,8 @@
 open import Categories.Category
 open import Categories.Functor using (Functor)
 
+open import Data.Fin
+open import Data.Nat.Base hiding (_⊔_)
 
 module Filtered {o ℓ e} (C : Category o ℓ e) where
 
@@ -11,9 +13,20 @@ open import Level
 record has-upper-bounds : Set (o ⊔ ℓ ⊔ e) where
   open Category C
   field
+    non-empty : Obj
     upper-bound : Obj → Obj → Obj
     is-above₁ : ∀ (X Y : Obj) → X ⇒ upper-bound X Y
     is-above₂ : ∀ (X Y : Obj)  → Y ⇒ upper-bound X Y
+
+  fin-upper-bound : ∀ {n : ℕ} → (f : Fin n → Obj) → Obj
+  fin-upper-bound {ℕ.zero} f = non-empty
+  fin-upper-bound {ℕ.suc n} f = upper-bound
+    (f (Fin.zero))
+    (fin-upper-bound (λ k → f (Fin.suc k)))
+
+  fin-is-above : ∀ {n : ℕ} → (f : Fin n → Obj) → (k : Fin n) → (f k ⇒ fin-upper-bound f)
+  fin-is-above {ℕ.suc n} f Fin.zero = is-above₁ _ _
+  fin-is-above {ℕ.suc n} f (Fin.suc k) = is-above₂ _ _ ∘ fin-is-above _ k
 
 -- the property that the diagram of every pair of parallel morphisms
 -- has a cocone. There is no name for this in nlab (https://ncatlab.org/nlab/show/filtered+category)
@@ -33,7 +46,6 @@ record fuse-parallel-morphisms : Set (o ⊔ ℓ ⊔ e) where
 
 -- the property of a category being filtered
 record filtered : Set (o ⊔ ℓ ⊔ e) where
-  -- so far we do not need non-emptiness
   field
     bounds : has-upper-bounds
     fuse-parallel : fuse-parallel-morphisms

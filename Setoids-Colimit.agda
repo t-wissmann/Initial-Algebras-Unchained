@@ -28,11 +28,12 @@ import Categories.Category.Construction.Cocones as Coc
 import Relation.Binary.Reasoning.Setoid as RS
 
 module _ {o ℓ e c ℓ'} {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ c) (o ⊔ ℓ ⊔ c ⊔ ℓ'))) where
-  construction = Setoids-Cocomplete o ℓ e c ℓ' J
-  open Setoid renaming (_≈_ to _[[_≈_]])
-  module construction = Colimit construction
-  module D = Category D
-  module J = Functor J
+  private
+    construction = Setoids-Cocomplete o ℓ e c ℓ' J
+    open Setoid renaming (_≈_ to _[[_≈_]])
+    module construction = Colimit construction
+    module D = Category D
+    module J = Functor J
 
   J₀ : D.Obj → Set _
   J₀ i = Setoid.Carrier (J.F₀ i)
