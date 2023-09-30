@@ -7,14 +7,14 @@ open import Relation.Binary using (Setoid)
 open import Categories.Category.Instance.Setoids
 
 open import Categories.Category
-open import Categories.Functor
+open import Categories.Functor hiding (id)
 open import Categories.Functor.Hom
 open import Filtered
 open import LFP
 open import Data.Nat.Base using (ℕ)
 open import Data.Fin
 open import Data.Product
-open import Function.Equality hiding (≡-setoid; setoid; _∘_)
+open import Function.Equality hiding (setoid; _∘_; id)
 open import Relation.Binary.PropositionalEquality
 open import Relation.Binary.PropositionalEquality.Properties
 open import Categories.Diagram.Cocone.Properties
@@ -33,16 +33,16 @@ private
     -- levels for setoids themselves:
     o ℓ : Level
 
--- we use a custom 'setoid' variation to achieve arbitrary levels o, ℓ
-≡-setoid : ∀ {o ℓ : Level} → Set 0ℓ → Setoid o ℓ
-≡-setoid {o} {ℓ} X =
-  record { Carrier = Lift o X
-  ; _≈_ = λ (lift x₁) (lift x₂) → L.Lift ℓ (x₁ ≡ x₂)
-  ; isEquivalence =
-    record {
-      refl = Level.lift refl ;
-      sym = λ (L.lift eq) → Level.lift (sym eq) ;
-      trans = λ (L.lift x≡y) (L.lift y≡z) → Level.lift (trans x≡y y≡z) } }
+-- -- we use a custom 'setoid' variation to achieve arbitrary levels o, ℓ
+-- ≡-setoid : ∀ {o ℓ : Level} → Set 0ℓ → Setoid o ℓ
+-- ≡-setoid {o} {ℓ} X =
+--   record { Carrier = Lift o X
+--   ; _≈_ = λ (lift x₁) (lift x₂) → L.Lift ℓ (x₁ ≡ x₂)
+--   ; isEquivalence =
+--     record {
+--       refl = Level.lift refl ;
+--       sym = λ (L.lift eq) → Level.lift (sym eq) ;
+--       trans = λ (L.lift x≡y) (L.lift y≡z) → Level.lift (trans x≡y y≡z) } }
 
 Fin≈ : ℕ → Setoid 0ℓ 0ℓ
 Fin≈ n = setoid (Fin n)
@@ -94,13 +94,34 @@ Fin-is-presented n 𝒟 𝒟-filtered J colim =
           in
           begin
           (f ⟨$⟩ k)                   ≈⟨ colimit-choice-correct colim ⟩
-          colim.proj X ⟨$⟩ xₖ         ≈˘⟨ colim.colimit-commute connecting-morph (Setoid.refl _) ⟩
+          colim.proj X ⟨$⟩ xₖ         ≈˘⟨ colim.colimit-commute connecting-morph (Setoid.refl (J.₀ X)) ⟩
           (colim.proj B ∘ J.₁ connecting-morph) ⟨$⟩ xₖ        ≡⟨⟩
           colim.proj B ⟨$⟩ (J.₁ connecting-morph ⟨$⟩ xₖ)       ≡⟨⟩
           colim.proj B ⟨$⟩ (g k)
           ∎
+
+        g≈ : Fin≈ n ⇒ J.₀ B
+        g≈ = record {
+          _⟨$⟩_ = g ;
+          cong = λ {k} {k'} eq →
+            {!!}
+          }
       in
-      {!!})
+      record {
+        i = B ;
+        preimage = Level.lift g≈ ;
+        x-sent-to-c = Level.lift (λ {k} {k'} eq →
+          let
+            open SetoidR (colim.coapex)
+          in
+          begin
+          (colim.proj B ∘ g≈ ∘ id) ⟨$⟩ k ≡⟨⟩
+          colim.proj B ⟨$⟩ (g k) ≈˘⟨ g-correct k ⟩
+          f ⟨$⟩ k ≈⟨ Π.cong f eq ⟩
+          f ⟨$⟩ k'
+          ∎
+          )
+        })
     λ k → {!!}
 
 
