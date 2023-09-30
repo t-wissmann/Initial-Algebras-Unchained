@@ -18,6 +18,7 @@ open import Function.Equality hiding (setoid; _∘_; id)
 open import Relation.Binary.PropositionalEquality
 open import Relation.Binary.PropositionalEquality.Properties
 open import Relation.Binary.PropositionalEquality using (→-to-⟶)
+open import Categories.Diagram.Cocone
 open import Categories.Diagram.Cocone.Properties
 open import Categories.Diagram.Colimit using (Colimit)
 open import Categories.Functor.Construction.LiftSetoids
@@ -119,7 +120,13 @@ Fin-is-presented n 𝒟 𝒟-filtered J colim =
           ∎
           )
         })
-    λ k → {!!}
+    λ kp →
+      let
+        module kp = KernelPairs kp
+        F-colim = F-map-Coconeˡ (LiftSetoids 0ℓ 0ℓ ∘F Hom.Hom[ Setoids 0ℓ 0ℓ ,-] (Fin≈ n)) colim.colimit
+        module F-colim = Cocone (F-colim)
+      in
+      {!!}
 
 
 setoids-LFP : WeaklyLFP (Setoids 0ℓ 0ℓ) 0ℓ 0ℓ 0ℓ filtered
