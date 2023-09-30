@@ -14,7 +14,7 @@ open import LFP
 open import Data.Nat.Base using (ℕ)
 open import Data.Fin
 open import Data.Product
-open import Function.Equality hiding (≡-setoid; setoid)
+open import Function.Equality hiding (≡-setoid; setoid; _∘_)
 open import Relation.Binary.PropositionalEquality
 open import Relation.Binary.PropositionalEquality.Properties
 open import Categories.Diagram.Cocone.Properties
@@ -95,6 +95,7 @@ Fin-is-presented n 𝒟 𝒟-filtered J colim =
           begin
           (f ⟨$⟩ k)                   ≈⟨ colimit-choice-correct colim ⟩
           colim.proj X ⟨$⟩ xₖ         ≈⟨ {!!} ⟩
+          (colim.proj B ∘ J.₁ connecting-morph) ⟨$⟩ xₖ         ≈⟨ {!!} ⟩
           colim.proj B ⟨$⟩ (g k)
           ∎
       in
