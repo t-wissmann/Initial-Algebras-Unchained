@@ -182,14 +182,9 @@ Fin-is-presented n 𝒟 𝒟-filtered J colim =
           (𝒟-filtered.close-span-morph₂ h-0 h-suc)
           𝒟.∘ h-suc
 
-        open HomReasoning
-        property =
-          begin
-          J.₁ h ∘ s ≈⟨ {!!} ⟩
-          J.₁ h ∘ t
-          ∎
+        -- open Category.HomReasoning 𝒟
       in
-      j , h , property
+      j , h , {!!}
 
 
 setoids-LFP : WeaklyLFP (Setoids 0ℓ 0ℓ) 0ℓ 0ℓ 0ℓ filtered
