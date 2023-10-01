@@ -120,11 +120,23 @@ Fin-is-presented n 𝒟 𝒟-filtered J colim =
           ∎
           )
         })
-    λ kp →
+    λ {i} kp →
       let
         module kp = KernelPairs kp
         F-colim = F-map-Coconeˡ (LiftSetoids 0ℓ 0ℓ ∘F Hom.Hom[ Setoids 0ℓ 0ℓ ,-] (Fin≈ n)) colim.colimit
         module F-colim = Cocone (F-colim)
+        -- we are given two tuples:
+        f : Fin≈ n ⇒ J.₀ i
+        f = Lift.lower kp.pr₁
+        g : Fin≈ n ⇒ J.₀ i
+        g = Lift.lower kp.pr₂
+        -- which are identified in the cocone
+        open Setoid renaming (_≈_ to _[[_≈_]])
+        F-identified : F-colim.N [[ F-colim.ψ i ⟨$⟩ kp.pr₁ ≈ F-colim.ψ i ⟨$⟩ kp.pr₂ ]]
+        F-identified = kp.identified
+        -- expanding the definition of F yields:
+        identified : hom-setoid [[ colim.proj i ∘ f ∘ id ≈ colim.proj i ∘ g ∘ id ]]
+        identified = Lift.lower kp.identified
       in
       {!!}
 
