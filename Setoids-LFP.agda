@@ -49,18 +49,12 @@ private
 Fin≈ : ℕ → Setoid 0ℓ 0ℓ
 Fin≈ n = setoid (Fin n)
 
+Fin≈-zero-empty : {ℓ-a : Level} {a : Set ℓ-a} → Fin 0 → a
+Fin≈-zero-empty ()
+
 Fin-is-presented : ∀ (n : ℕ) → presented (Setoids 0ℓ 0ℓ) 0ℓ 0ℓ 0ℓ filtered (Fin≈ n)
 Fin-is-presented n 𝒟 𝒟-filtered J colim =
-  let
-    open Hom (Setoids 0ℓ 0ℓ)
-    hom-n = Hom[ (Fin≈ n) ,-]
-    lift-hom-n = LiftSetoids 0ℓ 0ℓ ∘F hom-n
-    module colim = Colimit colim
-    open Category (Setoids 0ℓ 0ℓ)
-    module 𝒟 = Category 𝒟
-    module J = Functor J
-    module 𝒟-filtered = filtered 𝒟-filtered
-  in
+  -- see where-clause at the end
   bounded-colimiting
     (lift-hom-n ∘F J)
     (F-map-Coconeˡ lift-hom-n (colim.colimit))
@@ -137,8 +131,65 @@ Fin-is-presented n 𝒟 𝒟-filtered J colim =
         -- expanding the definition of F yields:
         identified : hom-setoid [[ colim.proj i ∘ f ∘ id ≈ colim.proj i ∘ g ∘ id ]]
         identified = Lift.lower kp.identified
+
+        i' , ( h , eq ) = induction n i f g identified
       in
-      {!!}
+      record { B = i' ; inj₁ = h ; inj₂ = h ; identifies = Level.lift eq }
+  where
+    open Hom (Setoids 0ℓ 0ℓ)
+    hom-n = Hom[ (Fin≈ n) ,-]
+    lift-hom-n = LiftSetoids 0ℓ 0ℓ ∘F hom-n
+    module colim = Colimit colim
+    open Category (Setoids 0ℓ 0ℓ)
+    module 𝒟 = Category 𝒟
+    module J = Functor J
+    module 𝒟-filtered = filtered 𝒟-filtered
+    open Setoid renaming (_≈_ to _[[_≈_]])
+    induction : ∀ (k : ℕ) (j : Category.Obj 𝒟) →
+                  (s t : Fin≈ k ⇒ J.₀ j) →
+                  hom-setoid [[ colim.proj j ∘ s ≈ colim.proj j ∘ t ]] →
+                  Σ[ j' ∈ 𝒟.Obj ] (Σ[ h ∈ j 𝒟.⇒ j' ] ( hom-setoid [[ J.₁ h ∘ s ≈ J.₁ h ∘ t ]]))
+    induction ℕ.zero j s t eq-proj = j , (𝒟.id , (λ {k} _ → Fin≈-zero-empty k ))
+    induction (ℕ.suc k) j s t eq-proj =
+      let
+        -- the elements s 0 and t 0 are identified in the colimit:
+        proj-identifies-0 : colim.coapex [[ colim.proj j ⟨$⟩ (s ⟨$⟩ Fin.zero) ≈ colim.proj j ⟨$⟩ (t ⟨$⟩ Fin.zero) ]]
+        proj-identifies-0 = eq-proj (Setoid.refl (Fin≈ (ℕ.suc k)))
+
+        -- and so s 0 and t 0 are identified somewhere in the diagram:
+        ident-in-dia-0 : identified-in-diagram J (s ⟨$⟩ Fin.zero) (t ⟨$⟩ Fin.zero)
+        ident-in-dia-0 = filtered-identification-colim J colim 𝒟-filtered proj-identifies-0
+        module ident-in-dia-0 = identified-in-diagram ident-in-dia-0
+        j-0 = 𝒟-filtered.fuse-obj ident-in-dia-0.inj₁ ident-in-dia-0.inj₂
+        h-0 : j 𝒟.⇒ j-0
+        h-0 =
+          (𝒟-filtered.fuse-morph ident-in-dia-0.inj₁ ident-in-dia-0.inj₂)
+          𝒟.∘ ident-in-dia-0.inj₁
+
+        -- we restrict s/t/eq-ref to the other components in order to apply the I.H. to them:
+        s-suc : Fin≈ k ⇒ J.₀ j
+        s-suc = →-to-⟶ (λ m → s ⟨$⟩ Fin.suc m)
+        t-suc : Fin≈ k ⇒ J.₀ j
+        t-suc = →-to-⟶ (λ m → t ⟨$⟩ Fin.suc m)
+        eq-proj-suc : hom-setoid [[ colim.proj j ∘ s-suc ≈ colim.proj j ∘ t-suc ]]
+        eq-proj-suc = λ {refl → eq-proj (Setoid.refl (Fin≈ (ℕ.suc k)))}
+        -- the induction hypothesis:
+        j-suc , (h-suc , ident-in-dia-suc) = induction k j s-suc t-suc eq-proj-suc
+
+        -- we can combine the two morphisms for 0 and the I.H.:
+        j = 𝒟-filtered.close-span-obj h-0 h-suc
+        h =
+          (𝒟-filtered.close-span-morph₂ h-0 h-suc)
+          𝒟.∘ h-suc
+
+        open HomReasoning
+        property =
+          begin
+          J.₁ h ∘ s ≈⟨ {!!} ⟩
+          J.₁ h ∘ t
+          ∎
+      in
+      j , h , property
 
 
 setoids-LFP : WeaklyLFP (Setoids 0ℓ 0ℓ) 0ℓ 0ℓ 0ℓ filtered

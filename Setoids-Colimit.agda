@@ -135,10 +135,10 @@ module _ {o ℓ e c ℓ'} {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
         ∎
       }
 
-    filtered-identification-colim : (filtered D) → ∀ {X Y : D.Obj} → (x : J₀ X) (y : J₀ Y)
+    filtered-identification-colim : (filtered D) → ∀ {X Y : D.Obj} → {x : J₀ X} {y : J₀ Y}
        → Colim.coapex [[ Colim.proj X ⟨$⟩ x ≈ Colim.proj Y ⟨$⟩ y ]]
        → identified-in-diagram x y
-    filtered-identification-colim fil {X} {Y} x y x≈y =
+    filtered-identification-colim fil {X} {Y} {x} {y} x≈y =
       filtered-identification-constr fil x y constr⊢x≈y
       where
         -- the unique cocone morphism:
