@@ -181,10 +181,22 @@ Fin-is-presented n 𝒟 𝒟-filtered J colim =
         h =
           (𝒟-filtered.close-span-morph₂ h-0 h-suc)
           𝒟.∘ h-suc
-
-        -- open Category.HomReasoning 𝒟
+        -- so J.₀ j is the object in the diagram in which
+        -- s and t are identified and h is the morphism identifying both
+        open SetoidR (J.₀ j)
       in
-      j , h , {!!}
+      j , h , λ { -- case distinction: so we have either s0/t0 or s-suc/t-suc
+        {Fin.zero} refl →
+          begin
+          (J.₁ h ∘ s) ⟨$⟩ Fin.zero ≈⟨ {!!} ⟩
+          (J.₁ h ∘ t) ⟨$⟩ Fin.zero
+          ∎
+      ; {Fin.suc m} refl →
+          begin
+          (J.₁ h ∘ s) ⟨$⟩ Fin.suc m ≈⟨ {!!} ⟩
+          (J.₁ h ∘ t) ⟨$⟩ Fin.suc m
+          ∎
+      }
 
 
 setoids-LFP : WeaklyLFP (Setoids 0ℓ 0ℓ) 0ℓ 0ℓ 0ℓ filtered
