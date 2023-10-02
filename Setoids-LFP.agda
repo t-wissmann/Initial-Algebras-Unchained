@@ -10,7 +10,9 @@ open import Categories.Category
 open import Categories.Functor hiding (id)
 open import Categories.Functor.Hom
 open import Filtered
-open import Data.Nat.Base using (ℕ)
+open import Data.Nat using (ℕ)
+import Data.Nat
+import Data.Sum.Base as Sum
 open import Data.Fin
 open import Data.Product
 open import Function.Equality hiding (setoid; _∘_; id)
@@ -303,18 +305,29 @@ canonical-cocone-is-limitting X =
     ∎
   }
 
+concat-tuples : {a : Level} {n m : ℕ} {X : Set a} (s : Fin n → X) (t : Fin m → X) → (Fin (n  Data.Nat.+ m) → X)
+concat-tuples {a} {n} {m} s t n+m = Sum.[ s , t ] (splitAt n n+m)
+
+canonical-cat-is-filtered : ∀ (X : Setoid 0ℓ 0ℓ) → filtered (Cat[ Fin≈ ↓ X ])
+canonical-cat-is-filtered X =
+  record {
+    bounds = record
+              { non-empty = 0 , (record { _⟨$⟩_ = λ () ; cong = λ {x} → exfalso x }) ;
+              upper-bound = λ {(k , s) (n , t) →
+                (k Data.Nat.+ n) , →-to-⟶ (concat-tuples (_⟨$⟩_ s) (_⟨$⟩_ t)) } ;
+              is-above₁ = {!!} ;
+              is-above₂ = {!!} } ;
+    fuse-parallel = {!!}
+    }
+  where
+    exfalso : ∀ {a : Level} {A : Set a} → Fin 0 → A
+    exfalso ()
+
 setoids-LFP : WeaklyLFP 0ℓ 0ℓ 0ℓ filtered
 setoids-LFP = record
                { Idx = ℕ
                ; fin = Fin≈
                ; fin-presented = Fin-is-presented
                ; build-from-fin = canonical-cocone-is-limitting
-               ; canonical-has-prop = {!!}
+               ; canonical-has-prop = canonical-cat-is-filtered
                }
-  -- record {
-  -- Idx = ℕ ;
-  -- fin = Fin≈ ;
-  -- fin-presented = Fin-is-presented ;
-  -- build-from-fin = λ X →
-  --   record { ! = {!!} ; !-unique = {!!} }
-  -- }
