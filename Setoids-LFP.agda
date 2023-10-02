@@ -10,7 +10,6 @@ open import Categories.Category
 open import Categories.Functor hiding (id)
 open import Categories.Functor.Hom
 open import Filtered
-open import LFP
 open import Data.Nat.Base using (ℕ)
 open import Data.Fin
 open import Data.Product
@@ -27,6 +26,7 @@ import Relation.Binary.Reasoning.Setoid as SetoidR
 
 open import Setoids-Colimit
 open import Setoids-Choice
+open import Unchained-Utils
 
 module Setoids-LFP where
 
@@ -34,6 +34,9 @@ private
   variable
     -- levels for setoids themselves:
     o ℓ : Level
+
+open import LFP (Setoids 0ℓ 0ℓ)
+open import Categories.Category.Slice (Setoids 0ℓ 0ℓ)
 
 -- -- we use a custom 'setoid' variation to achieve arbitrary levels o, ℓ
 -- ≡-setoid : ∀ {o ℓ : Level} → Set 0ℓ → Setoid o ℓ
@@ -52,7 +55,7 @@ Fin≈ n = setoid (Fin n)
 Fin≈-zero-empty : {ℓ-a : Level} {a : Set ℓ-a} → Fin 0 → a
 Fin≈-zero-empty ()
 
-Fin-is-presented : ∀ (n : ℕ) → presented (Setoids 0ℓ 0ℓ) 0ℓ 0ℓ 0ℓ filtered (Fin≈ n)
+Fin-is-presented : ∀ (n : ℕ) → presented 0ℓ 0ℓ 0ℓ filtered (Fin≈ n)
 Fin-is-presented n 𝒟 𝒟-filtered J colim =
   -- see where-clause at the end
   bounded-colimiting
@@ -220,11 +223,58 @@ Fin-is-presented n 𝒟 𝒟-filtered J colim =
           ∎
       }
 
-
-setoids-LFP : WeaklyLFP (Setoids 0ℓ 0ℓ) 0ℓ 0ℓ 0ℓ filtered
-setoids-LFP = record {
-  Idx = ℕ ;
-  fin = Fin≈ ;
-  fin-presented = Fin-is-presented ;
-  build-from-fin = λ X → {!!}
+canonical-cocone-is-limitting : ∀ (X : Setoid 0ℓ 0ℓ) → IsLimitting (Cocone[ Fin≈ ↓ X ])
+canonical-cocone-is-limitting X =
+  let
+    open Setoid renaming (_≈_ to _[[_≈_]]) hiding (sym)
+    CanCocone = Cocone[ Fin≈ ↓ X ]
+    module F = Functor (Functor[ Fin≈ ↓ X ])
+    open Category (Setoids 0ℓ 0ℓ)
+    ! : (C : Cocone (Functor[ Fin≈ ↓ X ])) → Cocone⇒ _ CanCocone C
+    ! C =
+      let
+        module C = Cocone C
+        t : (Setoid.Carrier X) → Category.Obj (Cat[ Fin≈ ↓ X ])
+        t x = (1 , const x)
+      in
+      record {
+      arr = record {
+        _⟨$⟩_ = λ x → C.ψ (t x) ⟨$⟩ Fin.zero
+           ;
+        cong = λ {x} {x'} x≈x' →
+          let
+            -- f : Slice⇒ (sliceobj (const x)) (sliceobj (const x'))
+            f : (Cat[ Fin≈ ↓ X ]) [ t x , t x' ]
+            f = slicearr
+                  {h = Function.Equality.id}
+                  λ { {Fin.zero} {Fin.zero} refl → Setoid.sym X x≈x'}
+            eq : C.ψ (t x) ≈ C.ψ (t x') ∘ F.₁ f
+            eq =
+              let open HomReasoning in
+              begin
+              C.ψ (t x) ≈˘⟨ C.commute f ⟩ C.ψ (t x') ∘ F.₁ f
+              ∎
+          in
+          eq (Setoid.refl (Fin≈ 1)) }
+      ; commute = {!!} }
+  in
+  record {
+    ! = λ{C} → ! C ;
+    !-unique = {!!}
   }
+
+setoids-LFP : WeaklyLFP 0ℓ 0ℓ 0ℓ filtered
+setoids-LFP = record
+               { Idx = ℕ
+               ; fin = Fin≈
+               ; fin-presented = Fin-is-presented
+               ; build-from-fin = {!!}
+               ; canonical-has-prop = {!!}
+               }
+  -- record {
+  -- Idx = ℕ ;
+  -- fin = Fin≈ ;
+  -- fin-presented = Fin-is-presented ;
+  -- build-from-fin = λ X →
+  --   record { ! = {!!} ; !-unique = {!!} }
+  -- }

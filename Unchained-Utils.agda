@@ -27,7 +27,8 @@ open import Categories.Morphism.Reasoning.Core
 open import Categories.Category.SubCategory
 open import Categories.Functor.Construction.SubCategory using (FullSub)
 
-module C = Category C
+private
+  module C = Category C
 
 
 -- The property that a functor F preserves the colimit of diagram J:

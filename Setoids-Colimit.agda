@@ -50,7 +50,8 @@ module _ {o ℓ e c ℓ'} {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
         identifies : J.F₀ B [[ J.F₁ inj₁ ⟨$⟩ x ≈ J.F₁ inj₂ ⟨$⟩ y ]]
 
   module _ (Colim : Colimit J) where
-    module Colim = Colimit Colim
+    private
+      module Colim = Colimit Colim
 
     -- Lemma: if two elements are idenitfied in the colimit of a filtered diagram,
     -- then they are already identified somewhere in the diagram.
@@ -165,7 +166,8 @@ module _ {o ℓ e c ℓ'} {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
         identified : B [[ f ⟨$⟩ pr₁ ≈ f ⟨$⟩ pr₂ ]]
 
   module _ (C : Cocone J) where
-    module C = Cocone C
+    private
+      module C = Cocone C
 
     record comes-from-diagram (x : Setoid.Carrier C.N) : Set (o ⊔ ℓ ⊔ c ⊔ ℓ') where
       field
