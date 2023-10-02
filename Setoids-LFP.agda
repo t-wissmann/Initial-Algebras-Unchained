@@ -15,7 +15,7 @@ open import Data.Nat.Base using (ℕ)
 open import Data.Fin
 open import Data.Product
 open import Function.Equality hiding (setoid; _∘_; id)
-open import Relation.Binary.PropositionalEquality
+open import Relation.Binary.PropositionalEquality hiding ([_])
 open import Relation.Binary.PropositionalEquality.Properties
 open import Relation.Binary.PropositionalEquality using (→-to-⟶)
 open import Categories.Diagram.Cocone
@@ -161,10 +161,10 @@ Fin-is-presented n 𝒟 𝒟-filtered J colim =
         ident-in-dia-0 = filtered-identification-colim J colim 𝒟-filtered proj-identifies-0
         module ident-in-dia-0 = identified-in-diagram ident-in-dia-0
         j-0 = 𝒟-filtered.fuse-obj ident-in-dia-0.inj₁ ident-in-dia-0.inj₂
+        coeq = 𝒟-filtered.fuse-morph ident-in-dia-0.inj₁ ident-in-dia-0.inj₂
+        coeq-prop = 𝒟-filtered.fuse-prop ident-in-dia-0.inj₁ ident-in-dia-0.inj₂
         h-0 : j 𝒟.⇒ j-0
-        h-0 =
-          (𝒟-filtered.fuse-morph ident-in-dia-0.inj₁ ident-in-dia-0.inj₂)
-          𝒟.∘ ident-in-dia-0.inj₁
+        h-0 = coeq 𝒟.∘ ident-in-dia-0.inj₁
 
         -- we restrict s/t/eq-ref to the other components in order to apply the I.H. to them:
         s-suc : Fin≈ k ⇒ J.₀ j
@@ -177,18 +177,34 @@ Fin-is-presented n 𝒟 𝒟-filtered J colim =
         j-suc , (h-suc , ident-in-dia-suc) = induction k j s-suc t-suc eq-proj-suc
 
         -- we can combine the two morphisms for 0 and the I.H.:
-        j = 𝒟-filtered.close-span-obj h-0 h-suc
-        h =
-          (𝒟-filtered.close-span-morph₂ h-0 h-suc)
-          𝒟.∘ h-suc
-        -- so J.₀ j is the object in the diagram in which
-        -- s and t are identified and h is the morphism identifying both
-        open SetoidR (J.₀ j)
+        j' = 𝒟-filtered.close-span-obj h-0 h-suc
+        h-inj₁ = 𝒟-filtered.close-span-morph₁ h-0 h-suc
+        h-inj₂ = 𝒟-filtered.close-span-morph₂ h-0 h-suc
+        h : j 𝒟.⇒ j'
+        h = h-inj₁ 𝒟.∘ h-0
+
+        -- J-expand-0 : hom-setoid [[ J.₁ h ≈ J.₁ h-inj₁ ∘ J.₁ coeq ∘ J.₁ ident-in-dia-0.inj₁ ]]
+        -- J-expand-0 = let open HomReasoning in
+        --   begin
+        --   J.₁ h ≈⟨ J.homomorphism ⟩
+        --   J.₁ h-inj₁ ∘ J.₁ h-0 ≈⟨ (refl⟩∘⟨ J.homomorphism) ⟩
+        --   J.₁ h-inj₁ ∘ J.₁ coeq ∘ J.₁ ident-in-dia-0.inj₁
+        --   ∎
+
+        open SetoidR (J.₀ j')
       in
-      j , h , λ { -- case distinction: so we have either s0/t0 or s-suc/t-suc
+      j' , h , λ { -- case distinction: so we have either s0/t0 or s-suc/t-suc
         {Fin.zero} refl →
+          let refl-j = (Setoid.refl (J.₀ j)) in
           begin
-          (J.₁ h ∘ s) ⟨$⟩ Fin.zero ≈⟨ {!!} ⟩
+          (J.₁ h ∘ s) ⟨$⟩ Fin.zero ≡⟨⟩
+          J.₁ h ⟨$⟩ (s ⟨$⟩ Fin.zero) ≈⟨ J.homomorphism refl-j ⟩
+          J.₁ h-inj₁ ⟨$⟩  (J.₁ (coeq 𝒟.∘ ident-in-dia-0.inj₁) ⟨$⟩ (s ⟨$⟩ Fin.zero)) ≈⟨ Π.cong (J.₁ h-inj₁) (J.homomorphism refl-j) ⟩
+          (J.₁ h-inj₁ ∘ J.₁ coeq) ⟨$⟩ (J.₁ ident-in-dia-0.inj₁ ⟨$⟩ (s ⟨$⟩ Fin.zero)) ≈⟨ Π.cong (J.₁ h-inj₁ ∘ J.₁ coeq) ident-in-dia-0.identifies ⟩
+          (J.₁ h-inj₁ ∘ J.₁ coeq) ⟨$⟩ (J.₁ ident-in-dia-0.inj₂ ⟨$⟩ (t ⟨$⟩ Fin.zero)) ≈˘⟨ Π.cong (J.₁ h-inj₁) (J.homomorphism refl-j) ⟩
+          (J.₁ h-inj₁ ∘ J.₁ (coeq 𝒟.∘ ident-in-dia-0.inj₂)) ⟨$⟩ (t ⟨$⟩ Fin.zero) ≈˘⟨ Π.cong (J.₁ h-inj₁) (J.F-resp-≈ coeq-prop refl-j) ⟩
+          (J.₁ h-inj₁ ∘ J.₁ (coeq 𝒟.∘ ident-in-dia-0.inj₁)) ⟨$⟩ (t ⟨$⟩ Fin.zero) ≈˘⟨ J.homomorphism refl-j ⟩
+          (J.₁ (h-inj₁ 𝒟.∘ coeq 𝒟.∘ ident-in-dia-0.inj₁)) ⟨$⟩ (t ⟨$⟩ Fin.zero) ≡⟨⟩
           (J.₁ h ∘ t) ⟨$⟩ Fin.zero
           ∎
       ; {Fin.suc m} refl →
@@ -199,10 +215,10 @@ Fin-is-presented n 𝒟 𝒟-filtered J colim =
       }
 
 
-setoids-LFP : WeaklyLFP (Setoids 0ℓ 0ℓ) 0ℓ 0ℓ 0ℓ filtered
-setoids-LFP = record {
-  Idx = ℕ ;
-  fin = Fin≈ ;
-  fin-presented = Fin-is-presented ;
-  build-from-fin = λ X → {!!}
-  }
+-- setoids-LFP : WeaklyLFP (Setoids 0ℓ 0ℓ) 0ℓ 0ℓ 0ℓ filtered
+-- setoids-LFP = record {
+--   Idx = ℕ ;
+--   fin = Fin≈ ;
+--   fin-presented = Fin-is-presented ;
+--   build-from-fin = λ X → {!!}
+--   }
