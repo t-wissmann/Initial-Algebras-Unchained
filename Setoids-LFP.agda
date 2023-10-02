@@ -315,8 +315,8 @@ canonical-cat-is-filtered X =
               { non-empty = 0 , (record { _⟨$⟩_ = λ () ; cong = λ {x} → exfalso x }) ;
               upper-bound = λ {(k , s) (n , t) →
                 (k Data.Nat.+ n) , →-to-⟶ (concat-tuples (_⟨$⟩_ s) (_⟨$⟩_ t)) } ;
-              is-above₁ = {!!} ;
-              is-above₂ = {!!} } ;
+              is-above₁ = λ {(k , s) (n , t) → {!!} } ;
+              is-above₂ = λ {(k , s) (n , t) → {!!} } } ;
     fuse-parallel = {!!}
     }
   where
