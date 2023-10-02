@@ -268,8 +268,6 @@ canonical-cocone-is-limitting X =
             slicearr
               {h = const y}
               λ { {Fin.zero} {Fin.zero} refl → Setoid.refl X}
-          -- comm : ∀ (y : Setoid.Carrier (Fin≈ n)) → C.ψ s ≈ C.ψ s ∘ F.₁ (morph x)
-          -- comm = ?
           open SetoidR (C.N)
         in
         begin
@@ -286,12 +284,23 @@ canonical-cocone-is-limitting X =
   in
   record {
     ! = λ{C} → ! C ;
-    !-unique = λ {C} f {x} {x'} x≈x' →
+    !-unique = λ {C} other {x} {x'} x≈x' →
     let
+      -- given an other cocone morphism to C
       module C = Cocone C
+      module !C = Cocone⇒ (! C)
+      module other = Cocone⇒ other
       open SetoidR (C.N)
     in
-    {!!}
+    begin
+    !C.arr ⟨$⟩ x
+      ≡⟨⟩
+    C.ψ (t x) ⟨$⟩ Fin.zero
+      ≈˘⟨ other.commute (Setoid.refl (Fin≈ 1)) ⟩
+    other.arr ⟨$⟩ x
+      ≈⟨ Π.cong other.arr x≈x' ⟩
+    other.arr ⟨$⟩ x'
+    ∎
   }
 
 setoids-LFP : WeaklyLFP 0ℓ 0ℓ 0ℓ filtered
