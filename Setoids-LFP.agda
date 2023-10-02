@@ -230,16 +230,20 @@ canonical-cocone-is-limitting X =
     CanCocone = Cocone[ Fin≈ ↓ X ]
     module F = Functor (Functor[ Fin≈ ↓ X ])
     open Category (Setoids 0ℓ 0ℓ)
+
+    t : (Setoid.Carrier X) → Category.Obj (Cat[ Fin≈ ↓ X ])
+    t x = (1 , const x)
+
     ! : (C : Cocone (Functor[ Fin≈ ↓ X ])) → Cocone⇒ _ CanCocone C
     ! C =
       let
         module C = Cocone C
-        t : (Setoid.Carrier X) → Category.Obj (Cat[ Fin≈ ↓ X ])
-        t x = (1 , const x)
+        underlying : (Setoid.Carrier X)  → (Setoid.Carrier C.N)
+        underlying x = C.ψ (t x) ⟨$⟩ Fin.zero
       in
       record {
       arr = record {
-        _⟨$⟩_ = λ x → C.ψ (t x) ⟨$⟩ Fin.zero
+        _⟨$⟩_ = underlying
            ;
         cong = λ {x} {x'} x≈x' →
           let
@@ -256,11 +260,38 @@ canonical-cocone-is-limitting X =
               ∎
           in
           eq (Setoid.refl (Fin≈ 1)) }
-      ; commute = {!!} }
+      ; commute = λ {s} {x} {x'} x≈x' →
+        let
+          n , r = s
+          morph : ∀ (y : Setoid.Carrier (Fin≈ n)) → (Cat[ Fin≈ ↓ X ]) [ t (r ⟨$⟩ y) , s ]
+          morph y =
+            slicearr
+              {h = const y}
+              λ { {Fin.zero} {Fin.zero} refl → Setoid.refl X}
+          -- comm : ∀ (y : Setoid.Carrier (Fin≈ n)) → C.ψ s ≈ C.ψ s ∘ F.₁ (morph x)
+          -- comm = ?
+          open SetoidR (C.N)
+        in
+        begin
+        underlying (r ⟨$⟩ x) ≡⟨⟩
+        C.ψ (t (r ⟨$⟩ x)) ⟨$⟩ Fin.zero
+          ≈˘⟨ C.commute (morph x) (Setoid.refl (Fin≈ 1)) ⟩
+        C.ψ s ⟨$⟩ ((F.₁ (morph x)) ⟨$⟩ Fin.zero)
+          ≡⟨⟩
+        C.ψ s ⟨$⟩ x
+          ≈⟨ Π.cong (C.ψ s) x≈x' ⟩
+        C.ψ s ⟨$⟩ x'
+        ∎
+        }
   in
   record {
     ! = λ{C} → ! C ;
-    !-unique = {!!}
+    !-unique = λ {C} f {x} {x'} x≈x' →
+    let
+      module C = Cocone C
+      open SetoidR (C.N)
+    in
+    {!!}
   }
 
 setoids-LFP : WeaklyLFP 0ℓ 0ℓ 0ℓ filtered
@@ -268,7 +299,7 @@ setoids-LFP = record
                { Idx = ℕ
                ; fin = Fin≈
                ; fin-presented = Fin-is-presented
-               ; build-from-fin = {!!}
+               ; build-from-fin = canonical-cocone-is-limitting
                ; canonical-has-prop = {!!}
                }
   -- record {
