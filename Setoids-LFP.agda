@@ -192,10 +192,10 @@ Fin-is-presented n 𝒟 𝒟-filtered J colim =
         --   ∎
 
         open SetoidR (J.₀ j')
+        refl-j = (Setoid.refl (J.₀ j))
       in
       j' , h , λ { -- case distinction: so we have either s0/t0 or s-suc/t-suc
         {Fin.zero} refl →
-          let refl-j = (Setoid.refl (J.₀ j)) in
           begin
           (J.₁ h ∘ s) ⟨$⟩ Fin.zero ≡⟨⟩
           J.₁ h ⟨$⟩ (s ⟨$⟩ Fin.zero) ≈⟨ J.homomorphism refl-j ⟩
@@ -209,16 +209,22 @@ Fin-is-presented n 𝒟 𝒟-filtered J colim =
           ∎
       ; {Fin.suc m} refl →
           begin
-          (J.₁ h ∘ s) ⟨$⟩ Fin.suc m ≈⟨ {!!} ⟩
+          (J.₁ h ∘ s) ⟨$⟩ Fin.suc m ≡⟨⟩
+          (J.₁ (h-inj₁ 𝒟.∘ h-0) ∘ s) ⟨$⟩ Fin.suc m ≈⟨ J.F-resp-≈ (𝒟-filtered.close-span-commutes h-0 h-suc) refl-j ⟩
+          (J.₁ (h-inj₂ 𝒟.∘ h-suc) ∘ s) ⟨$⟩ Fin.suc m ≈⟨ J.homomorphism refl-j ⟩
+          J.₁ h-inj₂ ⟨$⟩ (J.₁ h-suc ⟨$⟩ (s ⟨$⟩ Fin.suc m)) ≈⟨ Π.cong (J.₁ h-inj₂) (ident-in-dia-suc (Setoid.refl (Fin≈ k))) ⟩
+          J.₁ h-inj₂ ⟨$⟩ (J.₁ h-suc ⟨$⟩ (t ⟨$⟩ Fin.suc m)) ≈˘⟨ J.homomorphism refl-j ⟩
+          (J.₁ (h-inj₂ 𝒟.∘ h-suc) ∘ t) ⟨$⟩ Fin.suc m ≈˘⟨ J.F-resp-≈ (𝒟-filtered.close-span-commutes h-0 h-suc) refl-j ⟩
+          (J.₁ (h-inj₁ 𝒟.∘ h-0) ∘ t) ⟨$⟩ Fin.suc m ≡⟨⟩
           (J.₁ h ∘ t) ⟨$⟩ Fin.suc m
           ∎
       }
 
 
--- setoids-LFP : WeaklyLFP (Setoids 0ℓ 0ℓ) 0ℓ 0ℓ 0ℓ filtered
--- setoids-LFP = record {
---   Idx = ℕ ;
---   fin = Fin≈ ;
---   fin-presented = Fin-is-presented ;
---   build-from-fin = λ X → {!!}
---   }
+setoids-LFP : WeaklyLFP (Setoids 0ℓ 0ℓ) 0ℓ 0ℓ 0ℓ filtered
+setoids-LFP = record {
+  Idx = ℕ ;
+  fin = Fin≈ ;
+  fin-presented = Fin-is-presented ;
+  build-from-fin = λ X → {!!}
+  }
