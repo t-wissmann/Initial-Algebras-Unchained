@@ -149,6 +149,9 @@ module _ (o' ℓ' e' : _) (P : Category o' ℓ' e' → Set prop-level) where
       -- are identified within the diagram:
       λ {i} [f,g] [f',g'] pr∘fg≈pr∘fg' →
         let
+          module fil = filtered (P⇒filtered 𝒟-has-P)
+          open HomReasoning
+
           f = [f,g] ∘ i₁
           g = [f,g] ∘ i₂
           f' = [f',g'] ∘ i₁
@@ -158,47 +161,68 @@ module _ (o' ℓ' e' : _) (P : Category o' ℓ' e' → Set prop-level) where
           i-f , u-f , (u-f' , u-f∘f≈u-f'∘f') =
             hom-colim-unique-factor J-colim (P⇒filtered 𝒟-has-P)
                   A A-preserves-J _ _ pr∘f≈pr∘f'
+          v-f = fil.fuse-morph u-f u-f' 𝒟.∘ u-f
+          v-f-prop : J.₁ v-f ∘ f ≈ J.₁ v-f ∘ f'
+          v-f-prop =
+            begin
+            J.₁ v-f ∘ f         ≈⟨ J.homomorphism ⟩∘⟨refl ⟩
+            (J.₁ (fil.fuse-morph u-f u-f') ∘ J.₁ u-f) ∘ f    ≈⟨ extendˡ u-f∘f≈u-f'∘f' ⟩
+            (J.₁ (fil.fuse-morph u-f u-f') ∘ J.₁ u-f') ∘ f'  ≈˘⟨ J.homomorphism ⟩∘⟨refl ⟩
+            J.₁ (fil.fuse-morph u-f u-f' 𝒟.∘ u-f') ∘ f'      ≈˘⟨ J.F-resp-≈ (fil.fuse-prop u-f u-f') ⟩∘⟨refl ⟩
+            J.₁ v-f ∘ f'
+            ∎
+
           -- same for g:
           i-g , u-g , (u-g' , u-g∘g≈u-g'∘g') =
             hom-colim-unique-factor J-colim (P⇒filtered 𝒟-has-P)
                   B B-preserves-J g g' (extendʳ pr∘fg≈pr∘fg')
-          -- we then merge the span u-f and g-f to one commuting square
-          module fil = filtered (P⇒filtered 𝒟-has-P)
-          i' = fil.close-span-obj u-f u-g
-          e-f = fil.close-span-morph₁ u-f u-g
-          e-g = fil.close-span-morph₂ u-f u-g
-          m = e-f 𝒟.∘ u-f
-          m' = e-f 𝒟.∘ u-f'
-          open HomReasoning
+          v-g = fil.fuse-morph u-g u-g' 𝒟.∘ u-g
+          v-g-prop : J.₁ v-g ∘ g ≈ J.₁ v-g ∘ g'
+          v-g-prop =
+            begin
+            J.₁ v-g ∘ g         ≈⟨ J.homomorphism ⟩∘⟨refl ⟩
+            (J.₁ (fil.fuse-morph u-g u-g') ∘ J.₁ u-g) ∘ g    ≈⟨ extendˡ u-g∘g≈u-g'∘g' ⟩
+            (J.₁ (fil.fuse-morph u-g u-g') ∘ J.₁ u-g') ∘ g'  ≈˘⟨ J.homomorphism ⟩∘⟨refl ⟩
+            J.₁ (fil.fuse-morph u-g u-g' 𝒟.∘ u-g') ∘ g'      ≈˘⟨ J.F-resp-≈ (fil.fuse-prop u-g u-g') ⟩∘⟨refl ⟩
+            J.₁ v-g ∘ g'
+            ∎
+
+          -- we then merge the span v-f and v-g to one commuting square
+          i' = fil.close-span-obj v-f v-g
+          e-f = fil.close-span-morph₁ v-f v-g
+          e-g = fil.close-span-morph₂ v-f v-g
+          m = e-f 𝒟.∘ v-f
           case1 =
             begin
             (J.₁ m ∘ [f,g]) ∘ i₁        ≈⟨ assoc ⟩
             J.₁ m ∘ f          ≈⟨ J.homomorphism ⟩∘⟨refl ⟩
-            (J.₁ e-f ∘ J.₁ u-f) ∘ f        ≈⟨ assoc ⟩
-            J.₁ e-f ∘ (J.₁ u-f ∘ f)        ≈⟨ refl⟩∘⟨ u-f∘f≈u-f'∘f' ⟩
-            J.₁ e-f ∘ (J.₁ u-f' ∘ f')        ≈⟨ sym-assoc ⟩
-            (J.₁ e-f ∘ J.₁ u-f') ∘ f'        ≈˘⟨ J.homomorphism ⟩∘⟨refl ⟩
-            J.₁ m' ∘ [f',g'] ∘ i₁        ≈⟨ sym-assoc ⟩
-            (J.₁ m' ∘ [f',g']) ∘ i₁
+            (J.₁ e-f ∘ J.₁ v-f) ∘ f        ≈⟨ assoc ⟩
+            J.₁ e-f ∘ (J.₁ v-f ∘ f)        ≈⟨ refl⟩∘⟨ v-f-prop ⟩
+            J.₁ e-f ∘ (J.₁ v-f ∘ f')        ≈⟨ sym-assoc ⟩
+            (J.₁ e-f ∘ J.₁ v-f) ∘ f'        ≈˘⟨ J.homomorphism ⟩∘⟨refl ⟩
+            J.₁ m ∘ [f',g'] ∘ i₁        ≈⟨ sym-assoc ⟩
+            (J.₁ m ∘ [f',g']) ∘ i₁
             ∎
           case2 =
             begin
             (J.₁ m ∘ [f,g]) ∘ i₂        ≈⟨ assoc ⟩
-            J.₁ m ∘ g          ≈⟨ J.F-resp-≈ (fil.close-span-commutes u-f u-g) ⟩∘⟨refl ⟩
-            J.₁ _ ∘ g          ≈⟨ J.homomorphism ⟩∘⟨refl ⟩
-            (J.₁ e-g ∘ J.₁ u-g) ∘ g        ≈⟨ assoc ⟩
-            J.₁ e-g ∘ (J.₁ u-g ∘ g)        ≈⟨ refl⟩∘⟨ u-g∘g≈u-g'∘g' ⟩
-            J.₁ e-g ∘ (J.₁ u-g' ∘ g')        ≈⟨ sym-assoc ⟩
-            (J.₁ e-g ∘ J.₁ u-g') ∘ g'        ≈˘⟨ J.homomorphism ⟩∘⟨refl ⟩
-            J.₁ {!e-g 𝒟.∘ u-g'!} ∘ [f',g'] ∘ i₂        ≈˘⟨ J.F-resp-≈ {!!} ⟩∘⟨refl ⟩
-            J.₁ m' ∘ [f',g'] ∘ i₂        ≈⟨ sym-assoc ⟩
-            (J.₁ m' ∘ [f',g']) ∘ i₂
+            J.₁ m ∘ g          ≈⟨ J.F-resp-≈ (fil.close-span-commutes v-f v-g) ⟩∘⟨refl ⟩
+            J.₁ (e-g 𝒟.∘ v-g) ∘ g          ≈⟨ J.homomorphism ⟩∘⟨refl ⟩
+            (J.₁ e-g ∘ J.₁ v-g) ∘ g        ≈⟨ assoc ⟩
+            J.₁ e-g ∘ (J.₁ v-g ∘ g)        ≈⟨ refl⟩∘⟨ v-g-prop ⟩ -- refl⟩∘⟨ v-g-prop ⟩
+            J.₁ e-g ∘ (J.₁ v-g ∘ g')        ≈⟨ sym-assoc ⟩
+            (J.₁ e-g ∘ J.₁ v-g) ∘ g'        ≈˘⟨ J.homomorphism ⟩∘⟨refl ⟩
+            J.₁ (e-g 𝒟.∘ v-g) ∘ [f',g'] ∘ i₂        ≈˘⟨ J.F-resp-≈ (fil.close-span-commutes v-f v-g) ⟩∘⟨refl ⟩
+            J.₁ m ∘ [f',g'] ∘ i₂        ≈⟨ sym-assoc ⟩
+            (J.₁ m ∘ [f',g']) ∘ i₂
             ∎
         in
-        i' , (m , (m' , (
+        i' , (m , (m , (
             begin
-            (J.₁ m ∘ [f,g])        ≈⟨ {!!} ⟩
-            (J.₁ m' ∘ [f',g'])
+            (J.₁ m ∘ [f,g])        ≈˘⟨ g-η ⟩
+            [ (J.₁ m ∘ [f,g]) ∘ i₁ , (J.₁ m ∘ [f,g]) ∘ i₂ ]        ≈⟨ []-cong₂ case1 case2 ⟩
+            [ (J.₁ m ∘ [f',g']) ∘ i₁ , (J.₁ m ∘ [f',g']) ∘ i₂ ]        ≈⟨ g-η ⟩
+            (J.₁ m ∘ [f',g'])
             ∎
             )))
     where
