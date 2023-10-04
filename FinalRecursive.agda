@@ -32,7 +32,7 @@ module FinalRecursive {o ℓ e fil-level}
 
 module 𝒞 = Category 𝒞
 open import recursive-coalgebra 𝒞 F
-open import Hom-Colimit-Choice
+open import Hom-Colimit-Choice 𝒞
 
 record FinitaryRecursive (coalg : F-Coalgebra F) : Set (o ⊔ suc ℓ ⊔ suc e ⊔ fil-level) where
   -- the property that a coalgebra

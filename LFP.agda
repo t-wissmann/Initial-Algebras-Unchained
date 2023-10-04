@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --allow-unsolved-metas #-}
 open import Level
 
 open import Categories.Category
@@ -12,6 +12,7 @@ open import Categories.Object.Initial
 open import Categories.Category.Construction.Thin
 open import Categories.Category.Cocomplete
 open import Categories.Category.Slice
+open import Categories.Category.Instance.Setoids
 open import Categories.Functor.Construction.LiftSetoids
 open import Data.Product
 
@@ -42,6 +43,8 @@ private
 
 open import Categories.Functor.Slice (𝒞) using (Forgetful)
 open import Categories.Functor.Hom
+open import Categories.Object.Coproduct (𝒞)
+import Setoids-Colimit
 
 open Hom
 
@@ -77,14 +80,82 @@ Cocone[_↓_]  𝒞-fp X = record { coapex = record {
   } }
 
 module _ (o' ℓ' e' : _) (P : Category o' ℓ' e' → Set prop-level) where
+
+  open import Hom-Colimit-Choice 𝒞
+  open LiftHom o' ℓ' e'
+
   presented : 𝒞.Obj → Set _
   presented X =
     ∀ (𝒟 : Category o' ℓ' e') →    -- forall diagram schemes
     P 𝒟 →                          -- satisfying P
     (J : Functor 𝒟 𝒞) →            -- and all their diagrams
-    preserves-colimit J (
-      LiftSetoids (ℓ ⊔ o') (o' ⊔ ℓ' ⊔ e ⊔ ℓ) ∘F
-      Hom[ 𝒞 ][ X ,-]) -- the hom-functor preserves all (existing) colimits
+    preserves-colimit J LiftHom[ X ,-] -- the hom-functor preserves all (existing) colimits
+
+  -- presented objects are closed under coproducts
+  presented-coproduct : {A B : 𝒞.Obj} →
+    (∀ {𝒟} → P 𝒟 → filtered 𝒟) → (coprod : Coproduct A B) →
+    presented A → presented B → presented (Coproduct.A+B coprod)
+  presented-coproduct {A} {B} P⇒filtered coprod A-pres B-pres 𝒟 𝒟-has-P J J-colim =
+    hom-colim-construct
+      J-colim
+      (filtered.bounds (P⇒filtered 𝒟-has-P))
+      A+B
+      -- Part 1: every morphism A+B -> colim J needs to factor through the diagram:
+      (λ [f,g] →
+        let
+          f = [f,g] ∘ i₁
+          g = [f,g] ∘ i₂
+          T-f : Triangle _ f
+          T-f = hom-colim-choice J-colim A (A-pres 𝒟 𝒟-has-P J) f
+          module T-f = Triangle T-f
+          T-g : Triangle _ g
+          T-g = hom-colim-choice J-colim B (B-pres 𝒟 𝒟-has-P J) g
+          module T-g = Triangle T-g
+
+          B = upper-bound T-f.x T-g.x
+          p' = [ (J.₁ (is-above₁ _ _) ∘ T-f.p') , (J.₁ (is-above₂ _ _) ∘ T-g.p')  ]
+
+          open HomReasoning
+          case1 = begin
+            [f,g] ∘ i₁                             ≡⟨⟩
+            f                                               ≈⟨ T-f.commutes ⟩
+            J-colim.proj T-f.x ∘ T-f.p' ≈˘⟨ J-colim.colimit-commute _ ⟩∘⟨refl ⟩
+            (J-colim.proj B ∘ J.₁ (is-above₁ _ _)) ∘ T-f.p' ≈⟨ assoc ⟩
+            J-colim.proj B ∘ (J.₁ (is-above₁ _ _) ∘ T-f.p') ≈˘⟨ refl⟩∘⟨ inject₁ ⟩
+            J-colim.proj B ∘ p' ∘ i₁ ≈⟨ sym-assoc ⟩
+            (J-colim.proj B ∘ p') ∘ i₁
+            ∎
+          case2 = begin
+            [f,g] ∘ i₂                            ≈⟨ T-g.commutes ⟩
+            J-colim.proj T-g.x ∘ T-g.p' ≈˘⟨ J-colim.colimit-commute _ ⟩∘⟨refl ⟩
+            (J-colim.proj B ∘ J.₁ (is-above₂ _ _)) ∘ T-g.p' ≈⟨ assoc ⟩
+            J-colim.proj B ∘ (J.₁ (is-above₂ _ _) ∘ T-g.p') ≈˘⟨ refl⟩∘⟨ inject₂ ⟩
+            J-colim.proj B ∘ p' ∘ i₂ ≈⟨ sym-assoc ⟩
+            (J-colim.proj B ∘ p') ∘ i₂
+            ∎
+        in
+        record {
+          x = B ;
+          p' = p' ;
+          commutes =
+            begin
+            [f,g]        ≈˘⟨ g-η ⟩
+            [ f , g ]    ≈⟨ unique (⟺ case1) (⟺ case2) ⟩
+            J-colim.proj B ∘ p'
+            ∎
+          })
+      -- Part 2: if we have two factorizations, then they
+      -- are identified within the diagram:
+      λ [f,g] [f',g'] pr∘f≈pr∘f' →
+        {!!}
+    where
+      open Coproduct coprod
+      open Category 𝒞
+      module J = Functor J
+      module J-colim = Colimit J-colim
+      open has-upper-bounds (filtered.bounds (P⇒filtered 𝒟-has-P))
+      Hom-A-colim = Colimit-from-prop (A-pres 𝒟 𝒟-has-P J J-colim)
+      Hom-B-colim = Colimit-from-prop (B-pres 𝒟 𝒟-has-P J J-colim)
 
 
   record WeaklyLFP : Set (o ⊔ suc (ℓ ⊔ e ⊔ o' ⊔ ℓ' ⊔ e' ⊔ prop-level)) where
