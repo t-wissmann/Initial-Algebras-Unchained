@@ -106,7 +106,32 @@ module _
       (P : 𝒞.Obj) →
       IsLimitting (F-map-Coconeˡ (LiftHom[ P ,-]) (Colimit.colimit colim)) →
       UniqueColimitFactorization P
-  hom-colim-unique-factor fil P = {!!}
+  hom-colim-unique-factor fil P is-colim {i} f g pr∘f≈pr∘g =
+    I.B , I.inj₁ , (I.inj₂ , (begin
+      D.₁ I.inj₁ ∘ f ≈˘⟨ refl⟩∘⟨ identityʳ ⟩
+      D.₁ I.inj₁ ∘ f ∘ id ≈⟨ Level.lower I.identifies ⟩
+      D.₁ I.inj₂ ∘ g ∘ id ≈⟨ refl⟩∘⟨ identityʳ ⟩
+      D.₁ I.inj₂ ∘ g
+      ∎))
+    where
+      open HomReasoning
+
+      ident-f-g : Setoids-Colimit.identified-in-diagram (LiftHom[ P ,-] ∘F D) (Level.lift f) (Level.lift g)
+      ident-f-g =
+        Setoids-Colimit.filtered-identification-colim
+          {c = ℓ ⊔ o'} {ℓ' = o' ⊔ ℓ' ⊔ e ⊔ ℓ} -- TODO: why can't the levels be inferred from LiftHom[_,-]?
+          (LiftHom[ P ,-] ∘F D)
+          (Colimit-from-prop is-colim)
+          fil
+          (lift (begin
+           colim.proj i ∘ f ∘ id  ≈⟨ refl⟩∘⟨ identityʳ ⟩
+           colim.proj i ∘ f  ≈⟨ pr∘f≈pr∘g ⟩
+           colim.proj i ∘ g  ≈˘⟨ refl⟩∘⟨ identityʳ ⟩
+           colim.proj i ∘ g ∘ id
+           ∎))
+
+      module I = Setoids-Colimit.identified-in-diagram ident-f-g
+
 
   -- A hom-functor 𝒞(P,-) preserves a colimit C given that
   -- 1. all morphisms P ⇒ C factor through the diagram.

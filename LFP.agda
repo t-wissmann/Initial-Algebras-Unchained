@@ -44,6 +44,7 @@ private
 open import Categories.Functor.Slice (𝒞) using (Forgetful)
 open import Categories.Functor.Hom
 open import Categories.Object.Coproduct (𝒞)
+open import Categories.Morphism.Reasoning.Core 𝒞
 import Setoids-Colimit
 
 open Hom
@@ -146,16 +147,71 @@ module _ (o' ℓ' e' : _) (P : Category o' ℓ' e' → Set prop-level) where
           })
       -- Part 2: if we have two factorizations, then they
       -- are identified within the diagram:
-      λ [f,g] [f',g'] pr∘f≈pr∘f' →
-        {!!}
+      λ {i} [f,g] [f',g'] pr∘fg≈pr∘fg' →
+        let
+          f = [f,g] ∘ i₁
+          g = [f,g] ∘ i₂
+          f' = [f',g'] ∘ i₁
+          g' = [f',g'] ∘ i₂
+          pr∘f≈pr∘f' : J-colim.proj i ∘ ([f,g] ∘ i₁) ≈ J-colim.proj i ∘ ([f',g'] ∘ i₁)
+          pr∘f≈pr∘f' = extendʳ pr∘fg≈pr∘fg'
+          i-f , u-f , (u-f' , u-f∘f≈u-f'∘f') =
+            hom-colim-unique-factor J-colim (P⇒filtered 𝒟-has-P)
+                  A A-preserves-J _ _ pr∘f≈pr∘f'
+          -- same for g:
+          i-g , u-g , (u-g' , u-g∘g≈u-g'∘g') =
+            hom-colim-unique-factor J-colim (P⇒filtered 𝒟-has-P)
+                  B B-preserves-J g g' (extendʳ pr∘fg≈pr∘fg')
+          -- we then merge the span u-f and g-f to one commuting square
+          module fil = filtered (P⇒filtered 𝒟-has-P)
+          i' = fil.close-span-obj u-f u-g
+          e-f = fil.close-span-morph₁ u-f u-g
+          e-g = fil.close-span-morph₂ u-f u-g
+          m = e-f 𝒟.∘ u-f
+          m' = e-f 𝒟.∘ u-f'
+          open HomReasoning
+          case1 =
+            begin
+            (J.₁ m ∘ [f,g]) ∘ i₁        ≈⟨ assoc ⟩
+            J.₁ m ∘ f          ≈⟨ J.homomorphism ⟩∘⟨refl ⟩
+            (J.₁ e-f ∘ J.₁ u-f) ∘ f        ≈⟨ assoc ⟩
+            J.₁ e-f ∘ (J.₁ u-f ∘ f)        ≈⟨ refl⟩∘⟨ u-f∘f≈u-f'∘f' ⟩
+            J.₁ e-f ∘ (J.₁ u-f' ∘ f')        ≈⟨ sym-assoc ⟩
+            (J.₁ e-f ∘ J.₁ u-f') ∘ f'        ≈˘⟨ J.homomorphism ⟩∘⟨refl ⟩
+            J.₁ m' ∘ [f',g'] ∘ i₁        ≈⟨ sym-assoc ⟩
+            (J.₁ m' ∘ [f',g']) ∘ i₁
+            ∎
+          case2 =
+            begin
+            (J.₁ m ∘ [f,g]) ∘ i₂        ≈⟨ assoc ⟩
+            J.₁ m ∘ g          ≈⟨ J.F-resp-≈ (fil.close-span-commutes u-f u-g) ⟩∘⟨refl ⟩
+            J.₁ _ ∘ g          ≈⟨ J.homomorphism ⟩∘⟨refl ⟩
+            (J.₁ e-g ∘ J.₁ u-g) ∘ g        ≈⟨ assoc ⟩
+            J.₁ e-g ∘ (J.₁ u-g ∘ g)        ≈⟨ refl⟩∘⟨ u-g∘g≈u-g'∘g' ⟩
+            J.₁ e-g ∘ (J.₁ u-g' ∘ g')        ≈⟨ sym-assoc ⟩
+            (J.₁ e-g ∘ J.₁ u-g') ∘ g'        ≈˘⟨ J.homomorphism ⟩∘⟨refl ⟩
+            J.₁ {!e-g 𝒟.∘ u-g'!} ∘ [f',g'] ∘ i₂        ≈˘⟨ J.F-resp-≈ {!!} ⟩∘⟨refl ⟩
+            J.₁ m' ∘ [f',g'] ∘ i₂        ≈⟨ sym-assoc ⟩
+            (J.₁ m' ∘ [f',g']) ∘ i₂
+            ∎
+        in
+        i' , (m , (m' , (
+            begin
+            (J.₁ m ∘ [f,g])        ≈⟨ {!!} ⟩
+            (J.₁ m' ∘ [f',g'])
+            ∎
+            )))
     where
       open Coproduct coprod
       open Category 𝒞
+      module 𝒟 = Category 𝒟
       module J = Functor J
       module J-colim = Colimit J-colim
       open has-upper-bounds (filtered.bounds (P⇒filtered 𝒟-has-P))
-      Hom-A-colim = Colimit-from-prop (A-pres 𝒟 𝒟-has-P J J-colim)
-      Hom-B-colim = Colimit-from-prop (B-pres 𝒟 𝒟-has-P J J-colim)
+      A-preserves-J = A-pres 𝒟 𝒟-has-P J J-colim
+      B-preserves-J = B-pres 𝒟 𝒟-has-P J J-colim
+      Hom-A-colim = Colimit-from-prop A-preserves-J
+      Hom-B-colim = Colimit-from-prop B-preserves-J
 
 
   record WeaklyLFP : Set (o ⊔ suc (ℓ ⊔ e ⊔ o' ⊔ ℓ' ⊔ e' ⊔ prop-level)) where
