@@ -170,6 +170,9 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
       p' : P ⇒ F.₀ X
       p' = Triangle.p' (proj₂ t)
 
+      triangle-commutes : p ≈ F.₁ proj-X,x.f ∘ p'
+      triangle-commutes = Triangle.commutes (proj₂ t)
+
 
       -- the structure of the constructed coalgebra:
       Fi₂[p',x] : P+X.obj ⇒ F.₀ P+X.obj
@@ -208,6 +211,17 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
       hom-to-FA : F-Coalgebra-Morphism P+X-coalg (iterate A,α)
       hom-to-FA = (iterate-F-Coalgebra-Morphism proj-X,x) F-Coalgebras.∘ hom-to-FX
       module hom-to-FA = F-Coalgebra-Morphism hom-to-FA
+
+      hom-to-FA-i₁ : p ≈ hom-to-FA.f ∘ P+X.i₁
+      hom-to-FA-i₁ =
+        let open HomReasoning in
+        begin
+        p ≈⟨ triangle-commutes ⟩
+        F.₁ proj-X,x.f ∘ p' ≈˘⟨ refl⟩∘⟨ P+X.inject₁ ⟩
+        F.₁ proj-X,x.f ∘ P+X.[ p' , x ] ∘ P+X.i₁ ≈⟨ sym-assoc ⟩
+        (F.₁ proj-X,x.f ∘ hom-to-FX.f) ∘ P+X.i₁ ≡⟨⟩
+        hom-to-FA.f ∘ P+X.i₁
+        ∎
 
       --   The property that all objects in the diagram ...
       P+X-coalg-is-FinitaryRecursive : FinitaryRecursive P+X-coalg
@@ -310,25 +324,42 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
     S = Sub (F-Coalgebras F) tri-subcat
 
     -- -- since we have 'P' as one of the ingredients, we have a cocone:
-    -- FA,Fα-Cocone : Cocone E
-    -- FA,Fα-Cocone =
-    --   record {
-    --     N = iterate A,α ;
-    --     coapex = record {
-    --       ψ = ConstructionComponents.hom-to-FA ;
-    --       commute = λ {t} {t'} h →
-    --         let
-    --           open HomReasoning
-    --           open ConstructionComponents
-    --           module h = F-Coalgebra-Morphism h
-    --         in
-    --         begin
-    --         hom-to-FA.f t' ∘ h.f ≈⟨ {!!} ⟩
-    --         hom-to-FA.f t
-    --         ∎
-    --       }
-    --   }
-    -- module FA,Fα-Cocone = Cocone FA,Fα-Cocone
+    FA,Fα-Cocone : Cocone S
+    FA,Fα-Cocone =
+      let
+        open ConstructionComponents
+        open HomReasoning
+        V = F-Coalgebra-Morphism.f
+      in
+      record {
+        N = iterate A,α ;
+        coapex = record {
+          ψ = hom-to-FA ;
+          commute = λ {t1} {t2} (s+h , (s , (h , s+h-prop))) →
+            let
+              open HomReasoning
+              open ConstructionComponents
+            in
+            coproduct-jointly-epic (P+X t1)
+              (begin
+              (hom-to-FA.f t2 ∘ V s+h) ∘ P+X.i₁ t1 ≈⟨ assoc ⟩
+              hom-to-FA.f t2 ∘ (V s+h ∘ P+X.i₁ t1) ≈⟨ refl⟩∘⟨ s+h-prop ⟩∘⟨refl ⟩
+              hom-to-FA.f t2 ∘ (_ ∘ P+X.i₁ t1) ≈⟨ refl⟩∘⟨ P+X.inject₁ t1 ⟩
+              hom-to-FA.f t2 ∘ (P+X.i₁ t2 ∘ D.₁ s) ≈⟨ sym-assoc ⟩
+              (hom-to-FA.f t2 ∘ P+X.i₁ t2) ∘ D.₁ s ≈˘⟨ hom-to-FA-i₁ t2 ⟩∘⟨refl ⟩
+              p t2 ∘ D.₁ s ≈⟨ FA-colim.colimit-commute s ⟩
+              p t1 ≈⟨ hom-to-FA-i₁ t1 ⟩
+              hom-to-FA.f t1 ∘ P+X.i₁ t1
+              ∎)
+              (begin
+              (hom-to-FA.f t2 ∘ V s+h) ∘ P+X.i₂ t1 ≈⟨ {!!} ⟩
+              F.₁ (proj-X,x.f t1) ∘ (P+X.[_,_] t1 (p' t1) (x t1) ∘ P+X.i₂ t1) ≈⟨ sym-assoc ⟩
+              (F.₁ (proj-X,x.f t1) ∘ hom-to-FX.f t1) ∘ P+X.i₂ t1 ≡⟨⟩
+              hom-to-FA.f t1 ∘ P+X.i₂ t1
+              ∎)
+          }
+      }
+    module FA,Fα-Cocone = Cocone FA,Fα-Cocone
 
     -- iterated-LProp-Coalgebra : LProp-Coalgebra
     -- iterated-LProp-Coalgebra = record {
