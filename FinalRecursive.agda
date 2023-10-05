@@ -12,7 +12,6 @@ open import Categories.Category.SubCategory
 open import Categories.Functor.Construction.SubCategory using (FullSub)
 open import Categories.Functor using (Functor; Endofunctor)
 open import Data.Product
-open import Categories.Object.Coproduct
 
 open import Categories.Functor.Coalgebra
 
@@ -36,6 +35,7 @@ module FinalRecursive {o ℓ e fil-level}
 module 𝒞 = Category 𝒞
 open import recursive-coalgebra 𝒞 F
 open import Hom-Colimit-Choice 𝒞
+open import Categories.Object.Coproduct 𝒞
 
 record FinitaryRecursive (coalg : F-Coalgebra F) : Set (o ⊔ suc ℓ ⊔ suc e ⊔ fil-level) where
   -- the property that a coalgebra
@@ -113,8 +113,37 @@ iterate-LProp-Coalgebra coalg-colim 𝒟-filtered F-preserves-colim has-coprod =
       hom-colim-choice F-coalg-colim (D.₀ P)
         DP-preserves-colim
         (FA-colim.proj P)
+    -- In the following, we construct a presented coalgebra
+    -- "below" (FA,Fα).
 
-    -- every such triangle induces a coalgebra with presented carrier:
+    -- The first ingredient is the 'intermediate' coalgebra through which
+    -- the triangle factors:
+    X,x : ∀ ((P , T) : all-triangles) → F-Coalgebra F
+    X,x = λ {(P , T) → coalg-colim.D.₀ (Triangle.x T)}
+    -- We also introduce names for the carrier and the structure, all
+    -- parametrized by the triangle:
+    X : all-triangles → 𝒞.Obj
+    X t = F-Coalgebra.A (X,x t)
+    x : ∀ (t : all-triangles) → (X t ⇒ F.₀ (X t))
+    x t = F-Coalgebra.α (X,x t)
+
+    P : all-triangles → 𝒞.Obj
+    P t = D.₀ (proj₁ t)
+
+    P-is-presented : ∀ (t : all-triangles) → (Fil-presented (P t))
+    P-is-presented t =
+      -- here, we need to unfold the definition of P as a sliceobj
+      -- from the index of a presented object
+      let (idx , _) = (proj₁ t) in
+      𝒞-lfp.fin-presented idx
+
+    X-is-presented : ∀ (t : all-triangles) → (Fil-presented (X t))
+    X-is-presented t = FinitaryRecursive.finite-carrier coalg-colim.all-have-prop
+
+    -- the constructed coalgebra has a coproduct as its carrier
+    P+X : ∀ (t : all-triangles) → Coproduct (P t) (X t)
+    P+X t = has-coprod (P t) (X t) (P-is-presented t) (X-is-presented t)
+
     triangle-to-coalgebra : all-triangles → F-Coalgebra F
     triangle-to-coalgebra = λ {(P , T) →
       let
@@ -123,7 +152,7 @@ iterate-LProp-Coalgebra coalg-colim 𝒟-filtered F-preserves-colim has-coprod =
         P-is-presented =
           let (idx , _) = P in
           𝒞-lfp.fin-presented idx
-        -- The factorizatoin triangle provides us a coalgebra:
+        -- The factorization triangle provides us with a coalgebra:
         X = F-Coalgebra.A (coalg-colim.D.₀ T.x)
         x : X ⇒ F.₀ X
         x = F-Coalgebra.α (coalg-colim.D.₀ T.x)
@@ -142,15 +171,20 @@ iterate-LProp-Coalgebra coalg-colim 𝒟-filtered F-preserves-colim has-coprod =
       record {
         A = P+X.obj ;
         α = F.₁ P+X.i₂ ∘ P+X.[ T.p' , x ]
-      }}
+      } }
     -- the map from triangles to coalgebras gives rise to a functor
     -- from the full subcategory ℰ of such built coalgebras:
     ℰ : Category _ _ _
-    ℰ = FullSubCategory (F-Coalgebras F) triangle-to-coalgebra
+    ℰ = FullSubCategory (F-Coalgebras F) (triangle-to-coalgebra)
     E : Functor ℰ (F-Coalgebras F)
     E = FullSub (F-Coalgebras F)
   in
-  {!!}
+  record {
+    𝒟 = ℰ ;
+    D = E ;
+    all-have-prop = {!!} ;
+    carrier-colim = {!!}
+    }
 -- module _
 --   (P : Category ℓ ℓ ℓ → Set prop-level)
 --   (P-implies-filtered : ∀ (𝒟 : _) → P 𝒟 → filtered 𝒟)
