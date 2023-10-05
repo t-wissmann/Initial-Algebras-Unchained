@@ -11,6 +11,7 @@ open import Categories.Category.Construction.F-Coalgebras
 open import Categories.Functor.Construction.SubCategory using (FullSub)
 open import Categories.Functor using (Functor; Endofunctor)
 open import Data.Product
+open import Categories.Object.Coproduct
 
 open import Categories.Functor.Coalgebra
 
@@ -27,6 +28,7 @@ module FinalRecursive {o ℓ e fil-level}
   (𝒞 : Category o ℓ e)
   (F : Endofunctor 𝒞)
   (Fil : ∀ {o' ℓ' e' : Level} → Category o' ℓ' e' → Set fil-level) -- some variant of 'filtered'
+  (Fil-to-filtered : ∀ {𝒟 : Category ℓ ℓ ℓ} → Fil 𝒟 → filtered 𝒟) -- .. which implies filtered
   (𝒞-lfp : WeaklyLFP 𝒞 ℓ ℓ ℓ Fil)
   where
 
@@ -52,9 +54,11 @@ iterate-LProp-Coalgebra : (coalg : LProp-Coalgebra)
                       -- ^- coalg is a colimit of a filtered diagram
                       → preserves-colimit (LProp-Coalgebra.carrier-diagram coalg) F
                       -- ^- F preserves the colimit 'coalg'
+                      → HasCoproductOfPresentedObjects 𝒞 ℓ ℓ ℓ Fil
                       → LProp-Coalgebra
-iterate-LProp-Coalgebra coalg-colim 𝒟-filtered F-preserves-colim =
+iterate-LProp-Coalgebra coalg-colim 𝒟-filtered F-preserves-colim has-coprod =
   let
+    Fil-presented = presented 𝒞 ℓ ℓ ℓ Fil
     -- the provided coalgebra:
     module coalg-colim = LProp-Coalgebra coalg-colim
     open F-Coalgebra coalg-colim.to-Coalgebra
@@ -88,43 +92,11 @@ iterate-LProp-Coalgebra coalg-colim 𝒟-filtered F-preserves-colim =
     --          |                     |
     --          |                     |
     --          '-------> Carrier( F(X,x) )
-    -- triangles =
-    --   Σ[ P ∈ 𝒟.Obj ]
-    --   Σ[ X ∈ (Category.Obj coalg-colim.𝒟) ]
-    --   Σ[ p ∈ (D.₀ P ⇒ (F.₀ (F-Coalgebra.A (Functor.₀ coalg-colim.D X)))) ]
-    --     (FA-colim.proj P ≈ F.₁ (coalg-colim.carrier-colim.proj X) ∘ p)
-
-    -- -- -- in fact, every P can be extended to such a triangle:
-    -- P-to-triangle : 𝒟.Obj → triangles
-    -- P-to-triangle P =
-    --   let
-    --     (idx , _) = P
-    --     -- the hom functor 𝒞(i, -) preserves the above colimit F(A,α)
-    --     hom-colim : Colimit (Hom[ 𝒞 ][ (𝒞-lfp.fin idx) ,-] ∘F (F ∘F coalg-colim.carrier-diagram))
-    --     hom-colim = Colimit-from-prop
-    --       (𝒞-lfp.fin-presented idx
-    --         coalg-colim.𝒟 -- the diagram scheme
-    --         𝒟-filtered    -- the fact that the diagram scheme is filtered
-    --         (F ∘F coalg-colim.carrier-diagram)
-    --         F-coalg-colim)
-    --     module hom-colim = Colimit hom-colim
-    --     -- the 'preservation' means that they have the same carrier:
-    --     _ : hom-colim.coapex ≡ 𝒞.hom-setoid {𝒞-lfp.fin idx} {F₀ A}
-    --     _ = refl
-    --     -- so we can now find out where above pointing i⇒FA comes from
-    --     X,x , P⇒FX = colimit-choice hom-colim (FA-colim.proj P)
-
-    --     X = F-Coalgebra.A (Functor.₀ coalg-colim.D X,x)
-    --     x = F-Coalgebra.α (Functor.₀ coalg-colim.D X,x)
-
-    --     _ : (𝒞-lfp.fin idx) ⇒ (F₀ X)
-    --     _ = P⇒FX
-
-    --   in
-    --   P , (X,x , (P⇒FX , colimit-choice-correct {!!} )) -- !{!colimit-choice-correct hom-colim {FA-colim.proj P}!})) -- colimit-choice-correct hom-colim )) -- use: colimit-choice-correct
     all-triangles =
       Σ[ P ∈ 𝒟.Obj ]
       Triangle F-coalg-colim (FA-colim.proj P)
+
+    -- in fact, every P can be extended to such a triangle:
     P-to-triangle : 𝒟.Obj → all-triangles
     P-to-triangle P =
       let
@@ -140,6 +112,33 @@ iterate-LProp-Coalgebra coalg-colim 𝒟-filtered F-preserves-colim =
       hom-colim-choice F-coalg-colim (D.₀ P)
         DP-preserves-colim
         (FA-colim.proj P)
+
+    -- every such triangle induces a coalgebra with presented carrier:
+    triangle-to-coalgebra : all-triangles → F-Coalgebra F
+    triangle-to-coalgebra = λ {(P , T) →
+      let
+        module T = Triangle T
+        P-is-presented : Fil-presented (D.₀ P)
+        P-is-presented =
+          let (idx , _) = P in
+          𝒞-lfp.fin-presented idx
+        x-is-presented : Fil-presented (F-Coalgebra.A (coalg-colim.D.₀ T.x))
+        x-is-presented =
+          FinitaryRecursive.finite-carrier coalg-colim.all-have-prop
+        P+x = has-coprod
+          (D.₀ P)
+          (F-Coalgebra.A (coalg-colim.D.₀ T.x)) P-is-presented x-is-presented
+        module P+x = Coproduct P+x renaming (A+B to obj)
+        P+x-is-presented : Fil-presented P+x.obj
+        P+x-is-presented =
+          presented-coproduct 𝒞 ℓ ℓ ℓ Fil
+            Fil-to-filtered
+            P+x P-is-presented x-is-presented
+      in
+      record {
+        A = {!!} ;
+        α = {!!}
+      }}
   in
   {!!}
 -- module _

@@ -259,6 +259,11 @@ module _ (o' ℓ' e' : _) (P : Category o' ℓ' e' → Set prop-level) where
     canonical-colimit : ∀ (X : 𝒞.Obj) → Colimit (canonical-diagram X)
     canonical-colimit X = Colimit-from-prop (build-from-fin X)
 
+  -- the property whether a category has coproducts of presented objects
+  HasCoproductOfPresentedObjects : Set _
+  HasCoproductOfPresentedObjects =
+    ∀ (A B : 𝒞.Obj) → presented A → presented B → Coproduct A B
+
 
 
 
