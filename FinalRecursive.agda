@@ -142,6 +142,9 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
       X-is-presented : Fil-presented X
       X-is-presented = FinitaryRecursive.finite-carrier coalg-colim.all-have-prop
 
+      X,x-is-recursive : IsRecursive X,x
+      X,x-is-recursive = FinitaryRecursive.is-recursive coalg-colim.all-have-prop
+
       -- the constructed coalgebra has a coproduct as its carrier
       P+X : Coproduct P X
       P+X = has-coprod P X P-is-presented X-is-presented
@@ -177,6 +180,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
           F.₁ P+X.i₂ ∘ P+X.[ p' , x ] ∘ P+X.i₂ ≈⟨ refl⟩∘⟨ P+X.inject₂ ⟩
           F.₁ P+X.i₂ ∘ x
           ∎}
+      module hom-from-X = F-Coalgebra-Morphism hom-from-X
 
       hom-to-FX : F-Coalgebra-Morphism P+X-coalg (iterate X,x)
       hom-to-FX =
@@ -189,6 +193,25 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
           F.₁ P+X.[ p' , x ] ∘ F.₁ P+X.i₂ ∘ P+X.[ p' , x ] ≡⟨⟩
           F.₁ P+X.[ p' , x ] ∘ Fi₂[p',x]
           ∎}
+      module hom-to-FX = F-Coalgebra-Morphism hom-to-FX
+
+      --   The property that all objects in the diagram ...
+      P+X-coalg-is-FinitaryRecursive : FinitaryRecursive P+X-coalg
+      P+X-coalg-is-FinitaryRecursive =
+        record {
+          -- 1. .. have presented carrier
+          finite-carrier =
+            presented-coproduct 𝒞 ℓ ℓ ℓ Fil
+              Fil-to-filtered
+              P+X P-is-presented X-is-presented ;
+          -- 2. .. are recursive:
+          is-recursive =
+            -- for recursiveness, we use our formalization of ([CUV06, Prop. 5])
+            sandwich-recursive _ _ X,x-is-recursive hom-from-X hom-to-FX
+              (let open HomReasoning in begin
+              Fi₂[p',x] ≡⟨⟩ F.₁ hom-from-X.f ∘ hom-to-FX.f
+              ∎)
+          }
 
     -- the map from triangles to coalgebras gives rise to a functor
     -- from the full subcategory ℰ of such built coalgebras:
@@ -201,11 +224,9 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
   --   -- the diagram for (FA,Fα)
   --   𝒟 = ℰ ;
   --   D = E ;
-  --   -- the property that all objects in the diagram ...
   --   all-have-prop = λ {t} →
   --     record {
   --       -- 1. .. have presented carrier
-  --       finite-carrier = P+X-is-presented t ;
   --       -- 2. .. are recursive:
   --       is-recursive = {!!} } ;
   --   carrier-colim = {!!}
