@@ -143,39 +143,31 @@ iterate-LProp-Coalgebra coalg-colim 𝒟-filtered F-preserves-colim has-coprod =
     -- the constructed coalgebra has a coproduct as its carrier
     P+X : ∀ (t : all-triangles) → Coproduct (P t) (X t)
     P+X t = has-coprod (P t) (X t) (P-is-presented t) (X-is-presented t)
+    module P+X t = Coproduct (P+X t) renaming (A+B to obj; [_,_] to ump_[_,_])
 
-    triangle-to-coalgebra : all-triangles → F-Coalgebra F
-    triangle-to-coalgebra = λ {(P , T) →
-      let
-        module T = Triangle T
-        P-is-presented : Fil-presented (D.₀ P)
-        P-is-presented =
-          let (idx , _) = P in
-          𝒞-lfp.fin-presented idx
-        -- The factorization triangle provides us with a coalgebra:
-        X = F-Coalgebra.A (coalg-colim.D.₀ T.x)
-        x : X ⇒ F.₀ X
-        x = F-Coalgebra.α (coalg-colim.D.₀ T.x)
-        X-is-presented : Fil-presented X
-        X-is-presented =
-          FinitaryRecursive.finite-carrier coalg-colim.all-have-prop
-        P+X = has-coprod (D.₀ P) X
-          P-is-presented X-is-presented
-        module P+X = Coproduct P+X renaming (A+B to obj)
-        P+X-is-presented : Fil-presented P+X.obj
-        P+X-is-presented =
+    -- and this carrier is presented:
+    P+X-is-presented : ∀ (t : all-triangles) → Fil-presented (P+X.obj t)
+    P+X-is-presented t =
           presented-coproduct 𝒞 ℓ ℓ ℓ Fil
             Fil-to-filtered
-            P+X P-is-presented X-is-presented
-      in
-      record {
-        A = P+X.obj ;
-        α = F.₁ P+X.i₂ ∘ P+X.[ T.p' , x ]
-      } }
+            (P+X t) (P-is-presented t) (X-is-presented t)
+
+    p' : ∀ (t : all-triangles) → (P t ⇒ F.₀ (X t))
+    p' t = Triangle.p' (proj₂ t)
+
+
+    -- the structure of the constructed coalgebra:
+    [p',x] : ∀ (t : all-triangles) → (P+X.obj t ⇒ F.₀ (P+X.obj t))
+    [p',x] t = F.₁ (P+X.i₂ t) ∘ (P+X.ump t [ p' t , x t ])
+
+    -- the combined constructed coalgebra
+    P+X-coalg : all-triangles → F-Coalgebra F
+    P+X-coalg t = record { A = P+X.obj t ; α = [p',x] t }
+
     -- the map from triangles to coalgebras gives rise to a functor
     -- from the full subcategory ℰ of such built coalgebras:
     ℰ : Category _ _ _
-    ℰ = FullSubCategory (F-Coalgebras F) (triangle-to-coalgebra)
+    ℰ = FullSubCategory (F-Coalgebras F) P+X-coalg
     E : Functor ℰ (F-Coalgebras F)
     E = FullSub (F-Coalgebras F)
   in
