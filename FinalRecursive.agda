@@ -11,7 +11,7 @@ open import Categories.Category.Product
 open import Agda.Builtin.Equality
 open import Categories.Category.Construction.F-Coalgebras
 open import Categories.Category.SubCategory
-open import Categories.Functor.Construction.SubCategory using (FullSub)
+open import Categories.Functor.Construction.SubCategory
 open import Categories.Functor using (Functor; Endofunctor)
 open import Data.Product
 
@@ -246,14 +246,14 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
             P2 , T2 = t2
             module T2 = Triangle T2
           in
-          Σ[ s ∈ (P1 𝒟.⇒ P2) ]
+          Σ[ s ∈ ((proj₁ t1) 𝒟.⇒ (proj₁ t2)) ]
           Σ[ h ∈ (T1.x coalg-colim.𝒟.⇒ T2.x) ]
             (s+h.f ≈
                 P+X.[_,_] t1
                   (P+X.i₁ t2 ∘ D.₁ s)
                   (P+X.i₂ t2 ∘ V (coalg-colim.D.₁ h)))
             ;
-          Rid = λ {t} → 𝒟.id , coalg-colim.𝒟.id , (
+        Rid = λ {t} → 𝒟.id , coalg-colim.𝒟.id , (
             coproduct-jointly-epic (P+X t)
               (begin
               id ∘ P+X.i₁ t        ≈˘⟨ id-comm ⟩
@@ -269,7 +269,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
               ∎)
             )
             ;
-          _∘R_ = λ {t1} {t2} {t3} {r+g} {s+h}
+        _∘R_ = λ {t1} {t2} {t3} {r+g} {s+h}
             (r , (g , r+g-prop)) (s , (h , s+h-prop)) →
             (r 𝒟.∘ s) , ((g coalg-colim.𝒟.∘ h) ,
             coproduct-jointly-epic (P+X t1)
@@ -281,28 +281,33 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
               (V r+g ∘ P+X.i₁ t2) ∘ D.₁ s        ≈⟨ r+g-prop ⟩∘⟨refl ⟩∘⟨refl ⟩
               (_     ∘ P+X.i₁ t2) ∘ D.₁ s        ≈⟨ P+X.inject₁ t2 ⟩∘⟨refl ⟩
               (P+X.i₁ t3 ∘ D.₁ r) ∘ D.₁ s        ≈⟨ assoc ⟩
-              P+X.i₁ t3 ∘ (D.₁ r ∘ D.₁ s)        ≈˘⟨ refl⟩∘⟨ D.homomorphism ⟩
+              P+X.i₁ t3 ∘ (D.₁ r ∘ D.₁ s)
+                ≈˘⟨ refl⟩∘⟨ D.homomorphism {_} {_} {_} {s} {r} ⟩
+                -- ^-- TODO: why can't r and s be inferred?
               P+X.i₁ t3 ∘ D.₁ (r 𝒟.∘  s)        ≈˘⟨ P+X.inject₁ t1 ⟩
               _ ∘ P+X.i₁ t1
               ∎)
-              {!!}
-              )
-            }
+              (begin
+              -- the second case has the same pattern:
+              (V r+g ∘ V s+h) ∘ P+X.i₂ t1        ≈⟨ assoc ⟩
+              V r+g ∘ (V s+h ∘ P+X.i₂ t1)        ≈⟨ refl⟩∘⟨ s+h-prop ⟩∘⟨refl ⟩
+              V r+g ∘ (_     ∘ P+X.i₂ t1)        ≈⟨ refl⟩∘⟨ P+X.inject₂ t1 ⟩
+              V r+g ∘ (P+X.i₂ t2 ∘ _)        ≈˘⟨ assoc ⟩
+              (V r+g ∘ P+X.i₂ t2) ∘ _        ≈⟨ r+g-prop ⟩∘⟨refl ⟩∘⟨refl ⟩
+              (_     ∘ P+X.i₂ t2) ∘ _        ≈⟨ P+X.inject₂ t2 ⟩∘⟨refl ⟩
+              (P+X.i₂ t3 ∘ _) ∘ _        ≈⟨ assoc ⟩
+              -- and from here on, it differs a bit in one step:
+              P+X.i₂ t3 ∘ (V (coalg-colim.D.₁ g) ∘ V (coalg-colim.D.₁ h)) ≈˘⟨ refl⟩∘⟨ coalg-colim.D.homomorphism ⟩
+              P+X.i₂ t3 ∘ (V (coalg-colim.D.₁ (g coalg-colim.𝒟.∘ h)))    ≈˘⟨ P+X.inject₂ t1 ⟩
+              _ ∘ P+X.i₂ t1
+              ∎))
+        }
 
-    -- 𝒮 = coalg-colim.𝒟
-    -- S : Functor 𝒮 (F-Coalgebras F)
-    -- S = coalg-colim.D
-    -- 𝒟×𝒮 = (Product 𝒟 𝒮)
-    -- module 𝒟×𝒮 = Category 𝒟×𝒮
-    -- -- The diagram scheme is essentially
-    -- ℰ : Category _ _ _
-    -- ℰ = FullSubCategory 𝒟×𝒮 fam
-    --     where
-    --       fam : all-triangles → 𝒟×𝒮.Obj
-    --       fam = (λ (P , T) → P , (Triangle.x T)) -- {!λ {P , T} → P , Triangle.x T!} -- ConstructionComponents.P+X-coalg
-    -- E : Functor ℰ (F-Coalgebras F)
-    -- E = ∘F FullSub 𝒟×𝒮
-    -- module E = Functor F
+    -- so we have the following diagram:
+    𝒮 : Category _ _ _
+    𝒮 = SubCategory (F-Coalgebras F) tri-subcat
+    S : Functor 𝒮 (F-Coalgebras F)
+    S = Sub (F-Coalgebras F) tri-subcat
 
     -- -- since we have 'P' as one of the ingredients, we have a cocone:
     -- FA,Fα-Cocone : Cocone E
