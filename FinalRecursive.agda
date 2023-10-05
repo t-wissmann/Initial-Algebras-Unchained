@@ -164,6 +164,17 @@ iterate-LProp-Coalgebra coalg-colim 𝒟-filtered F-preserves-colim has-coprod =
     P+X-coalg : all-triangles → F-Coalgebra F
     P+X-coalg t = record { A = P+X.obj t ; α = [p',x] t }
 
+    -- The constructed coalgebra sits nicely between X,x and FX,Fx
+    -- as we will see now:
+    hom-from-X : ∀ (t : all-triangles) → F-Coalgebra-Morphism (X,x t) (P+X-coalg t)
+    hom-from-X t =
+      let open HomReasoning in
+      record { f = P+X.i₂ t ;
+      commutes = begin
+        [p',x] t ∘ P+X.i₂ t  ≈⟨ ? ⟩
+        F.₁ (P+X.i₂ t) ∘ x t
+        ∎}
+
     -- the map from triangles to coalgebras gives rise to a functor
     -- from the full subcategory ℰ of such built coalgebras:
     ℰ : Category _ _ _
@@ -172,9 +183,16 @@ iterate-LProp-Coalgebra coalg-colim 𝒟-filtered F-preserves-colim has-coprod =
     E = FullSub (F-Coalgebras F)
   in
   record {
+    -- the diagram for (FA,Fα)
     𝒟 = ℰ ;
     D = E ;
-    all-have-prop = {!!} ;
+    -- the property that all objects in the diagram ...
+    all-have-prop = λ {t} →
+      record {
+        -- 1. .. have presented carrier
+        finite-carrier = P+X-is-presented t ;
+        -- 2. .. are recursive:
+        is-recursive = {!!} } ;
     carrier-colim = {!!}
     }
 -- module _
