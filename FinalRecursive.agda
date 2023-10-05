@@ -234,10 +234,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
       let
         open ConstructionComponents
         open HomReasoning
-        morph t1 t2 s h =
-           P+X.[_,_] t1
-             (P+X.i₁ t2 ∘ D.₁ s)
-             (P+X.i₂ t2 ∘ F-Coalgebra-Morphism.f (coalg-colim.D.₁ h))
+        V = F-Coalgebra-Morphism.f
       in
       record {
         U = P+X-coalg ;
@@ -251,46 +248,46 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
           in
           Σ[ s ∈ (P1 𝒟.⇒ P2) ]
           Σ[ h ∈ (T1.x coalg-colim.𝒟.⇒ T2.x) ]
-            (s+h.f ≈ morph t1 t2 s h)
+            (s+h.f ≈
+                P+X.[_,_] t1
+                  (P+X.i₁ t2 ∘ D.₁ s)
+                  (P+X.i₂ t2 ∘ V (coalg-colim.D.₁ h)))
             ;
           Rid = λ {t} → 𝒟.id , coalg-colim.𝒟.id , (
-            coproduct-jointly-epic {p = P+X t}
+            coproduct-jointly-epic (P+X t)
               (begin
-              id ∘ P+X.i₁ t ≈˘⟨ id-comm ⟩
-              (P+X.i₁ t ∘ id)
-                ≈˘⟨ refl⟩∘⟨ D.identity {proj₁ t}⟩
-              (P+X.i₁ t ∘ D.₁ (𝒟.id {proj₁ t}))
-                ≈˘⟨ P+X.inject₁ t ⟩
-              _ -- morph t t 𝒟.id coalg-colim.𝒟.id ∘ P+X.i₁ t
+              id ∘ P+X.i₁ t        ≈˘⟨ id-comm ⟩
+              (P+X.i₁ t ∘ id)      ≈˘⟨ refl⟩∘⟨ D.identity {proj₁ t}⟩
+              (P+X.i₁ t ∘ D.₁ (𝒟.id {proj₁ t})) ≈˘⟨ P+X.inject₁ t ⟩
+              _ ∘ P+X.i₁ t
               ∎)
               (begin
-              id ∘ P+X.i₂ t ≈˘⟨ id-comm ⟩
-              P+X.i₂ t ∘ id ≈˘⟨ refl⟩∘⟨ coalg-colim.D.identity ⟩
-              P+X.i₂ t ∘ F-Coalgebra-Morphism.f (coalg-colim.D.₁ coalg-colim.𝒟.id) ≈˘⟨ P+X.inject₂ t ⟩
-              morph t t 𝒟.id coalg-colim.𝒟.id ∘ P+X.i₂ t
+              id ∘ P+X.i₂ t       ≈˘⟨ id-comm ⟩
+              P+X.i₂ t ∘ id       ≈˘⟨ refl⟩∘⟨ coalg-colim.D.identity ⟩
+              P+X.i₂ t ∘ V (coalg-colim.D.₁ coalg-colim.𝒟.id) ≈˘⟨ P+X.inject₂ t ⟩
+              _ ∘ P+X.i₂ t
               ∎)
-            -- (begin
-            -- id ≈˘⟨ {!P+X.η t!} ⟩
-            --   P+X.[_,_] t
-            -- ≈˘⟨ ? t!} ⟩
-            --   P+X.[_,_] t
-            --     (P+X.i₁ t ∘ D.₁ 𝒟.id)
-            --     (P+X.i₂ t ∘ F-Coalgebra-Morphism.f (coalg-colim.D.₁ coalg-colim.𝒟.id))
-            -- ∎)
-            -- (begin
-            -- id ∘ (P+X.i₁ t) ≈⟨ id-comm-sym ⟩
-            -- (P+X.i₁ t) ∘ id ≈˘⟨ refl⟩∘⟨ D.identity ⟩
-            -- (P+X.i₁ t) ∘ D.₁ 𝒟.id
-            -- ∎)
-            -- ,
-            -- (begin
-            -- id ∘ (P+X.i₂ t) ≈⟨ id-comm-sym ⟩
-            -- (P+X.i₂ t) ∘ id ≈˘⟨ refl⟩∘⟨ coalg-colim.D.identity ⟩
-            -- (P+X.i₂ t) ∘ (F-Coalgebra-Morphism.f (coalg-colim.D.₁ coalg-colim.𝒟.id))
-            -- ∎)
             )
             ;
-          _∘R_ = {!!} }
+          _∘R_ = λ {t1} {t2} {t3} {r+g} {s+h}
+            (r , (g , r+g-prop)) (s , (h , s+h-prop)) →
+            (r 𝒟.∘ s) , ((g coalg-colim.𝒟.∘ h) ,
+            coproduct-jointly-epic (P+X t1)
+              (begin
+              (V r+g ∘ V s+h) ∘ P+X.i₁ t1        ≈⟨ assoc ⟩
+              V r+g ∘ (V s+h ∘ P+X.i₁ t1)        ≈⟨ refl⟩∘⟨ s+h-prop ⟩∘⟨refl ⟩
+              V r+g ∘ (_     ∘ P+X.i₁ t1)        ≈⟨ refl⟩∘⟨ P+X.inject₁ t1 ⟩
+              V r+g ∘ (P+X.i₁ t2 ∘ D.₁ s)        ≈˘⟨ assoc ⟩
+              (V r+g ∘ P+X.i₁ t2) ∘ D.₁ s        ≈⟨ r+g-prop ⟩∘⟨refl ⟩∘⟨refl ⟩
+              (_     ∘ P+X.i₁ t2) ∘ D.₁ s        ≈⟨ P+X.inject₁ t2 ⟩∘⟨refl ⟩
+              (P+X.i₁ t3 ∘ D.₁ r) ∘ D.₁ s        ≈⟨ assoc ⟩
+              P+X.i₁ t3 ∘ (D.₁ r ∘ D.₁ s)        ≈˘⟨ refl⟩∘⟨ D.homomorphism ⟩
+              P+X.i₁ t3 ∘ D.₁ (r 𝒟.∘  s)        ≈˘⟨ P+X.inject₁ t1 ⟩
+              _ ∘ P+X.i₁ t1
+              ∎)
+              {!!}
+              )
+            }
 
     -- 𝒮 = coalg-colim.𝒟
     -- S : Functor 𝒮 (F-Coalgebras F)

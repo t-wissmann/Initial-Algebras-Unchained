@@ -162,7 +162,7 @@ Colimit-from-prop {cocone = cocone} limitting =
 HasCoproducts : Set _
 HasCoproducts = ∀ (A B : 𝒞.Obj) → Coproduct 𝒞 A B
 
-module _ {A B C : 𝒞.Obj} {p : Coproduct 𝒞 A B} where
+module _ {A B C : 𝒞.Obj} (p : Coproduct 𝒞 A B) where
   open Category 𝒞
   module p = Coproduct p
   -- The injections of a coproduct are jointly epic:
