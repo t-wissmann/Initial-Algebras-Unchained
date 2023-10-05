@@ -14,6 +14,7 @@ open import Categories.Morphism C -- open the module with the category C fixed.
 open import Categories.Object.Initial using (IsInitial)
 
 open import Categories.Category.Core
+open import Categories.Object.Coproduct
 
 open import Categories.Diagram.Colimit using (Colimit; transport-by-iso)
 open import Categories.Diagram.Cocone
@@ -157,3 +158,6 @@ Colimit-from-prop : {o' ℓ' e' : Level} {D : Category o' ℓ' e'} {J : Functor 
                       → {cocone : Cocone J} → IsLimitting cocone → Colimit J
 Colimit-from-prop {cocone = cocone} limitting =
   record { initial = record { ⊥ = cocone ; ⊥-is-initial = limitting } }
+
+HasCoproducts : Set _
+HasCoproducts = ∀ (A B : C.Obj) → Coproduct C A B
