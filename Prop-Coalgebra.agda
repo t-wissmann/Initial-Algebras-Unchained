@@ -38,6 +38,7 @@ record LProp-Coalgebra {o' ℓ' e'} : Set (o ⊔ ℓ ⊔ e ⊔ P-level ⊔ suc (
     -- 4. and a colimit in all coalgebras:
     carrier-colim : Colimit (forget-Coalgebra ∘F D)
 
+  module 𝒟 = Category 𝒟
   module D = Functor D
   module carrier-colim = Colimit carrier-colim
 

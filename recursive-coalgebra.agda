@@ -256,6 +256,26 @@ iterate-recursive R is-rec =
   in
   sandwich-recursive R (iterate R) is-rec g id equation
 
+-- the functor sends coalgebra morphisms to coalgebra morphisms:
+iterate-F-Coalgebra-Morphism : {A B : F-Coalgebra F}
+  → (h : F-Coalgebra-Morphism A B)
+  → F-Coalgebra-Morphism (iterate A) (iterate B)
+iterate-F-Coalgebra-Morphism {A} {B} h =
+  record {
+    f = F.₁ h.f ; commutes = begin
+      F.₁ β ∘ F.₁ h.f ≈˘⟨ F.homomorphism ⟩
+      F.₁ (β ∘ h.f) ≈⟨ F.F-resp-≈ h.commutes ⟩
+      F.₁ (F.₁ h.f ∘ α) ≈⟨ F.homomorphism ⟩
+      F.₁ (F.₁ h.f) ∘ F.₁ α
+      ∎}
+  where
+    module h = F-Coalgebra-Morphism h
+    open F-Coalgebra A
+    open F-Coalgebra B renaming (A to B; α to β)
+    module F = Functor F
+    open Category C
+    open HomReasoning
+
 
 record R-Coalgebra : Set (o ⊔ ℓ ⊔ e) where
   field

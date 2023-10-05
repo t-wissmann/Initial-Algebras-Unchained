@@ -6,6 +6,8 @@ open import Categories.Functor using (Functor; _∘F_)
 open import Categories.Functor.Hom
 open import Categories.Category.Cocomplete
 open import Categories.Diagram.Colimit
+open import Categories.Diagram.Cocone
+open import Categories.Category.Product
 open import Agda.Builtin.Equality
 open import Categories.Category.Construction.F-Coalgebras
 open import Categories.Category.SubCategory
@@ -36,6 +38,9 @@ module 𝒞 = Category 𝒞
 open import recursive-coalgebra 𝒞 F
 open import Hom-Colimit-Choice 𝒞
 open import Categories.Object.Coproduct 𝒞
+open import Categories.Morphism.Reasoning.Core 𝒞
+
+module F-Coalgebras = Category (F-Coalgebras F)
 
 record FinitaryRecursive (coalg : F-Coalgebra F) : Set (o ⊔ suc ℓ ⊔ suc e ⊔ fil-level) where
   -- the property that a coalgebra
@@ -63,7 +68,8 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
     Fil-presented = presented 𝒞 ℓ ℓ ℓ Fil
     -- the provided coalgebra:
     module coalg-colim = LProp-Coalgebra coalg-colim
-    open F-Coalgebra coalg-colim.to-Coalgebra
+    A,α = coalg-colim.to-Coalgebra
+    open F-Coalgebra A,α
     -- ^- this brings A and α into scope
     open Functor F
     open Category 𝒞
@@ -73,18 +79,22 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
 
     -- We show that (FA,Fα) is a colimit by taking the
     -- diagram scheme from the fact that FA is a colimit of
-    -- finite objects
-    FA-colim = 𝒞-lfp.canonical-colimit (F₀ A)
-    module FA-colim = Colimit FA-colim
+    -- finite objects. These finite objects form the following
+    -- slice category:
 
     𝒟 = 𝒞-lfp.canonical-diagram-scheme (F₀ A)
     module 𝒟 = Category 𝒟
     D = 𝒞-lfp.canonical-diagram (F₀ A)
     module D = Functor D
+    FA-colim : Colimit D
+    FA-colim = 𝒞-lfp.canonical-colimit (F₀ A)
+    module FA-colim = Colimit FA-colim
+
 
     -- -- At the same time, F(A,α) is a colimit of coalgebras, which
     -- -- is preserved by F:
     F-coalg-colim = Colimit-from-prop (F-preserves-colim coalg-colim.carrier-colim)
+    module F-coalg-colim = Colimit F-coalg-colim
 
     -- the new diagram: commuting triangles of objects P in the colimit
     -- of FA such that P factors through some coalgebra-colimit injection:
@@ -125,12 +135,19 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
       X,x : F-Coalgebra F
       X,x = coalg-colim.D.₀ (Triangle.x (proj₂ t))
 
+      proj-X,x : F-Coalgebra-Morphism X,x A,α
+      proj-X,x = coalg-colim.colim.proj (Triangle.x (proj₂ t))
+      module proj-X,x = F-Coalgebra-Morphism proj-X,x
+
       -- We also introduce names for the carrier and the structure:
       X = F-Coalgebra.A X,x
       x = F-Coalgebra.α X,x
 
       P : 𝒞.Obj
       P = D.₀ (proj₁ t)
+
+      p : P ⇒ F.₀ A
+      p = FA-colim.proj (proj₁ t)
 
       P-is-presented : Fil-presented P
       P-is-presented =
@@ -149,13 +166,6 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
       P+X : Coproduct P X
       P+X = has-coprod P X P-is-presented X-is-presented
       module P+X = Coproduct P+X renaming (A+B to obj)
-
-      -- -- and this carrier is presented:
-      -- P+X-is-presented : Fil-presented P+X.obj
-      -- P+X-is-presented t =
-      --       presented-coproduct 𝒞 ℓ ℓ ℓ Fil
-      --         Fil-to-filtered
-      --         P+X P-is-presented X-is-presented
 
       p' : P ⇒ F.₀ X
       p' = Triangle.p' (proj₂ t)
@@ -195,6 +205,10 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
           ∎}
       module hom-to-FX = F-Coalgebra-Morphism hom-to-FX
 
+      hom-to-FA : F-Coalgebra-Morphism P+X-coalg (iterate A,α)
+      hom-to-FA = (iterate-F-Coalgebra-Morphism proj-X,x) F-Coalgebras.∘ hom-to-FX
+      module hom-to-FA = F-Coalgebra-Morphism hom-to-FA
+
       --   The property that all objects in the diagram ...
       P+X-coalg-is-FinitaryRecursive : FinitaryRecursive P+X-coalg
       P+X-coalg-is-FinitaryRecursive =
@@ -213,30 +227,90 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
               ∎)
           }
 
-    -- the map from triangles to coalgebras gives rise to a functor
-    -- from the full subcategory ℰ of such built coalgebras:
-    ℰ : Category _ _ _
-    ℰ = FullSubCategory (F-Coalgebras F) ConstructionComponents.P+X-coalg
-    E : Functor ℰ (F-Coalgebras F)
-    E = FullSub (F-Coalgebras F)
 
-  -- record {
-  --   -- the diagram for (FA,Fα)
-  --   𝒟 = ℰ ;
-  --   D = E ;
-  --   all-have-prop = λ {t} →
-  --     record {
-  --       -- 1. .. have presented carrier
-  --       -- 2. .. are recursive:
-  --       is-recursive = {!!} } ;
-  --   carrier-colim = {!!}
-  --   }
--- module _
---   (P : Category ℓ ℓ ℓ → Set prop-level)
---   (P-implies-filtered : ∀ (𝒟 : _) → P 𝒟 → filtered 𝒟)
---   (𝒞-lfp : WeaklyLFP 𝒞 ℓ ℓ ℓ P)
---   (𝒞-cocomplete : Cocomplete ℓ ℓ ℓ 𝒞)
---   where
---
---   module 𝒞-lfp = WeaklyLFP 𝒞-lfp
---   module F = Functor F
+    -- the triangles form a subcategory of coalgebras:
+    tri-subcat : SubCat (F-Coalgebras F) all-triangles
+    tri-subcat =
+      let
+        open ConstructionComponents
+        open HomReasoning
+      in
+      record {
+        U = P+X-coalg ;
+        R = λ {t1} {t2} s+h →
+          let
+            module s+h = F-Coalgebra-Morphism s+h
+            P1 , T1 = t1
+            module T1 = Triangle T1
+            P2 , T2 = t2
+            module T2 = Triangle T2
+          in
+          Σ[ s ∈ (P1 𝒟.⇒ P2) ]
+          Σ[ h ∈ (T1.x coalg-colim.𝒟.⇒ T2.x) ]
+            (s+h.f ≈
+              P+X.[_,_] t1
+                (P+X.i₁ t2 ∘ D.₁ s)
+                (P+X.i₂ t2 ∘ F-Coalgebra-Morphism.f (coalg-colim.D.₁ h)))
+            ;
+          Rid = λ {t} → 𝒟.id , coalg-colim.𝒟.id , (
+            {!!}
+            -- (begin
+            -- id ∘ (P+X.i₁ t) ≈⟨ id-comm-sym ⟩
+            -- (P+X.i₁ t) ∘ id ≈˘⟨ refl⟩∘⟨ D.identity ⟩
+            -- (P+X.i₁ t) ∘ D.₁ 𝒟.id
+            -- ∎)
+            -- ,
+            -- (begin
+            -- id ∘ (P+X.i₂ t) ≈⟨ id-comm-sym ⟩
+            -- (P+X.i₂ t) ∘ id ≈˘⟨ refl⟩∘⟨ coalg-colim.D.identity ⟩
+            -- (P+X.i₂ t) ∘ (F-Coalgebra-Morphism.f (coalg-colim.D.₁ coalg-colim.𝒟.id))
+            -- ∎)
+            )
+            ;
+          _∘R_ = {!!} }
+
+    -- 𝒮 = coalg-colim.𝒟
+    -- S : Functor 𝒮 (F-Coalgebras F)
+    -- S = coalg-colim.D
+    -- 𝒟×𝒮 = (Product 𝒟 𝒮)
+    -- module 𝒟×𝒮 = Category 𝒟×𝒮
+    -- -- The diagram scheme is essentially
+    -- ℰ : Category _ _ _
+    -- ℰ = FullSubCategory 𝒟×𝒮 fam
+    --     where
+    --       fam : all-triangles → 𝒟×𝒮.Obj
+    --       fam = (λ (P , T) → P , (Triangle.x T)) -- {!λ {P , T} → P , Triangle.x T!} -- ConstructionComponents.P+X-coalg
+    -- E : Functor ℰ (F-Coalgebras F)
+    -- E = ∘F FullSub 𝒟×𝒮
+    -- module E = Functor F
+
+    -- -- since we have 'P' as one of the ingredients, we have a cocone:
+    -- FA,Fα-Cocone : Cocone E
+    -- FA,Fα-Cocone =
+    --   record {
+    --     N = iterate A,α ;
+    --     coapex = record {
+    --       ψ = ConstructionComponents.hom-to-FA ;
+    --       commute = λ {t} {t'} h →
+    --         let
+    --           open HomReasoning
+    --           open ConstructionComponents
+    --           module h = F-Coalgebra-Morphism h
+    --         in
+    --         begin
+    --         hom-to-FA.f t' ∘ h.f ≈⟨ {!!} ⟩
+    --         hom-to-FA.f t
+    --         ∎
+    --       }
+    --   }
+    -- module FA,Fα-Cocone = Cocone FA,Fα-Cocone
+
+    -- iterated-LProp-Coalgebra : LProp-Coalgebra
+    -- iterated-LProp-Coalgebra = record {
+    --   -- the diagram for (FA,Fα)
+    --   𝒟 = ℰ ;
+    --   D = E ;
+    --   all-have-prop = λ {t} →
+    --     ConstructionComponents.P+X-coalg-is-FinitaryRecursive t;
+    --   carrier-colim = ?
+    --   }
