@@ -20,8 +20,8 @@ open import Categories.Functor.Coalgebra
 open import Data.Product
 open import LFP
 open import Filtered
-open import Unchained-Utils
 open import Setoids-Choice
+open import Unchained-Utils
 
 -- intuitively:
 -- o : level of 'classes'
@@ -234,6 +234,10 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
       let
         open ConstructionComponents
         open HomReasoning
+        morph t1 t2 s h =
+           P+X.[_,_] t1
+             (P+X.i₁ t2 ∘ D.₁ s)
+             (P+X.i₂ t2 ∘ F-Coalgebra-Morphism.f (coalg-colim.D.₁ h))
       in
       record {
         U = P+X-coalg ;
@@ -247,13 +251,32 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
           in
           Σ[ s ∈ (P1 𝒟.⇒ P2) ]
           Σ[ h ∈ (T1.x coalg-colim.𝒟.⇒ T2.x) ]
-            (s+h.f ≈
-              P+X.[_,_] t1
-                (P+X.i₁ t2 ∘ D.₁ s)
-                (P+X.i₂ t2 ∘ F-Coalgebra-Morphism.f (coalg-colim.D.₁ h)))
+            (s+h.f ≈ morph t1 t2 s h)
             ;
           Rid = λ {t} → 𝒟.id , coalg-colim.𝒟.id , (
-            {!!}
+            coproduct-jointly-epic {p = P+X t}
+              (begin
+              id ∘ P+X.i₁ t ≈˘⟨ id-comm ⟩
+              (P+X.i₁ t ∘ id)
+                ≈˘⟨ refl⟩∘⟨ D.identity {proj₁ t}⟩
+              (P+X.i₁ t ∘ D.₁ (𝒟.id {proj₁ t}))
+                ≈˘⟨ P+X.inject₁ t ⟩
+              _ -- morph t t 𝒟.id coalg-colim.𝒟.id ∘ P+X.i₁ t
+              ∎)
+              (begin
+              id ∘ P+X.i₂ t ≈˘⟨ id-comm ⟩
+              P+X.i₂ t ∘ id ≈˘⟨ refl⟩∘⟨ coalg-colim.D.identity ⟩
+              P+X.i₂ t ∘ F-Coalgebra-Morphism.f (coalg-colim.D.₁ coalg-colim.𝒟.id) ≈˘⟨ P+X.inject₂ t ⟩
+              morph t t 𝒟.id coalg-colim.𝒟.id ∘ P+X.i₂ t
+              ∎)
+            -- (begin
+            -- id ≈˘⟨ {!P+X.η t!} ⟩
+            --   P+X.[_,_] t
+            -- ≈˘⟨ ? t!} ⟩
+            --   P+X.[_,_] t
+            --     (P+X.i₁ t ∘ D.₁ 𝒟.id)
+            --     (P+X.i₂ t ∘ F-Coalgebra-Morphism.f (coalg-colim.D.₁ coalg-colim.𝒟.id))
+            -- ∎)
             -- (begin
             -- id ∘ (P+X.i₁ t) ≈⟨ id-comm-sym ⟩
             -- (P+X.i₁ t) ∘ id ≈˘⟨ refl⟩∘⟨ D.identity ⟩

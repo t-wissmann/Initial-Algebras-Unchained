@@ -161,3 +161,18 @@ Colimit-from-prop {cocone = cocone} limitting =
 
 HasCoproducts : Set _
 HasCoproducts = ∀ (A B : 𝒞.Obj) → Coproduct 𝒞 A B
+
+module _ {A B C : 𝒞.Obj} {p : Coproduct 𝒞 A B} where
+  open Category 𝒞
+  module p = Coproduct p
+  -- The injections of a coproduct are jointly epic:
+  coproduct-jointly-epic :
+    ∀ {f g : p.A+B ⇒ C} → f ∘ p.i₁ ≈ g ∘ p.i₁ → f ∘ p.i₂ ≈ g ∘ p.i₂ → f ≈ g
+  coproduct-jointly-epic {f} {g} eq1 eq2 =
+    let open HomReasoning in
+    begin
+    f ≈˘⟨ p.g-η ⟩
+    p.[ f ∘ p.i₁ , f ∘ p.i₂ ] ≈⟨ p.[]-cong₂ eq1 eq2 ⟩
+    p.[ g ∘ p.i₁ , g ∘ p.i₂ ] ≈⟨ p.g-η ⟩
+    g
+    ∎
