@@ -8,6 +8,7 @@ open import Categories.Category.Cocomplete
 open import Categories.Diagram.Colimit
 open import Agda.Builtin.Equality
 open import Categories.Category.Construction.F-Coalgebras
+open import Categories.Category.SubCategory
 open import Categories.Functor.Construction.SubCategory using (FullSub)
 open import Categories.Functor using (Functor; Endofunctor)
 open import Data.Product
@@ -122,23 +123,32 @@ iterate-LProp-Coalgebra coalg-colim 𝒟-filtered F-preserves-colim has-coprod =
         P-is-presented =
           let (idx , _) = P in
           𝒞-lfp.fin-presented idx
-        x-is-presented : Fil-presented (F-Coalgebra.A (coalg-colim.D.₀ T.x))
-        x-is-presented =
+        -- The factorizatoin triangle provides us a coalgebra:
+        X = F-Coalgebra.A (coalg-colim.D.₀ T.x)
+        x : X ⇒ F.₀ X
+        x = F-Coalgebra.α (coalg-colim.D.₀ T.x)
+        X-is-presented : Fil-presented X
+        X-is-presented =
           FinitaryRecursive.finite-carrier coalg-colim.all-have-prop
-        P+x = has-coprod
-          (D.₀ P)
-          (F-Coalgebra.A (coalg-colim.D.₀ T.x)) P-is-presented x-is-presented
-        module P+x = Coproduct P+x renaming (A+B to obj)
-        P+x-is-presented : Fil-presented P+x.obj
-        P+x-is-presented =
+        P+X = has-coprod (D.₀ P) X
+          P-is-presented X-is-presented
+        module P+X = Coproduct P+X renaming (A+B to obj)
+        P+X-is-presented : Fil-presented P+X.obj
+        P+X-is-presented =
           presented-coproduct 𝒞 ℓ ℓ ℓ Fil
             Fil-to-filtered
-            P+x P-is-presented x-is-presented
+            P+X P-is-presented X-is-presented
       in
       record {
-        A = {!!} ;
-        α = {!!}
+        A = P+X.obj ;
+        α = F.₁ P+X.i₂ ∘ P+X.[ T.p' , x ]
       }}
+    -- the map from triangles to coalgebras gives rise to a functor
+    -- from the full subcategory ℰ of such built coalgebras:
+    ℰ : Category _ _ _
+    ℰ = FullSubCategory (F-Coalgebras F) triangle-to-coalgebra
+    E : Functor ℰ (F-Coalgebras F)
+    E = FullSub (F-Coalgebras F)
   in
   {!!}
 -- module _
