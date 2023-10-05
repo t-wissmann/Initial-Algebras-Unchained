@@ -49,16 +49,17 @@ record FinitaryRecursive (coalg : F-Coalgebra F) : Set (o ⊔ suc ℓ ⊔ suc e 
 module 𝒞-lfp = WeaklyLFP 𝒞-lfp
 open import Prop-Coalgebra 𝒞 F FinitaryRecursive
 
--- -- whenever (A,α) is locally finite, then so is (FA,Fα)
-iterate-LProp-Coalgebra : (coalg : LProp-Coalgebra)
-                      → Fil (LProp-Coalgebra.𝒟 coalg)
+-- Proof: whenever (A,α) is locally finite, then so is (FA,Fα).
+-- We structure the proof as a module because it makes it easier
+-- to globally fix a certian parameters along the way.
+module IterationProof (coalg-colim : LProp-Coalgebra)
+                      (𝒟-filtered : Fil (LProp-Coalgebra.𝒟 coalg-colim))
                       -- ^- coalg is a colimit of a filtered diagram
-                      → preserves-colimit (LProp-Coalgebra.carrier-diagram coalg) F
+                      (F-preserves-colim : preserves-colimit (LProp-Coalgebra.carrier-diagram coalg-colim) F)
                       -- ^- F preserves the colimit 'coalg'
-                      → HasCoproductOfPresentedObjects 𝒞 ℓ ℓ ℓ Fil
-                      → LProp-Coalgebra
-iterate-LProp-Coalgebra coalg-colim 𝒟-filtered F-preserves-colim has-coprod =
-  let
+                      (has-coprod : HasCoproductOfPresentedObjects 𝒞 ℓ ℓ ℓ Fil)
+                      -- we have sufficiently many coproducts
+                      where
     Fil-presented = presented 𝒞 ℓ ℓ ℓ Fil
     -- the provided coalgebra:
     module coalg-colim = LProp-Coalgebra coalg-colim
@@ -72,7 +73,7 @@ iterate-LProp-Coalgebra coalg-colim 𝒟-filtered F-preserves-colim has-coprod =
 
     -- We show that (FA,Fα) is a colimit by taking the
     -- diagram scheme from the fact that FA is a colimit of
-    -- finite objects:
+    -- finite objects
     FA-colim = 𝒞-lfp.canonical-colimit (F₀ A)
     module FA-colim = Colimit FA-colim
 
@@ -113,88 +114,89 @@ iterate-LProp-Coalgebra coalg-colim 𝒟-filtered F-preserves-colim has-coprod =
       hom-colim-choice F-coalg-colim (D.₀ P)
         DP-preserves-colim
         (FA-colim.proj P)
+
     -- In the following, we construct a presented coalgebra
     -- "below" (FA,Fα).
+    -- The construction uses multiple components, all parametric
+    -- in such a triangle, whihc we now fix globally:
+    module ConstructionComponents (t : all-triangles) where
+      -- The first ingredient is the 'intermediate' coalgebra through which
+      -- the triangle factors:
+      X,x : F-Coalgebra F
+      X,x = coalg-colim.D.₀ (Triangle.x (proj₂ t))
 
-    -- The first ingredient is the 'intermediate' coalgebra through which
-    -- the triangle factors:
-    X,x : ∀ ((P , T) : all-triangles) → F-Coalgebra F
-    X,x = λ {(P , T) → coalg-colim.D.₀ (Triangle.x T)}
-    -- We also introduce names for the carrier and the structure, all
-    -- parametrized by the triangle:
-    X : all-triangles → 𝒞.Obj
-    X t = F-Coalgebra.A (X,x t)
-    x : ∀ (t : all-triangles) → (X t ⇒ F.₀ (X t))
-    x t = F-Coalgebra.α (X,x t)
+      -- We also introduce names for the carrier and the structure:
+      X = F-Coalgebra.A X,x
+      x = F-Coalgebra.α X,x
 
-    P : all-triangles → 𝒞.Obj
-    P t = D.₀ (proj₁ t)
+      P : 𝒞.Obj
+      P = D.₀ (proj₁ t)
 
-    P-is-presented : ∀ (t : all-triangles) → (Fil-presented (P t))
-    P-is-presented t =
-      -- here, we need to unfold the definition of P as a sliceobj
-      -- from the index of a presented object
-      let (idx , _) = (proj₁ t) in
-      𝒞-lfp.fin-presented idx
+      P-is-presented : Fil-presented P
+      P-is-presented =
+        -- here, we need to unfold the definition of P as a sliceobj
+        -- from the index of a presented object
+        let (idx , _) = (proj₁ t) in
+        𝒞-lfp.fin-presented idx
 
-    X-is-presented : ∀ (t : all-triangles) → (Fil-presented (X t))
-    X-is-presented t = FinitaryRecursive.finite-carrier coalg-colim.all-have-prop
+      X-is-presented : Fil-presented X
+      X-is-presented = FinitaryRecursive.finite-carrier coalg-colim.all-have-prop
 
-    -- the constructed coalgebra has a coproduct as its carrier
-    P+X : ∀ (t : all-triangles) → Coproduct (P t) (X t)
-    P+X t = has-coprod (P t) (X t) (P-is-presented t) (X-is-presented t)
-    module P+X t = Coproduct (P+X t) renaming (A+B to obj; [_,_] to ump_[_,_])
+      -- the constructed coalgebra has a coproduct as its carrier
+      P+X : Coproduct P X
+      P+X = has-coprod P X P-is-presented X-is-presented
+      module P+X = Coproduct P+X renaming (A+B to obj)
 
-    -- and this carrier is presented:
-    P+X-is-presented : ∀ (t : all-triangles) → Fil-presented (P+X.obj t)
-    P+X-is-presented t =
-          presented-coproduct 𝒞 ℓ ℓ ℓ Fil
-            Fil-to-filtered
-            (P+X t) (P-is-presented t) (X-is-presented t)
+      -- -- and this carrier is presented:
+      -- P+X-is-presented : Fil-presented P+X.obj
+      -- P+X-is-presented t =
+      --       presented-coproduct 𝒞 ℓ ℓ ℓ Fil
+      --         Fil-to-filtered
+      --         P+X P-is-presented X-is-presented
 
-    p' : ∀ (t : all-triangles) → (P t ⇒ F.₀ (X t))
-    p' t = Triangle.p' (proj₂ t)
+      p' : P ⇒ F.₀ X
+      p' = Triangle.p' (proj₂ t)
 
 
-    -- the structure of the constructed coalgebra:
-    [p',x] : ∀ (t : all-triangles) → (P+X.obj t ⇒ F.₀ (P+X.obj t))
-    [p',x] t = F.₁ (P+X.i₂ t) ∘ (P+X.ump t [ p' t , x t ])
+      -- the structure of the constructed coalgebra:
+      [p',x] : P+X.obj ⇒ F.₀ P+X.obj
+      [p',x] = F.₁ P+X.i₂ ∘ P+X.[ p' , x ]
 
-    -- the combined constructed coalgebra
-    P+X-coalg : all-triangles → F-Coalgebra F
-    P+X-coalg t = record { A = P+X.obj t ; α = [p',x] t }
+      -- the combined constructed coalgebra
+      P+X-coalg : F-Coalgebra F
+      P+X-coalg = record { A = P+X.obj ; α = [p',x] }
 
-    -- The constructed coalgebra sits nicely between X,x and FX,Fx
-    -- as we will see now:
-    hom-from-X : ∀ (t : all-triangles) → F-Coalgebra-Morphism (X,x t) (P+X-coalg t)
-    hom-from-X t =
-      let open HomReasoning in
-      record { f = P+X.i₂ t ;
-      commutes = begin
-        [p',x] t ∘ P+X.i₂ t  ≈⟨ ? ⟩
-        F.₁ (P+X.i₂ t) ∘ x t
-        ∎}
+    -- -- The constructed coalgebra sits nicely between X,x and FX,Fx
+    -- -- as we will see now:
+    -- hom-from-X : ∀ (t : all-triangles) → F-Coalgebra-Morphism (X,x t) (P+X-coalg t)
+    -- hom-from-X t =
+    --   let open HomReasoning in
+    --   record { f = P+X.i₂ t ;
+    --   commutes = begin
+    --     [p',x] t ∘ P+X.i₂ t  ≈⟨ {!!} ⟩
+    --     F.₁ (P+X.i₂ t) ∘ x t
+    --     ∎}
 
     -- the map from triangles to coalgebras gives rise to a functor
     -- from the full subcategory ℰ of such built coalgebras:
     ℰ : Category _ _ _
-    ℰ = FullSubCategory (F-Coalgebras F) P+X-coalg
+    ℰ = FullSubCategory (F-Coalgebras F) ConstructionComponents.P+X-coalg
     E : Functor ℰ (F-Coalgebras F)
     E = FullSub (F-Coalgebras F)
-  in
-  record {
-    -- the diagram for (FA,Fα)
-    𝒟 = ℰ ;
-    D = E ;
-    -- the property that all objects in the diagram ...
-    all-have-prop = λ {t} →
-      record {
-        -- 1. .. have presented carrier
-        finite-carrier = P+X-is-presented t ;
-        -- 2. .. are recursive:
-        is-recursive = {!!} } ;
-    carrier-colim = {!!}
-    }
+
+  -- record {
+  --   -- the diagram for (FA,Fα)
+  --   𝒟 = ℰ ;
+  --   D = E ;
+  --   -- the property that all objects in the diagram ...
+  --   all-have-prop = λ {t} →
+  --     record {
+  --       -- 1. .. have presented carrier
+  --       finite-carrier = P+X-is-presented t ;
+  --       -- 2. .. are recursive:
+  --       is-recursive = {!!} } ;
+  --   carrier-colim = {!!}
+  --   }
 -- module _
 --   (P : Category ℓ ℓ ℓ → Set prop-level)
 --   (P-implies-filtered : ∀ (𝒟 : _) → P 𝒟 → filtered 𝒟)
