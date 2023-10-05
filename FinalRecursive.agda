@@ -159,23 +159,36 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
 
 
       -- the structure of the constructed coalgebra:
-      [p',x] : P+X.obj ⇒ F.₀ P+X.obj
-      [p',x] = F.₁ P+X.i₂ ∘ P+X.[ p' , x ]
+      Fi₂[p',x] : P+X.obj ⇒ F.₀ P+X.obj
+      Fi₂[p',x] = F.₁ P+X.i₂ ∘ P+X.[ p' , x ]
 
       -- the combined constructed coalgebra
       P+X-coalg : F-Coalgebra F
-      P+X-coalg = record { A = P+X.obj ; α = [p',x] }
+      P+X-coalg = record { A = P+X.obj ; α = Fi₂[p',x] }
 
-    -- -- The constructed coalgebra sits nicely between X,x and FX,Fx
-    -- -- as we will see now:
-    -- hom-from-X : ∀ (t : all-triangles) → F-Coalgebra-Morphism (X,x t) (P+X-coalg t)
-    -- hom-from-X t =
-    --   let open HomReasoning in
-    --   record { f = P+X.i₂ t ;
-    --   commutes = begin
-    --     [p',x] t ∘ P+X.i₂ t  ≈⟨ {!!} ⟩
-    --     F.₁ (P+X.i₂ t) ∘ x t
-    --     ∎}
+      -- The constructed coalgebra sits nicely between X,x and FX,Fx
+      -- as we will see now:
+      hom-from-X : F-Coalgebra-Morphism X,x P+X-coalg
+      hom-from-X =
+        let open HomReasoning in
+        record { f = P+X.i₂ ;
+        commutes = begin
+          Fi₂[p',x] ∘ P+X.i₂ ≈⟨ assoc ⟩
+          F.₁ P+X.i₂ ∘ P+X.[ p' , x ] ∘ P+X.i₂ ≈⟨ refl⟩∘⟨ P+X.inject₂ ⟩
+          F.₁ P+X.i₂ ∘ x
+          ∎}
+
+      hom-to-FX : F-Coalgebra-Morphism P+X-coalg (iterate X,x)
+      hom-to-FX =
+        let open HomReasoning in
+        record { f = P+X.[ p' , x ] ;
+        commutes = begin
+          F.₁ x ∘ P+X.[ p' , x ] ≈˘⟨ F.F-resp-≈ P+X.inject₂ ⟩∘⟨refl ⟩
+          F.₁ (P+X.[ p' , x ] ∘ P+X.i₂) ∘ P+X.[ p' , x ] ≈⟨ F.homomorphism ⟩∘⟨refl ⟩
+          (F.₁ P+X.[ p' , x ] ∘ F.₁ P+X.i₂) ∘ P+X.[ p' , x ] ≈⟨ assoc ⟩
+          F.₁ P+X.[ p' , x ] ∘ F.₁ P+X.i₂ ∘ P+X.[ p' , x ] ≡⟨⟩
+          F.₁ P+X.[ p' , x ] ∘ Fi₂[p',x]
+          ∎}
 
     -- the map from triangles to coalgebras gives rise to a functor
     -- from the full subcategory ℰ of such built coalgebras:
