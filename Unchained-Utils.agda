@@ -14,7 +14,7 @@ open import Categories.Morphism 𝒞 -- open the module with the category 𝒞 f
 open import Categories.Object.Initial using (IsInitial)
 
 open import Categories.Category.Core
-open import Categories.Object.Coproduct
+open import Categories.Object.Coproduct using (Coproduct)
 
 open import Categories.Diagram.Colimit using (Colimit; transport-by-iso)
 open import Categories.Diagram.Cocone
