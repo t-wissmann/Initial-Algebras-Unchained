@@ -165,14 +165,22 @@ HasCoproducts = ∀ (A B : 𝒞.Obj) → Coproduct 𝒞 A B
 module _ {A B C : 𝒞.Obj} (p : Coproduct 𝒞 A B) where
   open Category 𝒞
   module p = Coproduct p
+  record CoproductCases (f g : p.A+B ⇒ C) : Set e where
+    field
+      case-precompose-i₁ : f ∘ p.i₁ ≈ g ∘ p.i₁
+      case-precompose-i₂ : f ∘ p.i₂ ≈ g ∘ p.i₂
+
   -- The injections of a coproduct are jointly epic:
   coproduct-jointly-epic :
-    ∀ {f g : p.A+B ⇒ C} → f ∘ p.i₁ ≈ g ∘ p.i₁ → f ∘ p.i₂ ≈ g ∘ p.i₂ → f ≈ g
-  coproduct-jointly-epic {f} {g} eq1 eq2 =
-    let open HomReasoning in
+    ∀ {f g : p.A+B ⇒ C} → CoproductCases f g → f ≈ g
+  coproduct-jointly-epic {f} {g} cases =
+    let
+      open HomReasoning
+      open CoproductCases cases
+    in
     begin
     f ≈˘⟨ p.g-η ⟩
-    p.[ f ∘ p.i₁ , f ∘ p.i₂ ] ≈⟨ p.[]-cong₂ eq1 eq2 ⟩
+    p.[ f ∘ p.i₁ , f ∘ p.i₂ ] ≈⟨ p.[]-cong₂ case-precompose-i₁ case-precompose-i₂ ⟩
     p.[ g ∘ p.i₁ , g ∘ p.i₂ ] ≈⟨ p.g-η ⟩
     g
     ∎
