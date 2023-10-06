@@ -458,33 +458,48 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                 t12 : all-triangles
                 t12 = P1 , record {
                   x = y.obj ;
-                  p' = F.₁ (V.₁ (coalg-colim.D.₁ y.is-above₁)) ∘ t1.p' ;
+                  p' = F.₁ (V.₁ (coalg-colim.D.₁ y.i₁)) ∘ t1.p' ;
                   commutes = begin
                       FA-colim.proj P1 ≈⟨ t1.commutes ⟩
                       F-coalg-colim.proj t1.x ∘ t1.p' ≈˘⟨ F-coalg-colim.colimit-commute _ ⟩∘⟨refl ⟩
-                      (F-coalg-colim.proj y.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁ y.is-above₁))) ∘ t1.p' ≈⟨ assoc ⟩
-                      F-coalg-colim.proj y.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁ y.is-above₁)) ∘ t1.p'
+                      (F-coalg-colim.proj y.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁ y.i₁))) ∘ t1.p' ≈⟨ assoc ⟩
+                      F-coalg-colim.proj y.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁ y.i₁)) ∘ t1.p'
                       ∎
                   }
                 module t12 = Triangle (proj₂ t12)
                 -- But there is a pointing other than p', namely via t2.p'!
-                p'' = F.₁ (V.₁ (coalg-colim.D.₁ y.is-above₂)) ∘ t2.p' ∘ D.₁ s
+                p'' = F.₁ (V.₁ (coalg-colim.D.₁ y.i₂)) ∘ t2.p' ∘ D.₁ s
                 p''-through-t12 : FA-colim.proj P1 ≈ F-coalg-colim.proj y.obj ∘ p''
                 p''-through-t12 = begin
                   FA-colim.proj P1 ≈⟨ from-P1-through-t2 ⟩
                   F-coalg-colim.proj t2.x ∘ (t2.p' ∘ D.₁ s)    ≈˘⟨ F-coalg-colim.colimit-commute _ ⟩∘⟨refl ⟩
-                  (F-coalg-colim.proj y.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁ y.is-above₂))) ∘ (t2.p' ∘ D.₁ s)    ≈⟨ assoc ⟩
-                  F-coalg-colim.proj y.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁ y.is-above₂)) ∘ t2.p' ∘ D.₁ s
+                  (F-coalg-colim.proj y.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁ y.i₂))) ∘ (t2.p' ∘ D.₁ s)    ≈⟨ assoc ⟩
+                  F-coalg-colim.proj y.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁ y.i₂)) ∘ t2.p' ∘ D.₁ s
                   ∎
                 -- By the (essential) uniqueness of t12.p', we get another
-                -- coalgebra more upward in the diagram:
+                -- coalgebra more upward in the diagram identifying p' and p'':
                 z , h , h-prop = p'-unique t12 p'' p''-through-t12
+                t3 : all-triangles
+                t3 = P2 , record {
+                   x = z ;
+                   p' = F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₂))) ∘ t2.p' ;
+                   commutes = begin
+                      FA-colim.proj P2 ≈⟨ t2.commutes ⟩
+                      F-coalg-colim.proj t2.x ∘ t2.p' ≈˘⟨ F-coalg-colim.colimit-commute _ ⟩∘⟨refl ⟩
+                      _ ∘ t2.p' ≈⟨ assoc ⟩
+                      -- F-coalg-colim.proj t12.x ∘ t12.p' ≈˘⟨ F-coalg-colim.colimit-commute _ ⟩∘⟨refl ⟩
+                      -- (F-coalg-colim.proj z ∘ F.₁ (V.₁ (coalg-colim.D.₁ h))) ∘ t12.p' ≈⟨ assoc ⟩
+                      F-coalg-colim.proj z ∘ F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₂))) ∘ t2.p'
+                      ∎
+                  }
+                -- this triangle then provides an upper bound for t1 and t2 in 𝒮:
+                -- t1⇒t3 : 𝒮 [ t1 , t3 ]
+                -- t1⇒t3 = t1.4
               in
-              {!!}
-              -- begin
-              -- (V.₁ (B.ψ t2) ∘ P+X.i₁ t2) ∘ D.₁ s ≈⟨ {!!} ⟩
-              -- (V.₁ (B.ψ t1) ∘ P+X.i₁ t1)
-              -- ∎
+              begin
+              (V.₁ (B.ψ t2) ∘ P+X.i₁ t2) ∘ D.₁ s ≈⟨ {!!} ⟩
+              (V.₁ (B.ψ t1) ∘ P+X.i₁ t1)
+              ∎
           }
       }
 

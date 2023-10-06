@@ -15,8 +15,8 @@ record UpperBound (X Y : C.Obj) : Set (o ⊔ ℓ) where
   open Category C
   field
     obj : C.Obj
-    is-above₁ : X ⇒ obj
-    is-above₂ : Y ⇒ obj
+    i₁ : X ⇒ obj
+    i₂ : Y ⇒ obj
 
 -- the property of having upper bounds
 record has-upper-bounds : Set (o ⊔ ℓ ⊔ e) where
@@ -31,8 +31,8 @@ record has-upper-bounds : Set (o ⊔ ℓ ⊔ e) where
   construct-upper-bound X Y =
     record {
       obj = upper-bound X Y ;
-      is-above₁ = is-above₁ X Y ;
-      is-above₂ = is-above₂ X Y }
+      i₁ = is-above₁ X Y ;
+      i₂ = is-above₂ X Y }
 
   fin-upper-bound : ∀ {n : ℕ} → (f : Fin n → Obj) → Obj
   fin-upper-bound {ℕ.zero} f = non-empty
