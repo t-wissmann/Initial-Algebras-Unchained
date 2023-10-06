@@ -453,7 +453,9 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                     _ ∘ P+X.i₂ t1
                     ∎
                   }))
-         ; F-resp-≈ = {!!}
+         ; F-resp-≈ = λ { {t1} {t2} {(s , h), s,h-prop} {(r , g), r,g-prop} (s≈r , h≈g) →
+           {!!}
+           }
          }
     --O The old definition which caused performance issues (agda didn't seem to terminate at all...)
     --O -- the triangles form a subcategory of coalgebras:
