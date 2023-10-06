@@ -621,7 +621,9 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                   ∎)
               in
               begin
-              (V₁ (B.ψ t2) ∘ P+X.i₁ t2) ∘ D.₁ s ≈⟨ {!!} ⟩
+              (V₁ (B.ψ t2) ∘ P+X.i₁ t2) ∘ D.₁ s ≈˘⟨ B.commute t2⇒t3 ⟩∘⟨refl ⟩∘⟨refl ⟩
+              ((V₁ (B.ψ t3) ∘ V₁ (S.₁ t2⇒t3) ) ∘ P+X.i₁ t2) ∘ D.₁ s ≈⟨ ? ⟩
+              (V₁ (B.ψ t3) ∘ V₁ (S.₁ t1⇒t3) ) ∘ P+X.i₁ t1 ≈⟨ ? ⟩
               (V₁ (B.ψ t1) ∘ P+X.i₁ t1)
               ∎
           }
