@@ -69,6 +69,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
     -- in the proof, let V be the forgetful functor from coalgebras to 𝒞
     module V = Functor forget-Coalgebra
     Fil-presented = presented 𝒞 ℓ ℓ ℓ Fil
+    open LiftHom ℓ ℓ ℓ
     -- the provided coalgebra:
     module coalg-colim = LProp-Coalgebra coalg-colim
     A,α = coalg-colim.to-Coalgebra
@@ -111,33 +112,39 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
       Σ[ P ∈ 𝒟.Obj ]
       Triangle F-coalg-colim (FA-colim.proj P)
 
-    -- in fact, every P can be extended to such a triangle:
-    P-to-triangle : ∀ (P : 𝒟.Obj) → Triangle F-coalg-colim (FA-colim.proj P)
-    P-to-triangle P =
-      let
-        (idx , _) = P
-        DP-preserves-colim =
+    -- In fact, every P can be extended to such a triangle, because
+    -- D P is presented and so it preserves the filtered colimit of the
+    -- coalgebra-colimit under (the postcomposition of) F:
+    DP-preserves-coalg-colim : ∀ (P : 𝒟.Obj) →
+      preserves-colimit
+        (F ∘F coalg-colim.carrier-diagram)
+        LiftHom[ D.₀ P ,-]
+    DP-preserves-coalg-colim P =
+      let (idx , _) = P in
           𝒞-lfp.fin-presented
             idx
             coalg-colim.𝒟 -- the diagram scheme
             𝒟-filtered    -- ... which is filtered
             (F ∘F coalg-colim.carrier-diagram)
-      in
+
+    -- And so we obtain a triangle for each P:
+    P-to-triangle : 𝒟.Obj → all-triangles
+    P-to-triangle P = P ,
       hom-colim-choice F-coalg-colim (D.₀ P)
-        DP-preserves-colim
+        (DP-preserves-coalg-colim P)
         (FA-colim.proj P)
-    P-to-alltriangles : 𝒟.Obj → all-triangles
-    P-to-alltriangles P = P , P-to-triangle P
 
     -- In the following, we construct a presented coalgebra
     -- "below" (FA,Fα).
     -- The construction uses multiple components, all parametric
-    -- in such a triangle, whihc we now fix globally:
+    -- in such a triangle, which we now fix globally:
     module ConstructionComponents (t : all-triangles) where
       -- The first ingredient is the 'intermediate' coalgebra through which
       -- the triangle factors:
+      X,x-dia : coalg-colim.𝒟.Obj -- the underlying object in the diagram scheme
+      X,x-dia = Triangle.x (proj₂ t)
       X,x : F-Coalgebra F
-      X,x = coalg-colim.D.₀ (Triangle.x (proj₂ t))
+      X,x = coalg-colim.D.₀ X,x-dia
 
       proj-X,x : F-Coalgebra-Morphism X,x A,α
       proj-X,x = coalg-colim.colim.proj (Triangle.x (proj₂ t))
@@ -176,6 +183,31 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
 
       triangle-commutes : p ≈ F.₁ proj-X,x.f ∘ p'
       triangle-commutes = Triangle.commutes (proj₂ t)
+
+      -- This p' is unique in the sense that if there is another suitable
+      -- p'', then p' and p'' are identified somewhere in the diagram
+      p'-unique : ∀ (p'' : P ⇒ F.₀ X) → p ≈ F.₁ proj-X,x.f ∘ p'' →
+        Σ[ Y,y-dia ∈ coalg-colim.𝒟.Obj ]
+        Σ[ h ∈ coalg-colim.𝒟 [ X,x-dia , Y,y-dia ] ]
+        F.₁ (V.₁ (coalg-colim.D.₁ h)) ∘ p' ≈ F.₁ (V.₁ (coalg-colim.D.₁ h)) ∘ p''
+      p'-unique p'' p''-commutes =
+        let open HomReasoning in
+        coequalize-colimit-factorization
+          F-coalg-colim
+          P
+          (Fil-to-filtered 𝒟-filtered)
+          (hom-colim-unique-factor
+              F-coalg-colim
+              (Fil-to-filtered 𝒟-filtered)
+              P
+              (DP-preserves-coalg-colim
+                (proj₁ t) F-coalg-colim))
+          p' p''
+          (begin
+            F.₁ proj-X,x.f ∘ p'   ≈˘⟨ triangle-commutes ⟩
+            p                     ≈⟨ p''-commutes ⟩
+            F.₁ proj-X,x.f ∘ p''
+            ∎)
 
 
       -- the structure of the constructed coalgebra:
@@ -403,12 +435,12 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
         coapex =
           record {
             ψ = λ P →
-              let t = P-to-alltriangles P in
+              let t = P-to-triangle P in
               V.₁ (B.ψ t) ∘ P+X.i₁ t ;
             commute = λ {P1} {P2} s →
               let
-                t1 = P-to-alltriangles P1
-                t2 = P-to-alltriangles P2
+                t1 = P-to-triangle P1
+                t2 = P-to-triangle P2
               in
               begin
               (V.₁ (B.ψ t2) ∘ P+X.i₁ t2) ∘ D.F₁ s ≈⟨ {!!} ⟩
