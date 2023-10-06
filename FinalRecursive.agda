@@ -453,8 +453,15 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                     _ ∘ P+X.i₂ t1
                     ∎
                   }))
-         ; F-resp-≈ = λ { {t1} {t2} {(s , h), s,h-prop} {(r , g), r,g-prop} (s≈r , h≈g) →
-           {!!}
+         ; F-resp-≈ = λ { {P1 , T1} {P2 , T2} {(s , h), s,h-prop} {(r , g), r,g-prop} (s≈r , h≈g) →
+           let
+             module T1 = Triangle T1
+             module T2 = Triangle T2
+           in
+           P+X.[]-cong₂ (P1 , T1)
+             (refl⟩∘⟨ D.F-resp-≈ {P1} {P2} {s} {r} s≈r)
+             (refl⟩∘⟨ V.F-resp-≈ {_} {_} {coalg-colim.D.₁ h} {coalg-colim.D.₁ g}
+               (coalg-colim.D.F-resp-≈ {T1.x} {T2.x} {h} {g} h≈g))
            }
          }
     --O The old definition which caused performance issues (agda didn't seem to terminate at all...)
