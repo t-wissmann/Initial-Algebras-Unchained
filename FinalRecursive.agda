@@ -346,6 +346,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
       let
         open ConstructionComponents
         open HomReasoning
+        -- we turn the following mapping to a functor:
         S₁ t1 t2 s h = P+X.[_,_] t1 (P+X.i₁ t2 ∘ D.₁ s) (P+X.i₂ t2 ∘ (V.₁ (coalg-colim.D.₁ h)))
       in
       record
@@ -464,190 +465,53 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                (coalg-colim.D.F-resp-≈ {T1.x} {T2.x} {h} {g} h≈g))
            }
          }
-    --O The old definition which caused performance issues (agda didn't seem to terminate at all...)
-    --O -- the triangles form a subcategory of coalgebras:
-    --O tri-subcat : SubCat (F-Coalgebras F) all-triangles
-    --O tri-subcat =
-    --O   let
-    --O     open ConstructionComponents
-    --O     open HomReasoning
-    --O     V = F-Coalgebra-Morphism.f
-    --O   in
-    --O   record {
-    --O     U = P+X-coalg ;
-    --O     R = λ {t1} {t2} s+h →
-    --O       let
-    --O         module s+h = F-Coalgebra-Morphism s+h
-    --O         P1 , T1 = t1
-    --O         module T1 = Triangle T1
-    --O         P2 , T2 = t2
-    --O         module T2 = Triangle T2
-    --O       in
-    --O       Σ[ s ∈ ((proj₁ t1) 𝒟.⇒ (proj₁ t2)) ]
-    --O       Σ[ h ∈ (T1.x coalg-colim.𝒟.⇒ T2.x) ]
-    --O         (s+h.f ≈
-    --O             P+X.[_,_] t1
-    --O               (P+X.i₁ t2 ∘ D.₁ s)
-    --O               (P+X.i₂ t2 ∘ V (coalg-colim.D.₁ h)))
-    --O         ;
-    --O     Rid = λ {t} → 𝒟.id , coalg-colim.𝒟.id , (
-    --O         coproduct-jointly-epic (P+X t)
-    --O           record {
-    --O             case-precompose-i₁ =
-    --O               begin
-    --O               id ∘ P+X.i₁ t        ≈˘⟨ id-comm ⟩
-    --O               (P+X.i₁ t ∘ id)      ≈˘⟨ refl⟩∘⟨ D.identity {proj₁ t}⟩
-    --O               (P+X.i₁ t ∘ D.₁ (𝒟.id {proj₁ t})) ≈˘⟨ P+X.inject₁ t ⟩
-    --O               _ ∘ P+X.i₁ t
-    --O               ∎ ;
-    --O             case-precompose-i₂ =
-    --O               begin
-    --O               id ∘ P+X.i₂ t       ≈˘⟨ id-comm ⟩
-    --O               P+X.i₂ t ∘ id       ≈˘⟨ refl⟩∘⟨ coalg-colim.D.identity ⟩
-    --O               P+X.i₂ t ∘ V (coalg-colim.D.₁ coalg-colim.𝒟.id) ≈˘⟨ P+X.inject₂ t ⟩
-    --O               _ ∘ P+X.i₂ t
-    --O               ∎
-    --O           }
-    --O         )
-    --O         ;
-    --O     _∘R_ = λ {t1} {t2} {t3} {r+g} {s+h}
-    --O         (r , (g , r+g-prop)) (s , (h , s+h-prop)) →
-    --O         (r 𝒟.∘ s) , ((g coalg-colim.𝒟.∘ h) ,
-    --O         coproduct-jointly-epic (P+X t1)
-    --O           record {
-    --O             case-precompose-i₁ = begin
-    --O               (V r+g ∘ V s+h) ∘ P+X.i₁ t1        ≈⟨ assoc ⟩
-    --O               V r+g ∘ (V s+h ∘ P+X.i₁ t1)        ≈⟨ refl⟩∘⟨ s+h-prop ⟩∘⟨refl ⟩
-    --O               V r+g ∘ (_     ∘ P+X.i₁ t1)        ≈⟨ refl⟩∘⟨ P+X.inject₁ t1 ⟩
-    --O               V r+g ∘ (P+X.i₁ t2 ∘ D.₁ s)        ≈˘⟨ assoc ⟩
-    --O               (V r+g ∘ P+X.i₁ t2) ∘ D.₁ s        ≈⟨ r+g-prop ⟩∘⟨refl ⟩∘⟨refl ⟩
-    --O               (_     ∘ P+X.i₁ t2) ∘ D.₁ s        ≈⟨ P+X.inject₁ t2 ⟩∘⟨refl ⟩
-    --O               (P+X.i₁ t3 ∘ D.₁ r) ∘ D.₁ s        ≈⟨ assoc ⟩
-    --O               P+X.i₁ t3 ∘ (D.₁ r ∘ D.₁ s)
-    --O                 ≈˘⟨ refl⟩∘⟨ D.homomorphism {_} {_} {_} {s} {r} ⟩
-    --O                 -- ^-- TODO: why can't r and s be inferred?
-    --O               P+X.i₁ t3 ∘ D.₁ (r 𝒟.∘  s)        ≈˘⟨ P+X.inject₁ t1 ⟩
-    --O               _ ∘ P+X.i₁ t1
-    --O               ∎ ;
-    --O             case-precompose-i₂ = begin
-    --O               -- the second case has the same pattern:
-    --O               (V r+g ∘ V s+h) ∘ P+X.i₂ t1        ≈⟨ assoc ⟩
-    --O               V r+g ∘ (V s+h ∘ P+X.i₂ t1)        ≈⟨ refl⟩∘⟨ s+h-prop ⟩∘⟨refl ⟩
-    --O               V r+g ∘ (_     ∘ P+X.i₂ t1)        ≈⟨ refl⟩∘⟨ P+X.inject₂ t1 ⟩
-    --O               V r+g ∘ (P+X.i₂ t2 ∘ _)        ≈˘⟨ assoc ⟩
-    --O               (V r+g ∘ P+X.i₂ t2) ∘ _        ≈⟨ r+g-prop ⟩∘⟨refl ⟩∘⟨refl ⟩
-    --O               (_     ∘ P+X.i₂ t2) ∘ _        ≈⟨ P+X.inject₂ t2 ⟩∘⟨refl ⟩
-    --O               (P+X.i₂ t3 ∘ _) ∘ _        ≈⟨ assoc ⟩
-    --O               -- and from here on, it differs a bit in one step:
-    --O               P+X.i₂ t3 ∘ (V (coalg-colim.D.₁ g) ∘ V (coalg-colim.D.₁ h)) ≈˘⟨ refl⟩∘⟨ coalg-colim.D.homomorphism ⟩
-    --O               P+X.i₂ t3 ∘ (V (coalg-colim.D.₁ (g coalg-colim.𝒟.∘ h)))    ≈˘⟨ P+X.inject₂ t1 ⟩
-    --O               _ ∘ P+X.i₂ t1
-    --O               ∎ }
-    --O           )
-    --O     }
+    module S = Functor S
 
-    --O -- so we have the following diagram:
-    --O 𝒮 : Category _ _ _
-    --O 𝒮 = SubCategory (F-Coalgebras F) tri-subcat
-    --O S : Functor 𝒮 (F-Coalgebras F)
-    --O S = Sub (F-Coalgebras F) tri-subcat
+    -- since we have 'P' as one of the ingredients, we have a cocone:
+    FA,Fα-Cocone : Cocone S
+    FA,Fα-Cocone =
+      let
+        open ConstructionComponents
+        open HomReasoning
+      in
+      record {
+        N = iterate A,α ;
+        coapex = record {
+          ψ = hom-to-FA ;
+          commute = λ {t1} {t2} ((s , h) , s+h-prop) →
+             let
+               open HomReasoning
+               open ConstructionComponents
 
-    --C build-𝒮-morphism :
-    --C   (t1 t2 : all-triangles)
-    --C   (s : (proj₁ t1) 𝒟.⇒ (proj₁ t2))
-    --C   (h : Triangle.x (proj₂ t1) coalg-colim.𝒟.⇒ Triangle.x (proj₂ t2) ) →
-    --C   Triangle.p' (proj₂ t2)∘ D.₁ s ≈ F.₁ (V.₁ (coalg-colim.D.₁ h)) ∘ Triangle.p' (proj₂ t1) →
-    --C   -- ^-- this equation is a condition that makes s and h a coalgebra morphism:
-    --C   𝒮 [ t1 , t2 ]
-    --C build-𝒮-morphism t1 t2 s h eq =
-    --C   let
-    --C     open ConstructionComponents
-    --C     open HomReasoning
-    --C     Ds =(D.₁ s)
-    --C     Vh = (V.₁ (coalg-colim.D.₁ h))
-    --C     FVh = F.₁ Vh
-    --C     s+h = P+X.[_,_] t1 (P+X.i₁ t2 ∘ Ds) (P+X.i₂ t2 ∘ Vh)
-    --C   in
-    --C   (record {
-    --C     f = s+h ;
-    --C     commutes = coproduct-jointly-epic (P+X t1) record {
-    --C       case-precompose-i₁ =
-    --C         begin
-    --C         (Fi₂[p',x] t2 ∘ s+h) ∘ P+X.i₁ t1 ≈⟨ assoc ⟩
-    --C         Fi₂[p',x] t2 ∘ s+h ∘ P+X.i₁ t1 ≈⟨ refl⟩∘⟨ P+X.inject₁ t1 ⟩
-    --C         (F.₁ (P+X.i₂ t2) ∘ P+X.[_,_] t2 (p' t2) (x t2)) ∘ P+X.i₁ t2 ∘ Ds ≈⟨ assoc ○ (refl⟩∘⟨ sym-assoc) ⟩
-    --C         F.₁ (P+X.i₂ t2) ∘ (P+X.[_,_] t2 (p' t2) (x t2) ∘ P+X.i₁ t2) ∘ Ds ≈⟨ refl⟩∘⟨ P+X.inject₁ t2 ⟩∘⟨refl ⟩
-    --C         F.₁ (P+X.i₂ t2) ∘ (p' t2) ∘ Ds ≈⟨ refl⟩∘⟨ eq ⟩
-    --C         F.₁ (P+X.i₂ t2) ∘ (F.₁ Vh) ∘ (p' t1)  ≈˘⟨ (F.homomorphism ⟩∘⟨refl) ○ assoc ⟩
-    --C         (F.₁ (P+X.i₂ t2 ∘ Vh)) ∘ (p' t1)  ≈˘⟨ F.F-resp-≈ (P+X.inject₂ t1)  ⟩∘⟨refl ⟩
-    --C         (F.₁ (s+h ∘ P+X.i₂ t1)) ∘ (p' t1)  ≈⟨ F.homomorphism ⟩∘⟨ (⟺ (P+X.inject₁ t1)) ⟩
-    --C         (F.₁ s+h ∘ F.₁ (P+X.i₂ t1)) ∘ (P+X.[_,_] t1 (p' t1) (x t1) ∘ P+X.i₁ t1) ≈⟨ sym-assoc ○ (assoc ⟩∘⟨refl) ⟩
-    --C         (F.₁ s+h ∘ (F.₁ (P+X.i₂ t1) ∘ P+X.[_,_] t1 (p' t1) (x t1) )) ∘ P+X.i₁ t1 ≡⟨⟩
-    --C         (F.₁ s+h ∘ Fi₂[p',x] t1) ∘ P+X.i₁ t1
-    --C         ∎
-    --C       ;
-    --C       case-precompose-i₂ =
-    --C         begin
-    --C         (Fi₂[p',x] t2 ∘ s+h) ∘ P+X.i₂ t1 ≈⟨ assoc ○ (refl⟩∘⟨ P+X.inject₂ t1) ⟩
-    --C         Fi₂[p',x] t2 ∘ (P+X.i₂ t2 ∘ Vh) ≈⟨ sym-assoc ⟩
-    --C         (Fi₂[p',x] t2 ∘ P+X.i₂ t2) ∘ Vh ≈⟨ assoc ⟩∘⟨refl ⟩
-    --C         (_ ∘ (_ ∘ P+X.i₂ t2)) ∘ Vh ≈⟨ (refl⟩∘⟨ P+X.inject₂ t2) ⟩∘⟨refl ⟩
-    --C         (F.₁ (P+X.i₂ t2) ∘ x t2) ∘ Vh ≈⟨ assoc ⟩
-    --C         F.₁ (P+X.i₂ t2) ∘ (x t2 ∘ Vh) ≈⟨ refl⟩∘⟨ F-Coalgebra-Morphism.commutes (coalg-colim.D.₁ h) ⟩
-    --C         F.₁ (P+X.i₂ t2) ∘ (F.₁ Vh ∘ x t1) ≈⟨ sym-assoc ⟩
-    --C         (F.₁ (P+X.i₂ t2) ∘ F.₁ Vh) ∘ x t1 ≈˘⟨ F.homomorphism ⟩∘⟨refl ⟩
-    --C         (F.₁ (P+X.i₂ t2 ∘ Vh)) ∘ x t1 ≈˘⟨ F.F-resp-≈ (P+X.inject₂ t1) ⟩∘⟨refl ⟩
-    --C         (F.₁ (s+h ∘ _)) ∘ x t1 ≈⟨ F.homomorphism ⟩∘⟨ (⟺ (P+X.inject₂ t1)) ⟩
-    --C         (F.₁ s+h ∘ _) ∘ (_ ∘ P+X.i₂ t1) ≈⟨ sym-assoc ○ (assoc ⟩∘⟨refl) ⟩
-    --C         (F.₁ s+h ∘ Fi₂[p',x] t1) ∘ P+X.i₂ t1
-    --C         ∎
-    --C       }
-    --C     })
-    --C   , s , (h , 𝒞.Equiv.refl)
-
-    --C -- -- since we have 'P' as one of the ingredients, we have a cocone:
-    --C FA,Fα-Cocone : Cocone S
-    --C FA,Fα-Cocone =
-    --C   let
-    --C     open ConstructionComponents
-    --C     open HomReasoning
-    --C   in
-    --C   record {
-    --C     N = iterate A,α ;
-    --C     coapex = record {
-    --C       ψ = hom-to-FA ;
-    --C       commute = λ {t1} {t2} (s+h , (s , (h , s+h-prop))) →
-    --C         let
-    --C           open HomReasoning
-    --C           open ConstructionComponents
-    --C         in
-    --C         coproduct-jointly-epic (P+X t1)
-    --C           record {
-    --C           case-precompose-i₁ = begin
-    --C             (hom-to-FA.f t2 ∘ V.₁ s+h) ∘ P+X.i₁ t1 ≈⟨ assoc ⟩
-    --C             hom-to-FA.f t2 ∘ (V.₁ s+h ∘ P+X.i₁ t1) ≈⟨ refl⟩∘⟨ s+h-prop ⟩∘⟨refl ⟩
-    --C             hom-to-FA.f t2 ∘ (_ ∘ P+X.i₁ t1) ≈⟨ refl⟩∘⟨ P+X.inject₁ t1 ⟩
-    --C             hom-to-FA.f t2 ∘ (P+X.i₁ t2 ∘ D.₁ s) ≈⟨ sym-assoc ⟩
-    --C             (hom-to-FA.f t2 ∘ P+X.i₁ t2) ∘ D.₁ s ≈˘⟨ hom-to-FA-i₁ t2 ⟩∘⟨refl ⟩
-    --C             p t2 ∘ D.₁ s ≈⟨ FA-colim.colimit-commute s ⟩
-    --C             p t1 ≈⟨ hom-to-FA-i₁ t1 ⟩
-    --C             hom-to-FA.f t1 ∘ P+X.i₁ t1
-    --C             ∎ ;
-    --C           case-precompose-i₂ = begin
-    --C             (hom-to-FA.f t2 ∘ V.₁ s+h) ∘ P+X.i₂ t1 ≈⟨ assoc ⟩
-    --C             hom-to-FA.f t2 ∘ (V.₁ s+h ∘ P+X.i₂ t1) ≈⟨ refl⟩∘⟨ s+h-prop ⟩∘⟨refl ⟩
-    --C             hom-to-FA.f t2 ∘ (_ ∘ P+X.i₂ t1) ≈⟨ refl⟩∘⟨ P+X.inject₂ t1 ⟩
-    --C             hom-to-FA.f t2 ∘ (P+X.i₂ t2 ∘ V.₁ (coalg-colim.D.₁ h)) ≈˘⟨ assoc ⟩
-    --C             (hom-to-FA.f t2 ∘ P+X.i₂ t2) ∘ V.₁ (coalg-colim.D.₁ h) ≈˘⟨ hom-to-FA-i₂ t2 ⟩∘⟨refl  ⟩
-    --C             (α ∘ proj-X,x.f t2) ∘ V.₁ (coalg-colim.D.₁ h) ≈⟨ assoc ⟩
-    --C             α ∘ (proj-X,x.f t2 ∘ V.₁ (coalg-colim.D.₁ h)) ≈⟨ refl⟩∘⟨ coalg-colim.colim.colimit-commute h ⟩
-    --C             α ∘ proj-X,x.f t1 ≈⟨ hom-to-FA-i₂ t1 ⟩
-    --C             hom-to-FA.f t1 ∘ P+X.i₂ t1
-    --C             ∎
-    --C           }
-    --C       }
-    --C   }
-    --C module FA,Fα-Cocone = Cocone FA,Fα-Cocone
+               s+h = P+X.[_,_] t1 (P+X.i₁ t2 ∘ D.₁ s) (P+X.i₂ t2 ∘ (V.₁ (coalg-colim.D.₁ h)))
+             in
+             coproduct-jointly-epic (P+X t1) record {
+               case-precompose-i₁ =
+                 begin
+                 (hom-to-FA.f t2 ∘ s+h) ∘ P+X.i₁ t1 ≈⟨ assoc ⟩
+                 hom-to-FA.f t2 ∘ (s+h ∘ P+X.i₁ t1) ≈⟨ refl⟩∘⟨ P+X.inject₁ t1 ⟩
+                 hom-to-FA.f t2 ∘ (P+X.i₁ t2 ∘ D.₁ s) ≈⟨ sym-assoc ⟩
+                 (hom-to-FA.f t2 ∘ P+X.i₁ t2) ∘ D.₁ s ≈˘⟨ hom-to-FA-i₁ t2 ⟩∘⟨refl ⟩
+                 p t2 ∘ D.₁ s ≈⟨ FA-colim.colimit-commute s ⟩
+                 p t1 ≈⟨ hom-to-FA-i₁ t1 ⟩
+                 hom-to-FA.f t1 ∘ P+X.i₁ t1
+                 ∎
+                 ;
+               case-precompose-i₂ =
+                 begin
+                 (hom-to-FA.f t2 ∘ s+h) ∘ P+X.i₂ t1 ≈⟨ assoc ⟩
+                 hom-to-FA.f t2 ∘ (s+h ∘ P+X.i₂ t1) ≈⟨ refl⟩∘⟨ P+X.inject₂ t1 ⟩
+                 hom-to-FA.f t2 ∘ (P+X.i₂ t2 ∘ V.₁ (coalg-colim.D.₁ h)) ≈˘⟨ assoc ⟩
+                 (hom-to-FA.f t2 ∘ P+X.i₂ t2) ∘ V.₁ (coalg-colim.D.₁ h) ≈˘⟨ hom-to-FA-i₂ t2 ⟩∘⟨refl  ⟩
+                 (α ∘ proj-X,x.f t2) ∘ V.₁ (coalg-colim.D.₁ h) ≈⟨ assoc ⟩
+                 α ∘ (proj-X,x.f t2 ∘ V.₁ (coalg-colim.D.₁ h)) ≈⟨ refl⟩∘⟨ coalg-colim.colim.colimit-commute h ⟩
+                 α ∘ proj-X,x.f t1 ≈⟨ hom-to-FA-i₂ t1 ⟩
+                 hom-to-FA.f t1 ∘ P+X.i₂ t1
+                 ∎
+               }
+          }
+      }
+    module FA,Fα-Cocone = Cocone FA,Fα-Cocone
 
     --C -- every cocone for the diagram S of coalgebras induces
     --C -- are cocone for the canonical diagram of F.₀ A
