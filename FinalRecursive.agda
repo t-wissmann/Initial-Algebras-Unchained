@@ -376,20 +376,17 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
     S : Functor 𝒮 (F-Coalgebras F)
     S = Sub (F-Coalgebras F) tri-subcat
 
-    build-𝒮-morphism : {P1 P2 : 𝒟.Obj}
-      (T1 : Triangle F-coalg-colim (FA-colim.proj P1))
-      (T2 : Triangle F-coalg-colim (FA-colim.proj P2))
-      (s : P1 𝒟.⇒ P2)
-      (h : Triangle.x T1 coalg-colim.𝒟.⇒ Triangle.x T2 ) →
-      Triangle.p' T2 ∘ D.₁ s ≈ F.₁ (V.₁ (coalg-colim.D.₁ h)) ∘ Triangle.p' T1 →
+    build-𝒮-morphism :
+      (t1 t2 : all-triangles)
+      (s : (proj₁ t1) 𝒟.⇒ (proj₁ t2))
+      (h : Triangle.x (proj₂ t1) coalg-colim.𝒟.⇒ Triangle.x (proj₂ t2) ) →
+      Triangle.p' (proj₂ t2)∘ D.₁ s ≈ F.₁ (V.₁ (coalg-colim.D.₁ h)) ∘ Triangle.p' (proj₂ t1) →
       -- ^-- this equation is a condition that makes s and h a coalgebra morphism:
-      𝒮 [ (P1 , T1) , (P2 , T2) ]
-    build-𝒮-morphism {P1} {P2} T1 T2 s h eq =
+      𝒮 [ t1 , t2 ]
+    build-𝒮-morphism t1 t2 s h eq =
       let
         open ConstructionComponents
         open HomReasoning
-        t1 = (P1 , T1)
-        t2 = (P2 , T2)
         Ds =(D.₁ s)
         Vh = (V.₁ (coalg-colim.D.₁ h))
         FVh = F.₁ Vh
@@ -429,10 +426,6 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
             (F.₁ s+h ∘ Fi₂[p',x] t1) ∘ P+X.i₂ t1
             ∎
           }
-          -- begin
-          -- Fi₂[p',x] t2 ∘ s+h ≈⟨ {!!} ⟩
-          -- F.₁ s+h ∘ Fi₂[p',x] t1
-          -- ∎
         })
       , s , (h , 𝒞.Equiv.refl)
 
@@ -552,9 +545,17 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                       F-coalg-colim.proj z ∘ F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₂))) ∘ t2.p'
                       ∎
                   }
-                -- this triangle then provides an upper bound for t1 and t2 in 𝒮:
+                module t3 = Triangle (proj₂ t3)
+                -- the following definition causes an infinite loop in agda:
+                -- This triangle then provides an upper bound for t1 and t2 in 𝒮:
                 -- t1⇒t3 : 𝒮 [ t1 , t3 ]
-                -- t1⇒t3 = t1.4
+                -- t1⇒t3 = build-𝒮-morphism t1 t3 s (h coalg-colim.𝒟.∘ y.i₁)
+                --   (begin
+                --   t3.p' ∘ D.₁ s  ≡⟨⟩
+                --   (F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₂))) ∘ t2.p') ∘ D.₁ s  ≈⟨ assoc ⟩
+                --   F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₂))) ∘ t2.p' ∘ D.₁ s  ≈˘⟨ FA-colim.colimit-commute s ⟩
+                --   F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₁))) ∘ t1.p'
+                --   ∎)
               in
               begin
               (V.₁ (B.ψ t2) ∘ P+X.i₁ t2) ∘ D.₁ s ≈⟨ {!!} ⟩
