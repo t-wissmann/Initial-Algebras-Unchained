@@ -364,8 +364,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
               ∎)
               (begin
               (hom-to-FA.f t2 ∘ V s+h) ∘ P+X.i₂ t1 ≈⟨ {!!} ⟩
-              F.₁ (proj-X,x.f t1) ∘ (P+X.[_,_] t1 (p' t1) (x t1) ∘ P+X.i₂ t1) ≈⟨ sym-assoc ⟩
-              (F.₁ (proj-X,x.f t1) ∘ hom-to-FX.f t1) ∘ P+X.i₂ t1 ≡⟨⟩
+              α ∘ proj-X,x.f t1 ≈⟨ hom-to-FA-i₂ t1 ⟩
               hom-to-FA.f t1 ∘ P+X.i₂ t1
               ∎)
           }
