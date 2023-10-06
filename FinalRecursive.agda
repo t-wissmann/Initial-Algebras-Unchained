@@ -346,7 +346,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
       let
         open ConstructionComponents
         open HomReasoning
-        S₀ t1 t2 s h = P+X.[_,_] t1 (P+X.i₁ t2 ∘ D.₁ s) (P+X.i₂ t2 ∘ (V.₁ (coalg-colim.D.₁ h)))
+        S₁ t1 t2 s h = P+X.[_,_] t1 (P+X.i₁ t2 ∘ D.₁ s) (P+X.i₂ t2 ∘ (V.₁ (coalg-colim.D.₁ h)))
       in
       record
          { F₀ = λ t → P+X-coalg t
@@ -356,7 +356,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
              Vh = (V.₁ (coalg-colim.D.₁ h))
              FVh = F.₁ Vh
              -- s+h = P+X.[_,_] t1 (P+X.i₁ t2 ∘ Ds) (P+X.i₂ t2 ∘ Vh)
-             s+h = S₀ t1 t2 s h
+             s+h = S₁ t1 t2 s h
            in
            record {
              f = s+h ;
@@ -398,7 +398,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                   record {
                     case-precompose-i₁ =
                       begin
-                      S₀ t t 𝒟.id coalg-colim.𝒟.id ∘ P+X.i₁ t
+                      S₁ t t 𝒟.id coalg-colim.𝒟.id ∘ P+X.i₁ t
                         ≈⟨ P+X.inject₁ t ⟩
                       (P+X.i₁ t ∘ D.₁ (𝒟.id {proj₁ t}))
                         ≈⟨ refl⟩∘⟨ D.identity {proj₁ t}⟩
@@ -408,7 +408,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                       ∎ ;
                     case-precompose-i₂ =
                       begin
-                      S₀ t t 𝒟.id coalg-colim.𝒟.id ∘ P+X.i₂ t
+                      S₁ t t 𝒟.id coalg-colim.𝒟.id ∘ P+X.i₂ t
                         ≈⟨ P+X.inject₂ t ⟩
                       P+X.i₂ t ∘ V.₁ (coalg-colim.D.₁ coalg-colim.𝒟.id)
                         ≈⟨ refl⟩∘⟨ coalg-colim.D.identity ⟩
@@ -417,7 +417,42 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                       id ∘ P+X.i₂ t
                       ∎
                   }
-         ; homomorphism = {!!}
+         ; homomorphism = λ {t1} {t2} {t3} {s,h-triple} {r,g-triple} →
+                let
+                  ((s , h), s,h-prop) = s,h-triple
+                  ((r , g), r,g-prop) = r,g-triple
+                  s+h = S₁ t1 t2 s h
+                  r+g = S₁ t2 t3 r g
+                in
+                ⟺ (coproduct-jointly-epic (P+X t1) (record {
+                  case-precompose-i₁ =
+                    begin
+                    (r+g ∘ s+h) ∘ P+X.i₁ t1        ≈⟨ assoc ⟩
+                    r+g ∘ (s+h ∘ P+X.i₁ t1)         ≈⟨ refl⟩∘⟨ P+X.inject₁ t1 ⟩
+                    r+g ∘ (P+X.i₁ t2 ∘ D.₁ s)        ≈˘⟨ assoc ⟩
+                    (r+g ∘ P+X.i₁ t2) ∘ D.₁ s         ≈⟨ P+X.inject₁ t2 ⟩∘⟨refl ⟩
+                    (P+X.i₁ t3 ∘ D.₁ r) ∘ D.₁ s        ≈⟨ assoc ⟩
+                    P+X.i₁ t3 ∘ (D.₁ r ∘ D.₁ s)
+                      ≈˘⟨ refl⟩∘⟨ D.homomorphism {_} {_} {_} {s} {r} ⟩
+                      -- ^-- TODO: why can't r and s be inferred?
+                    P+X.i₁ t3 ∘ D.₁ (r 𝒟.∘  s)        ≈˘⟨ P+X.inject₁ t1 ⟩
+                    _ ∘ P+X.i₁ t1
+                    ∎
+                  ;
+                  case-precompose-i₂ =
+                    begin
+                    -- the second case has the same pattern:
+                    (r+g ∘ s+h) ∘ P+X.i₂ t1        ≈⟨ assoc ⟩
+                    r+g ∘ (s+h ∘ P+X.i₂ t1)         ≈⟨ refl⟩∘⟨ P+X.inject₂ t1 ⟩
+                    r+g ∘ (P+X.i₂ t2 ∘ _)        ≈˘⟨ assoc ⟩
+                    (r+g ∘ P+X.i₂ t2) ∘ _         ≈⟨ P+X.inject₂ t2 ⟩∘⟨refl ⟩
+                    (P+X.i₂ t3 ∘ _) ∘ _        ≈⟨ assoc ⟩
+                    -- and from here on, it differs a bit in one step:
+                    P+X.i₂ t3 ∘ (V.₁ (coalg-colim.D.₁ g) ∘ V.₁ (coalg-colim.D.₁ h)) ≈˘⟨ refl⟩∘⟨ coalg-colim.D.homomorphism ⟩
+                    P+X.i₂ t3 ∘ (V.₁ (coalg-colim.D.₁ (g coalg-colim.𝒟.∘ h)))    ≈˘⟨ P+X.inject₂ t1 ⟩
+                    _ ∘ P+X.i₂ t1
+                    ∎
+                  }))
          ; F-resp-≈ = {!!}
          }
     --O The old definition which caused performance issues (agda didn't seem to terminate at all...)
