@@ -376,6 +376,66 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
     S : Functor 𝒮 (F-Coalgebras F)
     S = Sub (F-Coalgebras F) tri-subcat
 
+    build-𝒮-morphism : {P1 P2 : 𝒟.Obj}
+      (T1 : Triangle F-coalg-colim (FA-colim.proj P1))
+      (T2 : Triangle F-coalg-colim (FA-colim.proj P2))
+      (s : P1 𝒟.⇒ P2)
+      (h : Triangle.x T1 coalg-colim.𝒟.⇒ Triangle.x T2 ) →
+      Triangle.p' T2 ∘ D.₁ s ≈ F.₁ (V.₁ (coalg-colim.D.₁ h)) ∘ Triangle.p' T1 →
+      -- ^-- this equation is a condition that makes s and h a coalgebra morphism:
+      𝒮 [ (P1 , T1) , (P2 , T2) ]
+    build-𝒮-morphism {P1} {P2} T1 T2 s h eq =
+      let
+        open ConstructionComponents
+        open HomReasoning
+        t1 = (P1 , T1)
+        t2 = (P2 , T2)
+        Ds =(D.₁ s)
+        Vh = (V.₁ (coalg-colim.D.₁ h))
+        FVh = F.₁ Vh
+        s+h = P+X.[_,_] t1 (P+X.i₁ t2 ∘ Ds) (P+X.i₂ t2 ∘ Vh)
+      in
+      (record {
+        f = s+h ;
+        commutes = coproduct-jointly-epic (P+X t1) record {
+          case-precompose-i₁ =
+            begin
+            (Fi₂[p',x] t2 ∘ s+h) ∘ P+X.i₁ t1 ≈⟨ assoc ⟩
+            Fi₂[p',x] t2 ∘ s+h ∘ P+X.i₁ t1 ≈⟨ refl⟩∘⟨ P+X.inject₁ t1 ⟩
+            (F.₁ (P+X.i₂ t2) ∘ P+X.[_,_] t2 (p' t2) (x t2)) ∘ P+X.i₁ t2 ∘ Ds ≈⟨ assoc ○ (refl⟩∘⟨ sym-assoc) ⟩
+            F.₁ (P+X.i₂ t2) ∘ (P+X.[_,_] t2 (p' t2) (x t2) ∘ P+X.i₁ t2) ∘ Ds ≈⟨ refl⟩∘⟨ P+X.inject₁ t2 ⟩∘⟨refl ⟩
+            F.₁ (P+X.i₂ t2) ∘ (p' t2) ∘ Ds ≈⟨ refl⟩∘⟨ eq ⟩
+            F.₁ (P+X.i₂ t2) ∘ (F.₁ Vh) ∘ (p' t1)  ≈˘⟨ (F.homomorphism ⟩∘⟨refl) ○ assoc ⟩
+            (F.₁ (P+X.i₂ t2 ∘ Vh)) ∘ (p' t1)  ≈˘⟨ F.F-resp-≈ (P+X.inject₂ t1)  ⟩∘⟨refl ⟩
+            (F.₁ (s+h ∘ P+X.i₂ t1)) ∘ (p' t1)  ≈⟨ F.homomorphism ⟩∘⟨ (⟺ (P+X.inject₁ t1)) ⟩
+            (F.₁ s+h ∘ F.₁ (P+X.i₂ t1)) ∘ (P+X.[_,_] t1 (p' t1) (x t1) ∘ P+X.i₁ t1) ≈⟨ sym-assoc ○ (assoc ⟩∘⟨refl) ⟩
+            (F.₁ s+h ∘ (F.₁ (P+X.i₂ t1) ∘ P+X.[_,_] t1 (p' t1) (x t1) )) ∘ P+X.i₁ t1 ≡⟨⟩
+            (F.₁ s+h ∘ Fi₂[p',x] t1) ∘ P+X.i₁ t1
+            ∎
+          ;
+          case-precompose-i₂ =
+            begin
+            (Fi₂[p',x] t2 ∘ s+h) ∘ P+X.i₂ t1 ≈⟨ assoc ○ (refl⟩∘⟨ P+X.inject₂ t1) ⟩
+            Fi₂[p',x] t2 ∘ (P+X.i₂ t2 ∘ Vh) ≈⟨ sym-assoc ⟩
+            (Fi₂[p',x] t2 ∘ P+X.i₂ t2) ∘ Vh ≈⟨ assoc ⟩∘⟨refl ⟩
+            (_ ∘ (_ ∘ P+X.i₂ t2)) ∘ Vh ≈⟨ (refl⟩∘⟨ P+X.inject₂ t2) ⟩∘⟨refl ⟩
+            (F.₁ (P+X.i₂ t2) ∘ x t2) ∘ Vh ≈⟨ assoc ⟩
+            F.₁ (P+X.i₂ t2) ∘ (x t2 ∘ Vh) ≈⟨ refl⟩∘⟨ F-Coalgebra-Morphism.commutes (coalg-colim.D.₁ h) ⟩
+            F.₁ (P+X.i₂ t2) ∘ (F.₁ Vh ∘ x t1) ≈⟨ sym-assoc ⟩
+            (F.₁ (P+X.i₂ t2) ∘ F.₁ Vh) ∘ x t1 ≈˘⟨ F.homomorphism ⟩∘⟨refl ⟩
+            (F.₁ (P+X.i₂ t2 ∘ Vh)) ∘ x t1 ≈˘⟨ F.F-resp-≈ (P+X.inject₂ t1) ⟩∘⟨refl ⟩
+            (F.₁ (s+h ∘ _)) ∘ x t1 ≈⟨ F.homomorphism ⟩∘⟨ (⟺ (P+X.inject₂ t1)) ⟩
+            (F.₁ s+h ∘ _) ∘ (_ ∘ P+X.i₂ t1) ≈⟨ sym-assoc ○ (assoc ⟩∘⟨refl) ⟩
+            (F.₁ s+h ∘ Fi₂[p',x] t1) ∘ P+X.i₂ t1
+            ∎
+          }
+          -- begin
+          -- Fi₂[p',x] t2 ∘ s+h ≈⟨ {!!} ⟩
+          -- F.₁ s+h ∘ Fi₂[p',x] t1
+          -- ∎
+        })
+      , s , (h , 𝒞.Equiv.refl)
+
     -- -- since we have 'P' as one of the ingredients, we have a cocone:
     FA,Fα-Cocone : Cocone S
     FA,Fα-Cocone =
