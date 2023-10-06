@@ -513,96 +513,98 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
       }
     module FA,Fα-Cocone = Cocone FA,Fα-Cocone
 
-    --C -- every cocone for the diagram S of coalgebras induces
-    --C -- are cocone for the canonical diagram of F.₀ A
-    --C Coalg-Cocone-to-Object-Cocone : Cocone S → Cocone D
-    --C Coalg-Cocone-to-Object-Cocone B =
-    --C   let
-    --C     module B = Cocone B
-    --C     module bounds = has-upper-bounds (filtered.bounds (Fil-to-filtered 𝒟-filtered))
-    --C     open ConstructionComponents
-    --C     open HomReasoning
-    --C   in
-    --C   record {
-    --C     -- The tip of the cocone is just the carrier of the tip of B:
-    --C     N = F-Coalgebra.A B.N ;
-    --C     coapex =
-    --C       record {
-    --C         ψ = λ P →
-    --C           let t = P-to-triangle P in
-    --C           V.₁ (B.ψ t) ∘ P+X.i₁ t ;
-    --C         commute = λ {P1} {P2} s →
-    --C           let
-    --C             -- We get triangles for both P1 and P2
-    --C             t1 = P-to-triangle P1
-    --C             t2 = P-to-triangle P2
-    --C             module t1 = Triangle (proj₂ t1)
-    --C             module t2 = Triangle (proj₂ t2)
-    --C             -- by s : P1 ⇒ P2, P1 also factors through P2
-    --C             from-P1-through-t2 = begin
-    --C                 FA-colim.proj P1 ≈˘⟨ FA-colim.colimit-commute s ⟩
-    --C                 FA-colim.proj P2 ∘ D.₁ s    ≈⟨ t2.commutes ⟩∘⟨refl ⟩
-    --C                 (F-coalg-colim.proj t2.x ∘ t2.p') ∘ D.₁ s    ≈⟨ assoc ⟩
-    --C                 F-coalg-colim.proj t2.x ∘ t2.p' ∘ D.₁ s
-    --C               ∎
-    --C             -- We can take the upper bounds of the two triangles:
-    --C             y = bounds.construct-upper-bound t1.x t2.x
-    --C             module y = UpperBound y
-    --C             t12 : all-triangles
-    --C             t12 = P1 , record {
-    --C               x = y.obj ;
-    --C               p' = F.₁ (V.₁ (coalg-colim.D.₁ y.i₁)) ∘ t1.p' ;
-    --C               commutes = begin
-    --C                   FA-colim.proj P1 ≈⟨ t1.commutes ⟩
-    --C                   F-coalg-colim.proj t1.x ∘ t1.p' ≈˘⟨ F-coalg-colim.colimit-commute _ ⟩∘⟨refl ⟩
-    --C                   (F-coalg-colim.proj y.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁ y.i₁))) ∘ t1.p' ≈⟨ assoc ⟩
-    --C                   F-coalg-colim.proj y.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁ y.i₁)) ∘ t1.p'
-    --C                   ∎
-    --C               }
-    --C             module t12 = Triangle (proj₂ t12)
-    --C             -- But there is a pointing other than p', namely via t2.p'!
-    --C             p'' = F.₁ (V.₁ (coalg-colim.D.₁ y.i₂)) ∘ t2.p' ∘ D.₁ s
-    --C             p''-through-t12 : FA-colim.proj P1 ≈ F-coalg-colim.proj y.obj ∘ p''
-    --C             p''-through-t12 = begin
-    --C               FA-colim.proj P1 ≈⟨ from-P1-through-t2 ⟩
-    --C               F-coalg-colim.proj t2.x ∘ (t2.p' ∘ D.₁ s)    ≈˘⟨ F-coalg-colim.colimit-commute _ ⟩∘⟨refl ⟩
-    --C               (F-coalg-colim.proj y.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁ y.i₂))) ∘ (t2.p' ∘ D.₁ s)    ≈⟨ assoc ⟩
-    --C               F-coalg-colim.proj y.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁ y.i₂)) ∘ t2.p' ∘ D.₁ s
-    --C               ∎
-    --C             -- By the (essential) uniqueness of t12.p', we get another
-    --C             -- coalgebra more upward in the diagram identifying p' and p'':
-    --C             z , h , h-prop = p'-unique t12 p'' p''-through-t12
-    --C             t3 : all-triangles
-    --C             t3 = P2 , record {
-    --C                x = z ;
-    --C                p' = F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₂))) ∘ t2.p' ;
-    --C                commutes = begin
-    --C                   FA-colim.proj P2 ≈⟨ t2.commutes ⟩
-    --C                   F-coalg-colim.proj t2.x ∘ t2.p' ≈˘⟨ F-coalg-colim.colimit-commute _ ⟩∘⟨refl ⟩
-    --C                   _ ∘ t2.p' ≈⟨ assoc ⟩
-    --C                   -- F-coalg-colim.proj t12.x ∘ t12.p' ≈˘⟨ F-coalg-colim.colimit-commute _ ⟩∘⟨refl ⟩
-    --C                   -- (F-coalg-colim.proj z ∘ F.₁ (V.₁ (coalg-colim.D.₁ h))) ∘ t12.p' ≈⟨ assoc ⟩
-    --C                   F-coalg-colim.proj z ∘ F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₂))) ∘ t2.p'
-    --C                   ∎
-    --C               }
-    --C             module t3 = Triangle (proj₂ t3)
-    --C             -- the following definition causes an infinite loop in agda:
-    --C             -- This triangle then provides an upper bound for t1 and t2 in 𝒮:
-    --C             -- t1⇒t3 : 𝒮 [ t1 , t3 ]
-    --C             -- t1⇒t3 = build-𝒮-morphism t1 t3 s (h coalg-colim.𝒟.∘ y.i₁)
-    --C             --   (begin
-    --C             --   t3.p' ∘ D.₁ s  ≡⟨⟩
-    --C             --   (F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₂))) ∘ t2.p') ∘ D.₁ s  ≈⟨ assoc ⟩
-    --C             --   F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₂))) ∘ t2.p' ∘ D.₁ s  ≈˘⟨ FA-colim.colimit-commute s ⟩
-    --C             --   F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₁))) ∘ t1.p'
-    --C             --   ∎)
-    --C           in
-    --C           begin
-    --C           (V.₁ (B.ψ t2) ∘ P+X.i₁ t2) ∘ D.₁ s ≈⟨ {!!} ⟩
-    --C           (V.₁ (B.ψ t1) ∘ P+X.i₁ t1)
-    --C           ∎
-    --C       }
-    --C   }
+    -- every cocone for the diagram S of coalgebras induces
+    -- are cocone for the canonical diagram of F.₀ A
+    Coalg-Cocone-to-Object-Cocone : Cocone S → Cocone D
+    Coalg-Cocone-to-Object-Cocone B =
+      let
+        module B = Cocone B
+        module bounds = has-upper-bounds (filtered.bounds (Fil-to-filtered 𝒟-filtered))
+        open ConstructionComponents
+        open HomReasoning
+      in
+      record {
+        -- The tip of the cocone is just the carrier of the tip of B:
+        N = F-Coalgebra.A B.N ;
+        coapex =
+          record {
+            ψ = λ P →
+              let t = P-to-triangle P in
+              V.₁ (B.ψ t) ∘ P+X.i₁ t ;
+            commute = λ {P1} {P2} s →
+              let
+                -- We get triangles for both P1 and P2
+                t1 = P-to-triangle P1
+                t2 = P-to-triangle P2
+                module t1 = Triangle (proj₂ t1)
+                module t2 = Triangle (proj₂ t2)
+                -- by s : P1 ⇒ P2, P1 also factors through P2
+                from-P1-through-t2 = begin
+                    FA-colim.proj P1 ≈˘⟨ FA-colim.colimit-commute s ⟩
+                    FA-colim.proj P2 ∘ D.₁ s    ≈⟨ t2.commutes ⟩∘⟨refl ⟩
+                    (F-coalg-colim.proj t2.x ∘ t2.p') ∘ D.₁ s    ≈⟨ assoc ⟩
+                    F-coalg-colim.proj t2.x ∘ t2.p' ∘ D.₁ s
+                  ∎
+                -- We can take the upper bounds of the two triangles:
+                y = bounds.construct-upper-bound t1.x t2.x
+                module y = UpperBound y
+                t12 : all-triangles
+                t12 = P1 , record {
+                  x = y.obj ;
+                  p' = F.₁ (V.₁ (coalg-colim.D.₁ y.i₁)) ∘ t1.p' ;
+                  commutes = begin
+                      FA-colim.proj P1 ≈⟨ t1.commutes ⟩
+                      F-coalg-colim.proj t1.x ∘ t1.p' ≈˘⟨ F-coalg-colim.colimit-commute _ ⟩∘⟨refl ⟩
+                      (F-coalg-colim.proj y.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁ y.i₁))) ∘ t1.p' ≈⟨ assoc ⟩
+                      F-coalg-colim.proj y.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁ y.i₁)) ∘ t1.p'
+                      ∎
+                  }
+                module t12 = Triangle (proj₂ t12)
+                -- But there is a pointing other than p', namely via t2.p'!
+                p'' = F.₁ (V.₁ (coalg-colim.D.₁ y.i₂)) ∘ t2.p' ∘ D.₁ s
+                p''-through-t12 : FA-colim.proj P1 ≈ F-coalg-colim.proj y.obj ∘ p''
+                p''-through-t12 = begin
+                  FA-colim.proj P1 ≈⟨ from-P1-through-t2 ⟩
+                  F-coalg-colim.proj t2.x ∘ (t2.p' ∘ D.₁ s)    ≈˘⟨ F-coalg-colim.colimit-commute _ ⟩∘⟨refl ⟩
+                  (F-coalg-colim.proj y.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁ y.i₂))) ∘ (t2.p' ∘ D.₁ s)    ≈⟨ assoc ⟩
+                  F-coalg-colim.proj y.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁ y.i₂)) ∘ t2.p' ∘ D.₁ s
+                  ∎
+                -- By the (essential) uniqueness of t12.p', we get another
+                -- coalgebra more upward in the diagram identifying p' and p'':
+                z , h , h-prop = p'-unique t12 p'' p''-through-t12
+                t3 : all-triangles
+                t3 = P2 , record {
+                   x = z ;
+                   p' = F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₂))) ∘ t2.p' ;
+                   commutes = begin
+                      FA-colim.proj P2 ≈⟨ t2.commutes ⟩
+                      F-coalg-colim.proj t2.x ∘ t2.p' ≈˘⟨ F-coalg-colim.colimit-commute _ ⟩∘⟨refl ⟩
+                      _ ∘ t2.p' ≈⟨ assoc ⟩
+                      -- F-coalg-colim.proj t12.x ∘ t12.p' ≈˘⟨ F-coalg-colim.colimit-commute _ ⟩∘⟨refl ⟩
+                      -- (F-coalg-colim.proj z ∘ F.₁ (V.₁ (coalg-colim.D.₁ h))) ∘ t12.p' ≈⟨ assoc ⟩
+                      F-coalg-colim.proj z ∘ F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₂))) ∘ t2.p'
+                      ∎
+                  }
+                module t3 = Triangle (proj₂ t3)
+                -- The following definition takes forever in agda:
+                -- This triangle then provides an upper bound for t1 and t2 in 𝒮:
+                t1⇒t3 : 𝒮 [ t1 , t3 ]
+                t1⇒t3 = (s , (h coalg-colim.𝒟.∘ y.i₁)) ,
+                   (begin
+                   t3.p' ∘ D.₁ s  ≡⟨⟩
+                   (F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₂))) ∘ t2.p') ∘ D.₁ s
+                     ≈⟨ assoc ⟩
+                   F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₂))) ∘ t2.p' ∘ D.₁ s
+                     ≈˘⟨ FA-colim.colimit-commute s ⟩
+                   F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₁))) ∘ t1.p'
+                   ∎)
+              in
+              begin
+              (V.₁ (B.ψ t2) ∘ P+X.i₁ t2) ∘ D.₁ s ≈⟨ {!!} ⟩
+              (V.₁ (B.ψ t1) ∘ P+X.i₁ t1)
+              ∎
+          }
+      }
 
     -- FA,Fα-Cocone-is-Colimit : IsLimitting FA,Fα-Cocone
     -- FA,Fα-Cocone-is-Colimit =
