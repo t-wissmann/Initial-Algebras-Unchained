@@ -610,6 +610,15 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                      ≈˘⟨ F.F-resp-≈ coalg-colim.D.homomorphism ⟩∘⟨refl ⟩
                    F.₁ (V₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₁))) ∘ t1.p'
                    ∎)
+                t2⇒t3 : 𝒮 [ t2 , t3 ]
+                t2⇒t3 = (𝒟.id , (h coalg-colim.𝒟.∘ y.i₂)) ,
+                  (begin
+                  t3.p' ∘ D.₁ 𝒟.id
+                     ≈⟨ identityʳ ⟩
+                  t3.p'
+                    ≡⟨⟩
+                  F.₁ (V₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₂))) ∘ t2.p'
+                  ∎)
               in
               begin
               (V₁ (B.ψ t2) ∘ P+X.i₁ t2) ∘ D.₁ s ≈⟨ {!!} ⟩
