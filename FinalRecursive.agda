@@ -223,6 +223,17 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
         hom-to-FA.f ∘ P+X.i₁
         ∎
 
+      hom-to-FA-i₂ : α ∘ proj-X,x.f ≈ hom-to-FA.f ∘ P+X.i₂
+      hom-to-FA-i₂ =
+        let open HomReasoning in
+        begin
+        α ∘ proj-X,x.f ≈⟨ proj-X,x.commutes ⟩
+        F.₁ proj-X,x.f ∘ x ≈˘⟨ refl⟩∘⟨ P+X.inject₂ ⟩
+        F.₁ proj-X,x.f ∘ P+X.[ p' , x ] ∘ P+X.i₂ ≈⟨ sym-assoc ⟩
+        (F.₁ proj-X,x.f ∘ hom-to-FX.f) ∘ P+X.i₂ ≡⟨⟩
+        hom-to-FA.f ∘ P+X.i₂
+        ∎
+
       --   The property that all objects in the diagram ...
       P+X-coalg-is-FinitaryRecursive : FinitaryRecursive P+X-coalg
       P+X-coalg-is-FinitaryRecursive =
