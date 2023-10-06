@@ -184,8 +184,8 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
       triangle-commutes : p ≈ F.₁ proj-X,x.f ∘ p'
       triangle-commutes = Triangle.commutes (proj₂ t)
 
-      -- This p' is unique in the sense that if there is another suitable
-      -- p'', then p' and p'' are identified somewhere in the diagram
+      -- This p' is essentially unique in the sense that if there is another
+      -- suitable p'', then p' and p'' are identified somewhere in the diagram
       p'-unique : ∀ (p'' : P ⇒ F.₀ X) → p ≈ F.₁ proj-X,x.f ∘ p'' →
         Σ[ Y,y-dia ∈ coalg-colim.𝒟.Obj ]
         Σ[ h ∈ coalg-colim.𝒟 [ X,x-dia , Y,y-dia ] ]
@@ -426,11 +426,12 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
     Coalg-Cocone-to-Object-Cocone B =
       let
         module B = Cocone B
+        module bounds = has-upper-bounds (filtered.bounds (Fil-to-filtered 𝒟-filtered))
         open ConstructionComponents
         open HomReasoning
       in
       record {
-        -- the tip of the cocone is just the carrier of the tip of B:
+        -- The tip of the cocone is just the carrier of the tip of B:
         N = F-Coalgebra.A B.N ;
         coapex =
           record {
@@ -439,13 +440,51 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
               V.₁ (B.ψ t) ∘ P+X.i₁ t ;
             commute = λ {P1} {P2} s →
               let
+                -- We get triangles for both P1 and P2
                 t1 = P-to-triangle P1
                 t2 = P-to-triangle P2
+                module t1 = Triangle (proj₂ t1)
+                module t2 = Triangle (proj₂ t2)
+                -- by s : P1 ⇒ P2, P1 also factors through P2
+                from-P1-through-t2 = begin
+                    FA-colim.proj P1 ≈˘⟨ FA-colim.colimit-commute s ⟩
+                    FA-colim.proj P2 ∘ D.₁ s    ≈⟨ t2.commutes ⟩∘⟨refl ⟩
+                    (F-coalg-colim.proj t2.x ∘ t2.p') ∘ D.₁ s    ≈⟨ assoc ⟩
+                    F-coalg-colim.proj t2.x ∘ t2.p' ∘ D.₁ s
+                  ∎
+                -- We can take the upper bounds of the two triangles:
+                y = bounds.construct-upper-bound t1.x t2.x
+                module y = UpperBound y
+                t12 : all-triangles
+                t12 = P1 , record {
+                  x = y.obj ;
+                  p' = F.₁ (V.₁ (coalg-colim.D.₁ y.is-above₁)) ∘ t1.p' ;
+                  commutes = begin
+                      FA-colim.proj P1 ≈⟨ t1.commutes ⟩
+                      F-coalg-colim.proj t1.x ∘ t1.p' ≈˘⟨ F-coalg-colim.colimit-commute _ ⟩∘⟨refl ⟩
+                      (F-coalg-colim.proj y.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁ y.is-above₁))) ∘ t1.p' ≈⟨ assoc ⟩
+                      F-coalg-colim.proj y.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁ y.is-above₁)) ∘ t1.p'
+                      ∎
+                  }
+                module t12 = Triangle (proj₂ t12)
+                -- But there is a pointing other than p', namely via t2.p'!
+                p'' = F.₁ (V.₁ (coalg-colim.D.₁ y.is-above₂)) ∘ t2.p' ∘ D.₁ s
+                p''-through-t12 : FA-colim.proj P1 ≈ F-coalg-colim.proj y.obj ∘ p''
+                p''-through-t12 = begin
+                  FA-colim.proj P1 ≈⟨ from-P1-through-t2 ⟩
+                  F-coalg-colim.proj t2.x ∘ (t2.p' ∘ D.₁ s)    ≈˘⟨ F-coalg-colim.colimit-commute _ ⟩∘⟨refl ⟩
+                  (F-coalg-colim.proj y.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁ y.is-above₂))) ∘ (t2.p' ∘ D.₁ s)    ≈⟨ assoc ⟩
+                  F-coalg-colim.proj y.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁ y.is-above₂)) ∘ t2.p' ∘ D.₁ s
+                  ∎
+                -- By the (essential) uniqueness of t12.p', we get another
+                -- coalgebra more upward in the diagram:
+                z , h , h-prop = p'-unique t12 p'' p''-through-t12
               in
-              begin
-              (V.₁ (B.ψ t2) ∘ P+X.i₁ t2) ∘ D.F₁ s ≈⟨ {!!} ⟩
-              (V.₁ (B.ψ t1) ∘ P+X.i₁ t1)
-              ∎
+              {!!}
+              -- begin
+              -- (V.₁ (B.ψ t2) ∘ P+X.i₁ t2) ∘ D.₁ s ≈⟨ {!!} ⟩
+              -- (V.₁ (B.ψ t1) ∘ P+X.i₁ t1)
+              -- ∎
           }
       }
 
