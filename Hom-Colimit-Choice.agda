@@ -101,6 +101,36 @@ module _
       ∀ {i : 𝒟.Obj} (f g : P ⇒ D.₀ i) → colim.proj i ∘ f ≈ colim.proj i ∘ g →
         Σ[ i' ∈ 𝒟.Obj ] Σ[ f' ∈ i 𝒟.⇒ i' ] Σ[ g' ∈ i 𝒟.⇒ i' ] (D.₁ f' ∘ f ≈ D.₁ g' ∘ g)
 
+  -- The same property, but with a single identifying morphism:
+  UniqueColimitFactorization₁ : 𝒞.Obj → Set _
+  UniqueColimitFactorization₁ P =
+      ∀ {i : 𝒟.Obj} (f g : P ⇒ D.₀ i) → colim.proj i ∘ f ≈ colim.proj i ∘ g →
+        Σ[ i' ∈ 𝒟.Obj ] Σ[ h ∈ i 𝒟.⇒ i' ] (D.₁ h ∘ f ≈ D.₁ h ∘ g)
+
+  -- If the diagram is filtered, then the above two properties are equivalent:
+  coequalize-colimit-factorization : (P : 𝒞.Obj) → filtered 𝒟 →
+    UniqueColimitFactorization P →
+    UniqueColimitFactorization₁ P
+  coequalize-colimit-factorization P fil factor2 {i} f g eq-proj =
+    let
+      -- We take the factorization with the two injections:
+      j , f' , (g' , binary-prop) = factor2 {i} f g eq-proj
+      -- and the merge f' and g'
+      module fil = fuse-parallel-morphisms (filtered.fuse-parallel fil)
+      i' = fil.fuse-obj f' g'
+      k = fil.fuse-morph f' g'
+      open HomReasoning
+    in
+    i' , ((k 𝒟.∘ f') , (begin
+      D.₁ (k 𝒟.∘ f') ∘ f ≈⟨ D.homomorphism ⟩∘⟨refl ⟩
+      (D.₁ k ∘ D.₁ f') ∘ f ≈⟨ assoc ⟩
+      D.₁ k ∘ (D.₁ f' ∘ f) ≈⟨ refl⟩∘⟨ binary-prop ⟩
+      D.₁ k ∘ (D.₁ g' ∘ g) ≈⟨ sym-assoc ⟩
+      (D.₁ k ∘ D.₁ g') ∘ g ≈˘⟨ D.homomorphism ⟩∘⟨refl ⟩
+      D.₁ (k 𝒟.∘ g') ∘ g ≈˘⟨ D.F-resp-≈ (fil.fuse-prop f' g') ⟩∘⟨refl ⟩
+      D.₁ (k 𝒟.∘ f') ∘ g
+    ∎))
+
   hom-colim-unique-factor :
       filtered 𝒟 →
       (P : 𝒞.Obj) →

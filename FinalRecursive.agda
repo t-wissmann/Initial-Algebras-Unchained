@@ -39,6 +39,7 @@ open import recursive-coalgebra 𝒞 F
 open import Hom-Colimit-Choice 𝒞
 open import Categories.Object.Coproduct 𝒞
 open import Categories.Morphism.Reasoning.Core 𝒞
+open import F-Coalgebra-Colimit {_} {_} {_} {𝒞} {F}
 
 module F-Coalgebras = Category (F-Coalgebras F)
 
@@ -65,6 +66,8 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                       (has-coprod : HasCoproductOfPresentedObjects 𝒞 ℓ ℓ ℓ Fil)
                       -- we have sufficiently many coproducts
                       where
+    -- in the proof, let V be the forgetful functor from coalgebras to 𝒞
+    module V = Functor forget-Coalgebra
     Fil-presented = presented 𝒞 ℓ ℓ ℓ Fil
     -- the provided coalgebra:
     module coalg-colim = LProp-Coalgebra coalg-colim
@@ -109,7 +112,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
       Triangle F-coalg-colim (FA-colim.proj P)
 
     -- in fact, every P can be extended to such a triangle:
-    P-to-triangle : 𝒟.Obj → all-triangles
+    P-to-triangle : ∀ (P : 𝒟.Obj) → Triangle F-coalg-colim (FA-colim.proj P)
     P-to-triangle P =
       let
         (idx , _) = P
@@ -120,10 +123,11 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
             𝒟-filtered    -- ... which is filtered
             (F ∘F coalg-colim.carrier-diagram)
       in
-      P ,
       hom-colim-choice F-coalg-colim (D.₀ P)
         DP-preserves-colim
         (FA-colim.proj P)
+    P-to-alltriangles : 𝒟.Obj → all-triangles
+    P-to-alltriangles P = P , P-to-triangle P
 
     -- In the following, we construct a presented coalgebra
     -- "below" (FA,Fα).
@@ -346,7 +350,6 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
       let
         open ConstructionComponents
         open HomReasoning
-        V = F-Coalgebra-Morphism.f
       in
       record {
         N = iterate A,α ;
@@ -360,8 +363,8 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
             coproduct-jointly-epic (P+X t1)
               record {
               case-precompose-i₁ = begin
-                (hom-to-FA.f t2 ∘ V s+h) ∘ P+X.i₁ t1 ≈⟨ assoc ⟩
-                hom-to-FA.f t2 ∘ (V s+h ∘ P+X.i₁ t1) ≈⟨ refl⟩∘⟨ s+h-prop ⟩∘⟨refl ⟩
+                (hom-to-FA.f t2 ∘ V.₁ s+h) ∘ P+X.i₁ t1 ≈⟨ assoc ⟩
+                hom-to-FA.f t2 ∘ (V.₁ s+h ∘ P+X.i₁ t1) ≈⟨ refl⟩∘⟨ s+h-prop ⟩∘⟨refl ⟩
                 hom-to-FA.f t2 ∘ (_ ∘ P+X.i₁ t1) ≈⟨ refl⟩∘⟨ P+X.inject₁ t1 ⟩
                 hom-to-FA.f t2 ∘ (P+X.i₁ t2 ∘ D.₁ s) ≈⟨ sym-assoc ⟩
                 (hom-to-FA.f t2 ∘ P+X.i₁ t2) ∘ D.₁ s ≈˘⟨ hom-to-FA-i₁ t2 ⟩∘⟨refl ⟩
@@ -370,13 +373,13 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                 hom-to-FA.f t1 ∘ P+X.i₁ t1
                 ∎ ;
               case-precompose-i₂ = begin
-                (hom-to-FA.f t2 ∘ V s+h) ∘ P+X.i₂ t1 ≈⟨ assoc ⟩
-                hom-to-FA.f t2 ∘ (V s+h ∘ P+X.i₂ t1) ≈⟨ refl⟩∘⟨ s+h-prop ⟩∘⟨refl ⟩
+                (hom-to-FA.f t2 ∘ V.₁ s+h) ∘ P+X.i₂ t1 ≈⟨ assoc ⟩
+                hom-to-FA.f t2 ∘ (V.₁ s+h ∘ P+X.i₂ t1) ≈⟨ refl⟩∘⟨ s+h-prop ⟩∘⟨refl ⟩
                 hom-to-FA.f t2 ∘ (_ ∘ P+X.i₂ t1) ≈⟨ refl⟩∘⟨ P+X.inject₂ t1 ⟩
-                hom-to-FA.f t2 ∘ (P+X.i₂ t2 ∘ V (coalg-colim.D.₁ h)) ≈˘⟨ assoc ⟩
-                (hom-to-FA.f t2 ∘ P+X.i₂ t2) ∘ V (coalg-colim.D.₁ h) ≈˘⟨ hom-to-FA-i₂ t2 ⟩∘⟨refl  ⟩
-                (α ∘ proj-X,x.f t2) ∘ V (coalg-colim.D.₁ h) ≈⟨ assoc ⟩
-                α ∘ (proj-X,x.f t2 ∘ V (coalg-colim.D.₁ h)) ≈⟨ refl⟩∘⟨ coalg-colim.colim.colimit-commute h ⟩
+                hom-to-FA.f t2 ∘ (P+X.i₂ t2 ∘ V.₁ (coalg-colim.D.₁ h)) ≈˘⟨ assoc ⟩
+                (hom-to-FA.f t2 ∘ P+X.i₂ t2) ∘ V.₁ (coalg-colim.D.₁ h) ≈˘⟨ hom-to-FA-i₂ t2 ⟩∘⟨refl  ⟩
+                (α ∘ proj-X,x.f t2) ∘ V.₁ (coalg-colim.D.₁ h) ≈⟨ assoc ⟩
+                α ∘ (proj-X,x.f t2 ∘ V.₁ (coalg-colim.D.₁ h)) ≈⟨ refl⟩∘⟨ coalg-colim.colim.colimit-commute h ⟩
                 α ∘ proj-X,x.f t1 ≈⟨ hom-to-FA-i₂ t1 ⟩
                 hom-to-FA.f t1 ∘ P+X.i₂ t1
                 ∎
@@ -384,6 +387,39 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
           }
       }
     module FA,Fα-Cocone = Cocone FA,Fα-Cocone
+
+    -- every cocone for the diagram S of coalgebras induces
+    -- are cocone for the canonical diagram of F.₀ A
+    Coalg-Cocone-to-Object-Cocone : Cocone S → Cocone D
+    Coalg-Cocone-to-Object-Cocone B =
+      let
+        module B = Cocone B
+        open ConstructionComponents
+        open HomReasoning
+      in
+      record {
+        -- the tip of the cocone is just the carrier of the tip of B:
+        N = F-Coalgebra.A B.N ;
+        coapex =
+          record {
+            ψ = λ P →
+              let t = P-to-alltriangles P in
+              V.₁ (B.ψ t) ∘ P+X.i₁ t ;
+            commute = λ {P1} {P2} s →
+              let
+                t1 = P-to-alltriangles P1
+                t2 = P-to-alltriangles P2
+              in
+              begin
+              (V.₁ (B.ψ t2) ∘ P+X.i₁ t2) ∘ D.F₁ s ≈⟨ {!!} ⟩
+              (V.₁ (B.ψ t1) ∘ P+X.i₁ t1)
+              ∎
+          }
+      }
+
+    -- FA,Fα-Cocone-is-Colimit : IsLimitting FA,Fα-Cocone
+    -- FA,Fα-Cocone-is-Colimit =
+    --   record { ! = λ {B} → {!!} ; !-unique = {!!} }
 
     -- iterated-LProp-Coalgebra : LProp-Coalgebra
     -- iterated-LProp-Coalgebra = record {
