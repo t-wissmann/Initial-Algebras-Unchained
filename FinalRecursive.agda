@@ -363,7 +363,13 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
               hom-to-FA.f t1 ∘ P+X.i₁ t1
               ∎)
               (begin
-              (hom-to-FA.f t2 ∘ V s+h) ∘ P+X.i₂ t1 ≈⟨ {!!} ⟩
+              (hom-to-FA.f t2 ∘ V s+h) ∘ P+X.i₂ t1 ≈⟨ assoc ⟩
+              hom-to-FA.f t2 ∘ (V s+h ∘ P+X.i₂ t1) ≈⟨ refl⟩∘⟨ s+h-prop ⟩∘⟨refl ⟩
+              hom-to-FA.f t2 ∘ (_ ∘ P+X.i₂ t1) ≈⟨ refl⟩∘⟨ P+X.inject₂ t1 ⟩
+              hom-to-FA.f t2 ∘ (P+X.i₂ t2 ∘ V (coalg-colim.D.₁ h)) ≈˘⟨ assoc ⟩
+              (hom-to-FA.f t2 ∘ P+X.i₂ t2) ∘ V (coalg-colim.D.₁ h) ≈˘⟨ hom-to-FA-i₂ t2 ⟩∘⟨refl  ⟩
+              (α ∘ proj-X,x.f t2) ∘ V (coalg-colim.D.₁ h) ≈⟨ assoc ⟩
+              α ∘ (proj-X,x.f t2 ∘ V (coalg-colim.D.₁ h)) ≈⟨ refl⟩∘⟨ coalg-colim.colim.colimit-commute h ⟩
               α ∘ proj-X,x.f t1 ≈⟨ hom-to-FA-i₂ t1 ⟩
               hom-to-FA.f t1 ∘ P+X.i₂ t1
               ∎)
