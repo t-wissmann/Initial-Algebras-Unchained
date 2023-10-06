@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K  --allow-unsolved-metas #-}
+{-# OPTIONS --without-K  --lossy-unification --allow-unsolved-metas #-}
 open import Level
 
 open import Categories.Category
@@ -151,8 +151,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
       module proj-X,x = F-Coalgebra-Morphism proj-X,x
 
       -- We also introduce names for the carrier and the structure:
-      X = F-Coalgebra.A X,x
-      x = F-Coalgebra.α X,x
+      open F-Coalgebra X,x renaming (A to X; α to x) public
 
       P : 𝒞.Obj
       P = D.₀ (proj₁ t)
@@ -522,6 +521,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
         module bounds = has-upper-bounds (filtered.bounds (Fil-to-filtered 𝒟-filtered))
         open ConstructionComponents
         open HomReasoning
+        V₁ = F-Coalgebra-Morphism.f {C = 𝒞} {F = F}
       in
       record {
         -- The tip of the cocone is just the carrier of the tip of B:
@@ -560,7 +560,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                       ∎
                   }
                 module t12 = Triangle (proj₂ t12)
-                -- But there is a pointing other than p', namely via t2.p'!
+                -- But there is a pointing other than t12.p', namely via t2.p'!
                 p'' = F.₁ (V.₁ (coalg-colim.D.₁ y.i₂)) ∘ t2.p' ∘ D.₁ s
                 p''-through-t12 : FA-colim.proj P1 ≈ F-coalg-colim.proj y.obj ∘ p''
                 p''-through-t12 = begin
@@ -592,16 +592,28 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                 t1⇒t3 = (s , (h coalg-colim.𝒟.∘ y.i₁)) ,
                    (begin
                    t3.p' ∘ D.₁ s  ≡⟨⟩
-                   (F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₂))) ∘ t2.p') ∘ D.₁ s
-                     ≈⟨ assoc ⟩
-                   F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₂))) ∘ t2.p' ∘ D.₁ s
-                     ≈˘⟨ FA-colim.colimit-commute s ⟩
-                   F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₁))) ∘ t1.p'
+                   (F.₁ (V₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₂))) ∘ t2.p') ∘ D.₁ s
+                     ≈⟨ ((F.F-resp-≈ (coalg-colim.D.homomorphism) ○ F.homomorphism) ⟩∘⟨refl) ⟩∘⟨refl ⟩
+                   ((F.₁ (V₁ (coalg-colim.D.₁ h)) ∘ F.₁ (V₁ (coalg-colim.D.₁ y.i₂))) ∘ t2.p') ∘ D.₁ s
+                     ≈⟨ assoc² ⟩
+                   F.₁ (V₁ (coalg-colim.D.₁ h)) ∘ F.₁ (V₁ (coalg-colim.D.₁ y.i₂)) ∘ t2.p' ∘ D.₁ s
+                     ≡⟨⟩
+                   F.₁ (V₁ (coalg-colim.D.₁ h)) ∘ p''
+                     ≈˘⟨ h-prop ⟩
+                   F.₁ (V₁ (coalg-colim.D.₁ h)) ∘ t12.p'
+                     ≡⟨⟩
+                   F.₁ (V₁ (coalg-colim.D.₁ h)) ∘ F.₁ (V₁ (coalg-colim.D.₁ y.i₁)) ∘ t1.p'
+                     ≈⟨ sym-assoc ⟩
+                   (F.₁ (V₁ (coalg-colim.D.₁ h)) ∘ F.₁ (V₁ (coalg-colim.D.₁ y.i₁))) ∘ t1.p'
+                     ≈˘⟨ F.homomorphism ⟩∘⟨refl ⟩
+                   F.₁ (V₁ (coalg-colim.D.₁ h) ∘ V₁ (coalg-colim.D.₁ y.i₁)) ∘ t1.p'
+                     ≈˘⟨ F.F-resp-≈ coalg-colim.D.homomorphism ⟩∘⟨refl ⟩
+                   F.₁ (V₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ y.i₁))) ∘ t1.p'
                    ∎)
               in
               begin
-              (V.₁ (B.ψ t2) ∘ P+X.i₁ t2) ∘ D.₁ s ≈⟨ {!!} ⟩
-              (V.₁ (B.ψ t1) ∘ P+X.i₁ t1)
+              (V₁ (B.ψ t2) ∘ P+X.i₁ t2) ∘ D.₁ s ≈⟨ {!!} ⟩
+              (V₁ (B.ψ t1) ∘ P+X.i₁ t1)
               ∎
           }
       }

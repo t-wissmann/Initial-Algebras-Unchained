@@ -56,6 +56,7 @@ module _
 
   record Triangle {P : 𝒞.Obj} (p : P ⇒ colim.coapex) : Set (o' ⊔ ℓ ⊔ e) where
     -- a factorization of a morphism through the diagram.
+    constructor triangle
     field
       x : 𝒟.Obj
       p' : P ⇒ D.₀ x
