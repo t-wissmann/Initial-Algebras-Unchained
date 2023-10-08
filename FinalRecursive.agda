@@ -667,9 +667,23 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
           }
       }
 
-    -- FA,Fα-Cocone-is-Colimit : IsLimitting FA,Fα-Cocone
-    -- FA,Fα-Cocone-is-Colimit =
-    --   record { ! = λ {B} → {!!} ; !-unique = {!!} }
+    FA,Fα-Cocone-is-Colimit : IsLimitting FA,Fα-Cocone
+    FA,Fα-Cocone-is-Colimit =
+      record {
+        ! = λ {B} →
+          record {
+            arr = steps.to-B-hom B ;
+            commute = {!!} } ; -- Coalg-Cocone-to-Object-Cocone B ;
+        !-unique = {!!} }
+      where
+        module steps (B : Cocone S) where
+          B' : Cocone D
+          B' = Coalg-Cocone-to-Object-Cocone B
+          to-B' : Cocone⇒ D FA-colim.colimit B'
+          to-B' = FA-colim.rep-cocone B'
+          to-B-hom : F-Coalgebra-Morphism (iterate A,α) (Cocone.N B)
+          to-B-hom =
+            record { f = Cocone⇒.arr to-B' ; commutes = {!!} }
 
     -- iterated-LProp-Coalgebra : LProp-Coalgebra
     -- iterated-LProp-Coalgebra = record {
