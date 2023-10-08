@@ -667,6 +667,8 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
           }
       }
 
+    -- TODO: we shouldn't prove this! Instead, the definition of LProp-Coalgebra
+    -- requires that the cocone on the level of carriers is colimitting!
     FA,Fα-Cocone-is-Colimit : IsLimitting FA,Fα-Cocone
     FA,Fα-Cocone-is-Colimit =
       record {
