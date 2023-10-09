@@ -259,6 +259,15 @@ module _ (o' ℓ' e' : _) (P : Category o' ℓ' e' → Set prop-level) where
     canonical-colimit : ∀ (X : 𝒞.Obj) → Colimit (canonical-diagram X)
     canonical-colimit X = Colimit-from-prop (build-from-fin X)
 
+    -- the family 'fin' forms a generator. This means that for every X,
+    -- the morphisms 'fin k ⇒ X' are jointly epic
+    fin-generator : ∀ (X : 𝒞.Obj) →
+      jointly-epic
+        {𝒞 = 𝒞}
+        {codom = X}
+        (Cocone.ψ Functor[ fin ↓ X ] Cocone[ fin ↓ X ])
+    fin-generator X = colimit-is-jointly-epic (Colimit-from-prop (build-from-fin X))
+
   -- the property whether a category has coproducts of presented objects
   HasCoproductOfPresentedObjects : Set _
   HasCoproductOfPresentedObjects =

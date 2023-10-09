@@ -683,34 +683,12 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
             arr = Cocone⇒.arr (steps.to-B' B) ;
             commute = λ {t} →
               let
-                open HomReasoning
                 open steps B
+                open HomReasoning
                 open ConstructionComponents t
-                module B = Cocone B
-                t' = P-to-triangle (proj₁ t)
               in
               coproduct-jointly-epic P+X (record {
-                case-precompose-i₁ =
-                  begin
-                  (Cocone⇒.arr to-B' ∘ V.₁ hom-to-FA) ∘ P+X.i₁ ≈⟨ assoc ⟩
-                  Cocone⇒.arr to-B' ∘ (F.₁ proj-X,x.f ∘ (P+X.[ p' , x ])) ∘ P+X.i₁
-                    ≈⟨ refl⟩∘⟨ assoc ⟩
-                  Cocone⇒.arr to-B' ∘ F.₁ proj-X,x.f ∘ P+X.[ p' , x ] ∘ P+X.i₁
-                    ≈⟨ refl⟩∘⟨ refl⟩∘⟨ P+X.inject₁ ⟩
-                  Cocone⇒.arr to-B' ∘ F.₁ proj-X,x.f ∘ p'
-                    ≈˘⟨ refl⟩∘⟨ triangle-commutes ⟩
-                  Cocone⇒.arr to-B' ∘ FA-colim.proj (proj₁ t)
-                    ≈⟨ to-B'.commute ⟩
-                  B'.ψ (proj₁ t)
-                    ≡⟨⟩
-                  B.ψ t' ∘ (ConstructionComponents.P+X.i₁ t')
-                    ≈˘⟨ Coalg-Cocone-to-Object-Cocone.Towards-Cocone-Commutes.goal B t' t 𝒟.id ⟩
-                  (B.ψ t ∘ P+X.i₁) ∘ D.₁ 𝒟.id
-                    ≈⟨ refl⟩∘⟨ D.identity ⟩
-                  (B.ψ t ∘ P+X.i₁) ∘ id
-                    ≈⟨ identityʳ ⟩
-                  B.ψ t ∘ P+X.i₁
-                  ∎
+                case-precompose-i₁ = lemma t
                 ;
                 case-precompose-i₂ =
                   begin
@@ -721,7 +699,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                   Cocone⇒.arr to-B' ∘ F.₁ proj-X,x.f ∘ P+X.[ p' , x ] ∘ P+X.i₂
                     ≈⟨ refl⟩∘⟨ refl⟩∘⟨ P+X.inject₂ ⟩
                   Cocone⇒.arr to-B' ∘ F.₁ proj-X,x.f ∘ x
-                    ≈⟨ {!!} ⟩
+                    ≈⟨ other-lemma t ⟩
                   B.ψ t ∘ P+X.i₂
                   ∎
               })
@@ -729,12 +707,84 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
         !-unique = λ f → {!!} }
       where
         module steps (B : Cocone (forget-Coalgebra ∘F S)) where
+          module B = Cocone B
           B' : Cocone D
           B' = Coalg-Cocone-to-Object-Cocone B
           module B' = Cocone B'
           to-B' : Cocone⇒ D FA-colim.colimit B'
           to-B' = FA-colim.rep-cocone B'
           module to-B' = Cocone⇒ to-B'
+
+          module CC = ConstructionComponents
+
+          lemma : ∀ (t : all-triangles) →
+                    (Cocone⇒.arr to-B' ∘ V.₁ (CC.hom-to-FA t)) ∘ CC.P+X.i₁ t ≈ B.ψ t ∘ CC.P+X.i₁ t
+          lemma t =
+            let
+              open HomReasoning
+              open ConstructionComponents t
+              t' = P-to-triangle (proj₁ t)
+            in
+            begin
+            (Cocone⇒.arr to-B' ∘ V.₁ hom-to-FA) ∘ P+X.i₁ ≈⟨ assoc ⟩
+            Cocone⇒.arr to-B' ∘ (F.₁ proj-X,x.f ∘ (P+X.[ p' , x ])) ∘ P+X.i₁
+              ≈⟨ refl⟩∘⟨ assoc ⟩
+            Cocone⇒.arr to-B' ∘ F.₁ proj-X,x.f ∘ P+X.[ p' , x ] ∘ P+X.i₁
+              ≈⟨ refl⟩∘⟨ refl⟩∘⟨ P+X.inject₁ ⟩
+            Cocone⇒.arr to-B' ∘ F.₁ proj-X,x.f ∘ p'
+              ≈˘⟨ refl⟩∘⟨ triangle-commutes ⟩
+            Cocone⇒.arr to-B' ∘ FA-colim.proj (proj₁ t)
+              ≈⟨ to-B'.commute ⟩
+            B'.ψ (proj₁ t)
+              ≡⟨⟩
+            B.ψ t' ∘ (ConstructionComponents.P+X.i₁ t')
+              ≈˘⟨ Coalg-Cocone-to-Object-Cocone.Towards-Cocone-Commutes.goal B t' t 𝒟.id ⟩
+            (B.ψ t ∘ P+X.i₁) ∘ D.₁ 𝒟.id
+              ≈⟨ refl⟩∘⟨ D.identity ⟩
+            (B.ψ t ∘ P+X.i₁) ∘ id
+              ≈⟨ identityʳ ⟩
+            B.ψ t ∘ P+X.i₁
+            ∎
+
+          other-lemma : ∀ (t : all-triangles) →
+                    Cocone⇒.arr to-B' ∘ F.₁ (CC.proj-X,x.f t) ∘ CC.x t ≈ B.ψ t ∘ CC.P+X.i₂ t
+          other-lemma t =
+            let
+              open HomReasoning
+            in
+            𝒞-lfp.fin-generator (CC.X t) (λ { (k , q) →
+            let
+              t' : all-triangles
+              t' = (k , (F.₁ (CC.proj-X,x.f t) ∘ (CC.x t ∘ q)))
+                   ,
+                   triangle (CC.X,x-dia t) (CC.x t ∘ q) (
+                   begin
+                   F.₁ (CC.proj-X,x.f t) ∘ (CC.x t ∘ q) ≡⟨⟩
+                   F-coalg-colim.proj (ConstructionComponents.X,x-dia t) ∘ CC.x t ∘ q
+                   ∎
+                   )
+            in
+            begin
+            (Cocone⇒.arr to-B' ∘ F.₁ (CC.proj-X,x.f t) ∘ CC.x t) ∘ q
+            -- -- a failed attempt:
+            --   ≡⟨⟩
+            -- (Cocone⇒.arr to-B' ∘ F.₁ (CC.proj-X,x.f t') ∘ CC.x t') ∘ q
+            --   ≈⟨ assoc ⟩
+            -- Cocone⇒.arr to-B' ∘ ((F.₁ (CC.proj-X,x.f t') ∘ CC.x t') ∘ q)
+            --   ≈⟨ refl⟩∘⟨ assoc ⟩
+            -- Cocone⇒.arr to-B' ∘ F.₁ (CC.proj-X,x.f t') ∘ (CC.x t' ∘ q)
+            --   ≈˘⟨ refl⟩∘⟨ refl⟩∘⟨ CC.P+X.inject₁ t' ⟩
+            -- Cocone⇒.arr to-B' ∘ F.₁ (CC.proj-X,x.f t') ∘ CC.P+X.[_,_] t' (CC.x t' ∘ q) (CC.x t') ∘ CC.P+X.i₁ t'
+            --   ≈⟨ refl⟩∘⟨ sym-assoc ⟩
+            -- Cocone⇒.arr to-B' ∘ (V.₁ (CC.hom-to-FA t')) ∘ CC.P+X.i₁ t'
+            --   ≈⟨ sym-assoc ⟩
+            -- (Cocone⇒.arr to-B' ∘ (V.₁ (CC.hom-to-FA t'))) ∘ CC.P+X.i₁ t'
+            --   ≈⟨ lemma t' ⟩
+            -- B.ψ t' ∘ CC.P+X.i₁ t'
+              ≈⟨ {!!} ⟩
+            (B.ψ t ∘ CC.P+X.i₂ t) ∘ q
+            ∎
+            })
 
     -- iterated-LProp-Coalgebra : LProp-Coalgebra
     -- iterated-LProp-Coalgebra = record {
