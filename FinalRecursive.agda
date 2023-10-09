@@ -530,9 +530,11 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
           where
             t = P-to-triangle P
 
-        module Towards-Cocone-Commutes (P1 P2 : 𝒟.Obj) (s : P1 𝒟.⇒ P2) where
-          t1 = P-to-triangle P1
-          t2 = P-to-triangle P2
+        module Towards-Cocone-Commutes (t1 t2 : all-triangles) (s : (proj₁ t1) 𝒟.⇒ (proj₁ t2)) where
+          P1 : 𝒟.Obj
+          P1 = proj₁ t1
+          P2 : 𝒟.Obj
+          P2 = proj₁ t2
           module t1 = Triangle (proj₂ t1)
           module t2 = Triangle (proj₂ t2)
           -- by s : P1 ⇒ P2, P1 also factors through P2
@@ -636,7 +638,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
             V₁ (S.₁ t1⇒t3) ∘ P+X.i₁ t1
             ∎
 
-          goal : pr P2 ∘ D.₁ s ≈ pr P1
+          goal : (B.ψ t2 ∘ P+X.i₁ t2) ∘ D.₁ s ≈ B.ψ t1 ∘ P+X.i₁ t1
           goal =
             begin
             (B.ψ t2 ∘ P+X.i₁ t2) ∘ D.₁ s
@@ -664,7 +666,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
             ψ = λ P → Coalg-Cocone-to-Object-Cocone.pr B P ;
             commute = λ {P1} {P2} s →
               Coalg-Cocone-to-Object-Cocone.Towards-Cocone-Commutes.goal
-                B P1 P2 s
+                B (P-to-triangle P1) (P-to-triangle P2) s
           }
       }
 
@@ -685,6 +687,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                 open steps B
                 open ConstructionComponents t
                 module B = Cocone B
+                t' = P-to-triangle (proj₁ t)
               in
               coproduct-jointly-epic P+X (record {
                 case-precompose-i₁ =
@@ -699,14 +702,31 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                   Cocone⇒.arr to-B' ∘ FA-colim.proj (proj₁ t)
                     ≈⟨ to-B'.commute ⟩
                   B'.ψ (proj₁ t)
-                    ≈⟨ ? ⟩
+                    ≡⟨⟩
+                  B.ψ t' ∘ (ConstructionComponents.P+X.i₁ t')
+                    ≈˘⟨ Coalg-Cocone-to-Object-Cocone.Towards-Cocone-Commutes.goal B t' t 𝒟.id ⟩
+                  (B.ψ t ∘ P+X.i₁) ∘ D.₁ 𝒟.id
+                    ≈⟨ refl⟩∘⟨ D.identity ⟩
+                  (B.ψ t ∘ P+X.i₁) ∘ id
+                    ≈⟨ identityʳ ⟩
                   B.ψ t ∘ P+X.i₁
                   ∎
                 ;
-                case-precompose-i₂ = {!!}
+                case-precompose-i₂ =
+                  begin
+                  (Cocone⇒.arr to-B' ∘ V.₁ hom-to-FA) ∘ P+X.i₂
+                    ≈⟨ assoc ⟩
+                  Cocone⇒.arr to-B' ∘ (F.₁ proj-X,x.f ∘ P+X.[ p' , x ]) ∘ P+X.i₂
+                    ≈⟨ refl⟩∘⟨ assoc ⟩
+                  Cocone⇒.arr to-B' ∘ F.₁ proj-X,x.f ∘ P+X.[ p' , x ] ∘ P+X.i₂
+                    ≈⟨ refl⟩∘⟨ refl⟩∘⟨ P+X.inject₂ ⟩
+                  Cocone⇒.arr to-B' ∘ F.₁ proj-X,x.f ∘ x
+                    ≈⟨ {!!} ⟩
+                  B.ψ t ∘ P+X.i₂
+                  ∎
               })
               } ;
-        !-unique = {!!} }
+        !-unique = λ f → {!!} }
       where
         module steps (B : Cocone (forget-Coalgebra ∘F S)) where
           B' : Cocone D
