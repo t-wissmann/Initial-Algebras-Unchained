@@ -699,7 +699,10 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                   Cocone⇒.arr to-B' ∘ F.₁ proj-X,x.f ∘ P+X.[ p' , x ] ∘ P+X.i₂
                     ≈⟨ refl⟩∘⟨ refl⟩∘⟨ P+X.inject₂ ⟩
                   Cocone⇒.arr to-B' ∘ F.₁ proj-X,x.f ∘ x
-                    ≈⟨ other-lemma t ⟩
+                    ≈˘⟨ refl⟩∘⟨ proj-X,x.commutes ⟩
+                  Cocone⇒.arr to-B' ∘ α ∘ proj-X,x.f
+                  --  ≈⟨ other-lemma t ⟩
+                    ≈⟨ ? ⟩
                   B.ψ t ∘ P+X.i₂
                   ∎
               })
