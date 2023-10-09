@@ -7,6 +7,7 @@ open import Categories.Functor.Hom
 open import Categories.Category.Cocomplete
 open import Categories.Diagram.Colimit
 open import Categories.Diagram.Cocone
+open import Categories.Diagram.Cocone.Properties using (F-map-Coconeˡ)
 open import Categories.Category.Product
 open import Agda.Builtin.Equality
 open import Categories.Category.Construction.F-Coalgebras
@@ -516,7 +517,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
         open HomReasoning
     module FA,Fα-Cocone = Cocone FA,Fα-Cocone
 
-    module Coalg-Cocone-to-Object-Cocone (B : Cocone S) where
+    module Coalg-Cocone-to-Object-Cocone (B : Cocone (forget-Coalgebra ∘F S)) where
         module B = Cocone B
         module bounds = has-upper-bounds (filtered.bounds (Fil-to-filtered 𝒟-filtered))
         open ConstructionComponents
@@ -524,8 +525,8 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
         V₁ : ∀ {A1 A2 : F-Coalgebra F} → F-Coalgebra-Morphism A1 A2 → (F-Coalgebra.A A1 ⇒ F-Coalgebra.A A2)
         V₁ = F-Coalgebra-Morphism.f {C = 𝒞} {F = F}
 
-        pr : (P : 𝒟.Obj) → (D.₀ P ⇒ F-Coalgebra.A B.N)
-        pr P = V.₁ (B.ψ t) ∘ P+X.i₁ t
+        pr : (P : 𝒟.Obj) → (D.₀ P ⇒ B.N)
+        pr P = (B.ψ t) ∘ P+X.i₁ t
           where
             t = P-to-triangle P
 
@@ -638,26 +639,26 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
           goal : pr P2 ∘ D.₁ s ≈ pr P1
           goal =
             begin
-            (V₁ (B.ψ t2) ∘ P+X.i₁ t2) ∘ D.₁ s
+            (B.ψ t2 ∘ P+X.i₁ t2) ∘ D.₁ s
               ≈˘⟨ B.commute {t2} {t3} t2⇒t3 ⟩∘⟨refl ⟩∘⟨refl ⟩
-            ((V₁ (B.ψ t3) ∘ V₁ (S.₁ t2⇒t3) ) ∘ P+X.i₁ t2) ∘ D.₁ s
+            ((B.ψ t3 ∘ V₁ (S.₁ t2⇒t3)) ∘ P+X.i₁ t2) ∘ D.₁ s
               ≈⟨ assoc² ⟩
-            V₁ (B.ψ t3) ∘ V₁ (S.₁ t2⇒t3) ∘ P+X.i₁ t2 ∘ D.₁ s
+            B.ψ t3 ∘ V₁ (S.₁ t2⇒t3) ∘ P+X.i₁ t2 ∘ D.₁ s
               ≈⟨ refl⟩∘⟨ t3-identifies-s ⟩
-            V₁ (B.ψ t3) ∘ V₁ (S.₁ t1⇒t3) ∘ P+X.i₁ t1
+            B.ψ t3 ∘ V₁ (S.₁ t1⇒t3) ∘ P+X.i₁ t1
               ≈˘⟨ assoc ⟩
-            (V₁ (B.ψ t3) ∘ V₁ (S.₁ t1⇒t3) ) ∘ P+X.i₁ t1
+            (B.ψ t3 ∘ V₁ (S.₁ t1⇒t3) ) ∘ P+X.i₁ t1
               ≈⟨ B.commute {t1} {t3} t1⇒t3 ⟩∘⟨refl ⟩
-            (V₁ (B.ψ t1) ∘ P+X.i₁ t1)
+            B.ψ t1 ∘ P+X.i₁ t1
             ∎
 
     -- every cocone for the diagram S of coalgebras induces
     -- are cocone for the canonical diagram of F.₀ A
-    Coalg-Cocone-to-Object-Cocone : Cocone S → Cocone D
+    Coalg-Cocone-to-Object-Cocone : Cocone (forget-Coalgebra ∘F S) → Cocone D
     Coalg-Cocone-to-Object-Cocone B =
       record {
         -- The tip of the cocone is just the carrier of the tip of B:
-        N = F-Coalgebra.A (Cocone.N B) ;
+        N = Cocone.N B ;
         coapex =
           record {
             ψ = λ P → Coalg-Cocone-to-Object-Cocone.pr B P ;
@@ -667,25 +668,53 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
           }
       }
 
-    -- TODO: we shouldn't prove this! Instead, the definition of LProp-Coalgebra
-    -- requires that the cocone on the level of carriers is colimitting!
-    FA,Fα-Cocone-is-Colimit : IsLimitting FA,Fα-Cocone
+    -- The definition of LProp-Coalgebra requires that the cocone on the level
+    -- of carriers is colimitting:
+    FA,Fα-Cocone-on-carriers : Cocone (forget-Coalgebra ∘F S)
+    FA,Fα-Cocone-on-carriers = F-map-Coconeˡ forget-Coalgebra FA,Fα-Cocone
+
+    FA,Fα-Cocone-is-Colimit : IsLimitting FA,Fα-Cocone-on-carriers
     FA,Fα-Cocone-is-Colimit =
       record {
         ! = λ {B} →
           record {
-            arr = steps.to-B-hom B ;
-            commute = {!!} } ; -- Coalg-Cocone-to-Object-Cocone B ;
+            arr = Cocone⇒.arr (steps.to-B' B) ;
+            commute = λ {t} →
+              let
+                open HomReasoning
+                open steps B
+                open ConstructionComponents t
+                module B = Cocone B
+              in
+              coproduct-jointly-epic P+X (record {
+                case-precompose-i₁ =
+                  begin
+                  (Cocone⇒.arr to-B' ∘ V.₁ hom-to-FA) ∘ P+X.i₁ ≈⟨ assoc ⟩
+                  Cocone⇒.arr to-B' ∘ (F.₁ proj-X,x.f ∘ (P+X.[ p' , x ])) ∘ P+X.i₁
+                    ≈⟨ refl⟩∘⟨ assoc ⟩
+                  Cocone⇒.arr to-B' ∘ F.₁ proj-X,x.f ∘ P+X.[ p' , x ] ∘ P+X.i₁
+                    ≈⟨ refl⟩∘⟨ refl⟩∘⟨ P+X.inject₁ ⟩
+                  Cocone⇒.arr to-B' ∘ F.₁ proj-X,x.f ∘ p'
+                    ≈˘⟨ refl⟩∘⟨ triangle-commutes ⟩
+                  Cocone⇒.arr to-B' ∘ FA-colim.proj (proj₁ t)
+                    ≈⟨ to-B'.commute ⟩
+                  B'.ψ (proj₁ t)
+                    ≈⟨ ? ⟩
+                  B.ψ t ∘ P+X.i₁
+                  ∎
+                ;
+                case-precompose-i₂ = {!!}
+              })
+              } ;
         !-unique = {!!} }
       where
-        module steps (B : Cocone S) where
+        module steps (B : Cocone (forget-Coalgebra ∘F S)) where
           B' : Cocone D
           B' = Coalg-Cocone-to-Object-Cocone B
+          module B' = Cocone B'
           to-B' : Cocone⇒ D FA-colim.colimit B'
           to-B' = FA-colim.rep-cocone B'
-          to-B-hom : F-Coalgebra-Morphism (iterate A,α) (Cocone.N B)
-          to-B-hom =
-            record { f = Cocone⇒.arr to-B' ; commutes = {!!} }
+          module to-B' = Cocone⇒ to-B'
 
     -- iterated-LProp-Coalgebra : LProp-Coalgebra
     -- iterated-LProp-Coalgebra = record {
