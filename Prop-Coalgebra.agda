@@ -19,8 +19,6 @@ module Prop-Coalgebra {o ℓ e}
   (Prop : F-Coalgebra F → Set P-level)  -- a property of coalgebras
   where
 
-open import LFP 𝒞
-
 private
   module 𝒞 = Category 𝒞
   module F = Functor F

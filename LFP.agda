@@ -2,6 +2,7 @@
 open import Level
 
 open import Categories.Category
+open import Categories.Category.Lift
 open import Categories.Functor using (Functor)
 open import Categories.Diagram.Colimit using (Colimit)
 open import Categories.Diagram.Cocone.Properties
@@ -36,7 +37,7 @@ open import Relation.Binary using (Poset)
 -- same concepts, because they both boil down to having bounds for any finite
 -- set of elements. The advantage is that we do not need any ordinals at all.
 --
-module LFP {o ℓ e} (𝒞 : Category o ℓ e) where
+module LFP {o ℓ} (𝒞 : Category o ℓ ℓ) where
 
 private
   module 𝒞 = Category 𝒞
@@ -56,14 +57,11 @@ private
     o' ℓ' e' : Level
     -- diagram scheme:
     𝒟 : Category o' ℓ' e'
-    -- property of a diagram scheme:
+    -- the level of the 'filteredness' property
     prop-level : Level
-    -- some other category
-    o'' ℓ'' e'' : Level
-    ℰ : Category o'' ℓ'' e''
 
 -- For each family of fp objects and another objects, we have a slice category:
-Cat[_↓_] : {I : Set o'} → (𝒞-fp : I → 𝒞.Obj) → 𝒞.Obj → Category (o' ⊔ ℓ) (ℓ ⊔ e) e
+Cat[_↓_] : {I : Set ℓ} → (𝒞-fp : I → 𝒞.Obj) → 𝒞.Obj → Category ℓ ℓ ℓ
 Cat[_↓_]  {I = I} 𝒞-fp X = FullSubCategory (Slice 𝒞 X) objects
   where
     open Category 𝒞
@@ -71,24 +69,24 @@ Cat[_↓_]  {I = I} 𝒞-fp X = FullSubCategory (Slice 𝒞 X) objects
     objects (i , i⇒X) = sliceobj i⇒X
 
 -- and an obvious forgetful functor (resp. diagram)
-Functor[_↓_] : {I : Set o'} → (𝒞-fp : I → 𝒞.Obj) → (X : 𝒞.Obj) → Functor (Cat[ 𝒞-fp ↓ X ]) 𝒞
+Functor[_↓_] : {I : Set ℓ} → (𝒞-fp : I → 𝒞.Obj) → (X : 𝒞.Obj) → Functor (Cat[ 𝒞-fp ↓ X ]) 𝒞
 Functor[_↓_]  𝒞-fp X = Forgetful ∘F (FullSub _)
 
 -- which has a canonical Cocone: X itself
-Cocone[_↓_] : {I : Set o'} → (𝒞-fp : I → 𝒞.Obj) → (X : 𝒞.Obj) → Cocone (Functor[ 𝒞-fp ↓ X ])
+Cocone[_↓_] : {I : Set ℓ} → (𝒞-fp : I → 𝒞.Obj) → (X : 𝒞.Obj) → Cocone (Functor[ 𝒞-fp ↓ X ])
 Cocone[_↓_]  𝒞-fp X = record { coapex = record {
     ψ = λ (i , i⇒X) → i⇒X ;
     commute = Slice⇒.△
   } }
 
-module _ (o' ℓ' e' : _) (P : Category o' ℓ' e' → Set prop-level) where
+module _ (P : Category ℓ ℓ ℓ → Set prop-level) where
 
   open import Hom-Colimit-Choice 𝒞
-  open LiftHom o' ℓ' e'
+  open LiftHom ℓ ℓ ℓ
 
   presented : 𝒞.Obj → Set _
   presented X =
-    ∀ (𝒟 : Category o' ℓ' e') →    -- forall diagram schemes
+    ∀ (𝒟 : Category ℓ ℓ ℓ) →    -- forall diagram schemes
     P 𝒟 →                          -- satisfying P
     (J : Functor 𝒟 𝒞) →            -- and all their diagrams
     preserves-colimit J LiftHom[ X ,-] -- the hom-functor preserves all (existing) colimits
@@ -245,19 +243,19 @@ module _ (o' ℓ' e' : _) (P : Category o' ℓ' e' → Set prop-level) where
 
 
 
-  record WeaklyLFP : Set (o ⊔ suc (ℓ ⊔ e ⊔ o' ⊔ ℓ' ⊔ e' ⊔ prop-level)) where
+  record WeaklyLFP : Set (o ⊔ suc (ℓ ⊔ prop-level)) where
     field
       -- a (small)family (resp. 'set') of objects ...
-      Idx : Set o'
+      Idx : Set ℓ
       fin : Idx → 𝒞.Obj
       -- ... of which every element is fp:
       fin-presented : ∀ (i : Idx) → presented (fin i)
       -- All other objects are built from those fp objects:
       build-from-fin : ∀ (X : 𝒞.Obj) → IsLimitting (Cocone[ fin ↓ X ])
       -- and moreover every canonical diagram is filtered
-      canonical-has-prop : ∀ (X : 𝒞.Obj) → filtered (Cat[ fin ↓ X ])
+      canonical-has-prop : ∀ (X : 𝒞.Obj) → P (Cat[ fin ↓ X ])
 
-    canonical-diagram-scheme : ∀ (X : 𝒞.Obj) → Category (o' ⊔ ℓ) (e ⊔ ℓ) e
+    canonical-diagram-scheme : ∀ (X : 𝒞.Obj) → Category ℓ ℓ ℓ
     canonical-diagram-scheme X = Cat[ fin ↓ X ]
 
     canonical-diagram : ∀ (X : 𝒞.Obj) → Functor (canonical-diagram-scheme X) 𝒞

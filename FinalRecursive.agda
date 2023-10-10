@@ -19,7 +19,7 @@ open import Data.Product
 open import Categories.Functor.Coalgebra
 
 open import Data.Product
-open import LFP
+open import LFP using (WeaklyLFP)
 open import Filtered
 open import Setoids-Choice
 open import Unchained-Utils
@@ -27,14 +27,15 @@ open import Unchained-Utils
 -- intuitively:
 -- o : level of 'classes'
 -- ℓ : level of 'sets'
-module FinalRecursive {o ℓ e fil-level}
-  (𝒞 : Category o ℓ e)
+module FinalRecursive {o ℓ fil-level}
+  (𝒞 : Category o ℓ ℓ)
   (F : Endofunctor 𝒞)
   (Fil : ∀ {o' ℓ' e' : Level} → Category o' ℓ' e' → Set fil-level) -- some variant of 'filtered'
   (Fil-to-filtered : ∀ {𝒟 : Category ℓ ℓ ℓ} → Fil 𝒟 → filtered 𝒟) -- .. which implies filtered
-  (𝒞-lfp : WeaklyLFP 𝒞 ℓ ℓ ℓ Fil)
+  (𝒞-lfp : WeaklyLFP 𝒞 Fil)
   where
 
+open import LFP 𝒞 hiding (WeaklyLFP)
 module 𝒞 = Category 𝒞
 open import recursive-coalgebra 𝒞 F
 open import Hom-Colimit-Choice 𝒞
@@ -44,11 +45,11 @@ open import F-Coalgebra-Colimit {_} {_} {_} {𝒞} {F}
 
 module F-Coalgebras = Category (F-Coalgebras F)
 
-record FinitaryRecursive (coalg : F-Coalgebra F) : Set (o ⊔ suc ℓ ⊔ suc e ⊔ fil-level) where
+record FinitaryRecursive (coalg : F-Coalgebra F) : Set (o ⊔ suc ℓ ⊔ fil-level) where
   -- the property that a coalgebra
   field
     -- 1. has finite carrier
-    finite-carrier : presented 𝒞 ℓ ℓ ℓ Fil (F-Coalgebra.A coalg)
+    finite-carrier : presented Fil (F-Coalgebra.A coalg)
     -- 2. is recursive
     is-recursive : IsRecursive coalg
 
@@ -64,12 +65,12 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                       -- ^- coalg is a colimit of a filtered diagram
                       (F-preserves-colim : preserves-colimit (LProp-Coalgebra.carrier-diagram coalg-colim) F)
                       -- ^- F preserves the colimit 'coalg'
-                      (has-coprod : HasCoproductOfPresentedObjects 𝒞 ℓ ℓ ℓ Fil)
+                      (has-coprod : HasCoproductOfPresentedObjects Fil)
                       -- we have sufficiently many coproducts
                       where
     -- in the proof, let V be the forgetful functor from coalgebras to 𝒞
     module V = Functor forget-Coalgebra
-    Fil-presented = presented 𝒞 ℓ ℓ ℓ Fil
+    Fil-presented = presented Fil
     open LiftHom ℓ ℓ ℓ
     -- the provided coalgebra:
     module coalg-colim = LProp-Coalgebra coalg-colim
@@ -274,15 +275,18 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
         where
           open HomReasoning
 
+      P+X-is-presented : presented Fil P+X.obj
+      P+X-is-presented =
+            presented-coproduct Fil
+              Fil-to-filtered
+              P+X P-is-presented X-is-presented
+
       --   The property that all objects in the diagram ...
       P+X-coalg-is-FinitaryRecursive : FinitaryRecursive P+X-coalg
       P+X-coalg-is-FinitaryRecursive =
         record {
           -- 1. .. have presented carrier
-          finite-carrier =
-            presented-coproduct 𝒞 ℓ ℓ ℓ Fil
-              Fil-to-filtered
-              P+X P-is-presented X-is-presented ;
+          finite-carrier = P+X-is-presented ;
           -- 2. .. are recursive:
           is-recursive =
             -- for recursiveness, we use our formalization of ([CUV06, Prop. 5])
@@ -686,26 +690,18 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                 open steps B
                 open HomReasoning
                 open ConstructionComponents t
+                -- P+X factors through the colimit of FA:
+                Q : Triangle FA-colim (hom-to-FA.f)
+                Q = hom-colim-choice
+                      FA-colim P+X.obj
+                      (P+X-is-presented
+                        (𝒞-lfp.canonical-diagram-scheme (F.₀ A))
+                        (𝒞-lfp.canonical-has-prop ((F.₀ A)))
+                        (𝒞-lfp.canonical-diagram (F.₀ A)))
+                      hom-to-FA.f
+                module Q = Triangle Q
               in
-              coproduct-jointly-epic P+X (record {
-                case-precompose-i₁ = lemma t
-                ;
-                case-precompose-i₂ =
-                  begin
-                  (Cocone⇒.arr to-B' ∘ V.₁ hom-to-FA) ∘ P+X.i₂
-                    ≈⟨ assoc ⟩
-                  Cocone⇒.arr to-B' ∘ (F.₁ proj-X,x.f ∘ P+X.[ p' , x ]) ∘ P+X.i₂
-                    ≈⟨ refl⟩∘⟨ assoc ⟩
-                  Cocone⇒.arr to-B' ∘ F.₁ proj-X,x.f ∘ P+X.[ p' , x ] ∘ P+X.i₂
-                    ≈⟨ refl⟩∘⟨ refl⟩∘⟨ P+X.inject₂ ⟩
-                  Cocone⇒.arr to-B' ∘ F.₁ proj-X,x.f ∘ x
-                    ≈˘⟨ refl⟩∘⟨ proj-X,x.commutes ⟩
-                  Cocone⇒.arr to-B' ∘ α ∘ proj-X,x.f
-                  --  ≈⟨ other-lemma t ⟩
-                    ≈⟨ ? ⟩
-                  B.ψ t ∘ P+X.i₂
-                  ∎
-              })
+              {!!}
               } ;
         !-unique = λ f → {!!} }
       where
@@ -749,45 +745,45 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
             B.ψ t ∘ P+X.i₁
             ∎
 
-          other-lemma : ∀ (t : all-triangles) →
-                    Cocone⇒.arr to-B' ∘ F.₁ (CC.proj-X,x.f t) ∘ CC.x t ≈ B.ψ t ∘ CC.P+X.i₂ t
-          other-lemma t =
-            let
-              open HomReasoning
-            in
-            𝒞-lfp.fin-generator (CC.X t) (λ { (k , q) →
-            let
-              t' : all-triangles
-              t' = (k , (F.₁ (CC.proj-X,x.f t) ∘ (CC.x t ∘ q)))
-                   ,
-                   triangle (CC.X,x-dia t) (CC.x t ∘ q) (
-                   begin
-                   F.₁ (CC.proj-X,x.f t) ∘ (CC.x t ∘ q) ≡⟨⟩
-                   F-coalg-colim.proj (ConstructionComponents.X,x-dia t) ∘ CC.x t ∘ q
-                   ∎
-                   )
-            in
-            begin
-            (Cocone⇒.arr to-B' ∘ F.₁ (CC.proj-X,x.f t) ∘ CC.x t) ∘ q
-            -- -- a failed attempt:
-            --   ≡⟨⟩
-            -- (Cocone⇒.arr to-B' ∘ F.₁ (CC.proj-X,x.f t') ∘ CC.x t') ∘ q
-            --   ≈⟨ assoc ⟩
-            -- Cocone⇒.arr to-B' ∘ ((F.₁ (CC.proj-X,x.f t') ∘ CC.x t') ∘ q)
-            --   ≈⟨ refl⟩∘⟨ assoc ⟩
-            -- Cocone⇒.arr to-B' ∘ F.₁ (CC.proj-X,x.f t') ∘ (CC.x t' ∘ q)
-            --   ≈˘⟨ refl⟩∘⟨ refl⟩∘⟨ CC.P+X.inject₁ t' ⟩
-            -- Cocone⇒.arr to-B' ∘ F.₁ (CC.proj-X,x.f t') ∘ CC.P+X.[_,_] t' (CC.x t' ∘ q) (CC.x t') ∘ CC.P+X.i₁ t'
-            --   ≈⟨ refl⟩∘⟨ sym-assoc ⟩
-            -- Cocone⇒.arr to-B' ∘ (V.₁ (CC.hom-to-FA t')) ∘ CC.P+X.i₁ t'
-            --   ≈⟨ sym-assoc ⟩
-            -- (Cocone⇒.arr to-B' ∘ (V.₁ (CC.hom-to-FA t'))) ∘ CC.P+X.i₁ t'
-            --   ≈⟨ lemma t' ⟩
-            -- B.ψ t' ∘ CC.P+X.i₁ t'
-              ≈⟨ {!!} ⟩
-            (B.ψ t ∘ CC.P+X.i₂ t) ∘ q
-            ∎
-            })
+          -- other-lemma : ∀ (t : all-triangles) →
+          --           Cocone⇒.arr to-B' ∘ F.₁ (CC.proj-X,x.f t) ∘ CC.x t ≈ B.ψ t ∘ CC.P+X.i₂ t
+          -- other-lemma t =
+          --   let
+          --     open HomReasoning
+          --   in
+          --   𝒞-lfp.fin-generator (CC.X t) (λ { (k , q) →
+          --   let
+          --     t' : all-triangles
+          --     t' = (k , (F.₁ (CC.proj-X,x.f t) ∘ (CC.x t ∘ q)))
+          --          ,
+          --          triangle (CC.X,x-dia t) (CC.x t ∘ q) (
+          --          begin
+          --          F.₁ (CC.proj-X,x.f t) ∘ (CC.x t ∘ q) ≡⟨⟩
+          --          F-coalg-colim.proj (ConstructionComponents.X,x-dia t) ∘ CC.x t ∘ q
+          --          ∎
+          --          )
+          --   in
+          --   begin
+          --   (Cocone⇒.arr to-B' ∘ F.₁ (CC.proj-X,x.f t) ∘ CC.x t) ∘ q
+          --   -- -- a failed attempt:
+          --   --   ≡⟨⟩
+          --   -- (Cocone⇒.arr to-B' ∘ F.₁ (CC.proj-X,x.f t') ∘ CC.x t') ∘ q
+          --   --   ≈⟨ assoc ⟩
+          --   -- Cocone⇒.arr to-B' ∘ ((F.₁ (CC.proj-X,x.f t') ∘ CC.x t') ∘ q)
+          --   --   ≈⟨ refl⟩∘⟨ assoc ⟩
+          --   -- Cocone⇒.arr to-B' ∘ F.₁ (CC.proj-X,x.f t') ∘ (CC.x t' ∘ q)
+          --   --   ≈˘⟨ refl⟩∘⟨ refl⟩∘⟨ CC.P+X.inject₁ t' ⟩
+          --   -- Cocone⇒.arr to-B' ∘ F.₁ (CC.proj-X,x.f t') ∘ CC.P+X.[_,_] t' (CC.x t' ∘ q) (CC.x t') ∘ CC.P+X.i₁ t'
+          --   --   ≈⟨ refl⟩∘⟨ sym-assoc ⟩
+          --   -- Cocone⇒.arr to-B' ∘ (V.₁ (CC.hom-to-FA t')) ∘ CC.P+X.i₁ t'
+          --   --   ≈⟨ sym-assoc ⟩
+          --   -- (Cocone⇒.arr to-B' ∘ (V.₁ (CC.hom-to-FA t'))) ∘ CC.P+X.i₁ t'
+          --   --   ≈⟨ lemma t' ⟩
+          --   -- B.ψ t' ∘ CC.P+X.i₁ t'
+          --     ≈⟨ {!!} ⟩
+          --   (B.ψ t ∘ CC.P+X.i₂ t) ∘ q
+          --   ∎
+          --   })
 
     -- iterated-LProp-Coalgebra : LProp-Coalgebra
     -- iterated-LProp-Coalgebra = record {

@@ -57,7 +57,7 @@ Fin≈ n = setoid (Fin n)
 Fin≈-zero-empty : {ℓ-a : Level} {a : Set ℓ-a} → Fin 0 → a
 Fin≈-zero-empty ()
 
-Fin-is-presented : ∀ (n : ℕ) → presented 0ℓ 0ℓ 0ℓ filtered (Fin≈ n)
+Fin-is-presented : ∀ (n : ℕ) → presented filtered (Fin≈ n)
 Fin-is-presented n 𝒟 𝒟-filtered J colim =
   -- see where-clause at the end
   bounded-colimiting
@@ -323,7 +323,7 @@ canonical-cat-is-filtered X =
     exfalso : ∀ {a : Level} {A : Set a} → Fin 0 → A
     exfalso ()
 
-setoids-LFP : WeaklyLFP 0ℓ 0ℓ 0ℓ filtered
+setoids-LFP : WeaklyLFP filtered
 setoids-LFP = record
                { Idx = ℕ
                ; fin = Fin≈
