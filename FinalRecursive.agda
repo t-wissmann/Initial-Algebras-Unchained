@@ -7,6 +7,7 @@ open import Categories.Functor.Hom
 open import Categories.Category.Cocomplete
 open import Categories.Diagram.Colimit
 open import Categories.Diagram.Cocone
+open import Categories.Category.Slice
 open import Categories.Diagram.Cocone.Properties using (F-map-Coconeˡ)
 open import Categories.Category.Product
 open import Agda.Builtin.Equality
@@ -691,15 +692,29 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                 open HomReasoning
                 open ConstructionComponents t
                 -- P+X factors through the colimit of FA:
-                Q : Triangle FA-colim (hom-to-FA.f)
-                Q = hom-colim-choice
+                ΔQ : Triangle FA-colim (hom-to-FA.f)
+                ΔQ = hom-colim-choice
                       FA-colim P+X.obj
                       (P+X-is-presented
                         (𝒞-lfp.canonical-diagram-scheme (F.₀ A))
                         (𝒞-lfp.canonical-has-prop ((F.₀ A)))
                         (𝒞-lfp.canonical-diagram (F.₀ A)))
                       hom-to-FA.f
-                module Q = Triangle Q
+                module ΔQ = Triangle ΔQ
+                Q : 𝒟.Obj
+                Q = ΔQ.x
+                f : P+X.obj ⇒ D.₀ Q
+                f = ΔQ.p'
+                Q-prop : hom-to-FA.f ≈ FA-colim.proj Q ∘ f
+                Q-prop = ΔQ.commutes
+                -- this also induces a 𝒟-morphism:
+                s : (proj₁ t) 𝒟.⇒ Q
+                s = slicearr {h = f ∘ P+X.i₁} (begin
+                    FA-colim.proj Q ∘ (f ∘ P+X.i₁) ≈⟨ sym-assoc ⟩
+                    (FA-colim.proj Q ∘ f) ∘ P+X.i₁ ≈˘⟨ Q-prop ⟩∘⟨refl ⟩
+                    hom-to-FA.f ∘ P+X.i₁ ≈˘⟨ hom-to-FA-i₁ ⟩
+                    FA-colim.proj (proj₁ t)
+                    ∎)
               in
               {!!}
               } ;
