@@ -686,37 +686,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
         ! = λ {B} →
           record {
             arr = Cocone⇒.arr (steps.to-B' B) ;
-            commute = λ {t} →
-              let
-                open steps B
-                open HomReasoning
-                open ConstructionComponents t
-                -- P+X factors through the colimit of FA:
-                ΔQ : Triangle FA-colim (hom-to-FA.f)
-                ΔQ = hom-colim-choice
-                      FA-colim P+X.obj
-                      (P+X-is-presented
-                        (𝒞-lfp.canonical-diagram-scheme (F.₀ A))
-                        (𝒞-lfp.canonical-has-prop ((F.₀ A)))
-                        (𝒞-lfp.canonical-diagram (F.₀ A)))
-                      hom-to-FA.f
-                module ΔQ = Triangle ΔQ
-                Q : 𝒟.Obj
-                Q = ΔQ.x
-                f : P+X.obj ⇒ D.₀ Q
-                f = ΔQ.p'
-                Q-prop : hom-to-FA.f ≈ FA-colim.proj Q ∘ f
-                Q-prop = ΔQ.commutes
-                -- this also induces a 𝒟-morphism:
-                s : (proj₁ t) 𝒟.⇒ Q
-                s = slicearr {h = f ∘ P+X.i₁} (begin
-                    FA-colim.proj Q ∘ (f ∘ P+X.i₁) ≈⟨ sym-assoc ⟩
-                    (FA-colim.proj Q ∘ f) ∘ P+X.i₁ ≈˘⟨ Q-prop ⟩∘⟨refl ⟩
-                    hom-to-FA.f ∘ P+X.i₁ ≈˘⟨ hom-to-FA-i₁ ⟩
-                    FA-colim.proj (proj₁ t)
-                    ∎)
-              in
-              {!!}
+            commute = λ {t} → steps.CommuteProof.commute-goal B t
               } ;
         !-unique = λ f → {!!} }
       where
@@ -759,6 +729,53 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
               ≈⟨ identityʳ ⟩
             B.ψ t ∘ P+X.i₁
             ∎
+
+          module CommuteProof (t : all-triangles) where
+            open HomReasoning
+            open ConstructionComponents t
+            -- P+X factors through the colimit of FA:
+            ΔQ : Triangle FA-colim (hom-to-FA.f)
+            ΔQ = hom-colim-choice
+                  FA-colim P+X.obj
+                  (P+X-is-presented
+                    (𝒞-lfp.canonical-diagram-scheme (F.₀ A))
+                    (𝒞-lfp.canonical-has-prop ((F.₀ A)))
+                    (𝒞-lfp.canonical-diagram (F.₀ A)))
+                  hom-to-FA.f
+            module ΔQ = Triangle ΔQ
+            Q : 𝒟.Obj
+            Q = ΔQ.x
+            f : P+X.obj ⇒ D.₀ Q
+            f = ΔQ.p'
+            Q-prop : hom-to-FA.f ≈ FA-colim.proj Q ∘ f
+            Q-prop = ΔQ.commutes
+            -- this also induces a 𝒟-morphism:
+            s : (proj₁ t) 𝒟.⇒ Q
+            s = slicearr {h = f ∘ P+X.i₁} (begin
+                FA-colim.proj Q ∘ (f ∘ P+X.i₁) ≈⟨ sym-assoc ⟩
+                (FA-colim.proj Q ∘ f) ∘ P+X.i₁ ≈˘⟨ Q-prop ⟩∘⟨refl ⟩
+                hom-to-FA.f ∘ P+X.i₁ ≈˘⟨ hom-to-FA-i₁ ⟩
+                FA-colim.proj (proj₁ t)
+                ∎)
+            Q-to-triangle = P-to-triangle Q
+            module Join = Coalg-Cocone-to-Object-Cocone.Towards-Cocone-Commutes B t Q-to-triangle s
+
+            commute-goal =
+              begin
+              to-B'.arr ∘ hom-to-FA.f
+                ≈⟨ refl⟩∘⟨ Q-prop ⟩
+              to-B'.arr ∘ FA-colim.proj Q ∘ f
+                ≈⟨ sym-assoc ⟩
+              (to-B'.arr ∘ FA-colim.proj Q) ∘ f
+                ≈⟨ to-B'.commute ⟩∘⟨refl ⟩
+              (B'.ψ Q) ∘ f
+                ≡⟨⟩
+              (B.ψ Q-to-triangle ∘ CC.P+X.i₁ Q-to-triangle) ∘ f
+                ≈⟨ {!!} ⟩
+              B.ψ Join.t3 ∘ V.₁ (S.₁ Join.t1⇒t3)
+                ≈⟨ B.commute Join.t1⇒t3 ⟩
+              B.ψ t
+              ∎
 
           -- other-lemma : ∀ (t : all-triangles) →
           --           Cocone⇒.arr to-B' ∘ F.₁ (CC.proj-X,x.f t) ∘ CC.x t ≈ B.ψ t ∘ CC.P+X.i₂ t
