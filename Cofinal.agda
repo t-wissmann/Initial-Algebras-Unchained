@@ -174,7 +174,8 @@ module _ {ℰ : Category o'' ℓ'' e''} {𝒟 : Category o' ℓ' e'} where
             K.ψ (CommaObj.β B) ∘ D.₁ (CommaObj.f B)
             ∎
 
-          -- And then for comma objects that are linked transitively
+          -- And then for comma objects that are linked transitively along
+          -- zigzags:
           zigzag-commutes : {A B : d/E.Obj} → ZigZag (d ↙ E) A B →
                             𝒞 [ eval-comma A ≈ eval-comma B ]
           zigzag-commutes {A} (nil A) = 𝒞.Equiv.refl
@@ -207,6 +208,3 @@ module _ {ℰ : Category o'' ℓ'' e''} {𝒟 : Category o' ℓ' e'} where
           where
             open Category 𝒞
             open HomReasoning
-
-      -- cocone-mor : ∀ (K : Cocone (D ∘F E)) → Cocone⇒ _ cocone-D∘E K
-      -- cocone-mor = {!!}
