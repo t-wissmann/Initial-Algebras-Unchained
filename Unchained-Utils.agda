@@ -31,7 +31,6 @@ open import Categories.Functor.Construction.SubCategory using (FullSub)
 private
   module 𝒞 = Category 𝒞
 
-
 -- The property that a functor F preserves the colimit of diagram J:
 preserves-colimit : {o' o'' ℓ' ℓ'' e' e'' : _} →
   {𝒟 : Category o' ℓ' e'} →
