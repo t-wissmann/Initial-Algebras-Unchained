@@ -44,13 +44,10 @@ module _ {ℰ : Category o'' ℓ'' e''} {𝒟 : Category o' ℓ' e'} where
     module 𝒟 = Category 𝒟
     module ℰ = Category ℰ
 
-  Comma_/_ : 𝒟.Obj → (E : Functor ℰ 𝒟) → Category _ _ _
-  Comma_/_ d E = Comma (const! d) E
-
   record Final (E : Functor ℰ 𝒟) : Set (o'' ⊔ ℓ'' ⊔ o' ⊔ ℓ' ⊔ e') where
     field
-      non-empty : ∀ (d : 𝒟.Obj) → Category.Obj (Comma d / E)
-      connect : ∀ (d : 𝒟.Obj) → Connected (Comma d / E)
+      non-empty : ∀ (d : 𝒟.Obj) → Category.Obj (d ↙ E)
+      connect : ∀ (d : 𝒟.Obj) → Connected (d ↙ E)
 
   final-pulls-colimit : {𝒞 : Category o ℓ e} (D : Functor 𝒟 𝒞) (E : Functor ℰ 𝒟)
                         → Final E
@@ -61,6 +58,7 @@ module _ {ℰ : Category o'' ℓ'' e''} {𝒟 : Category o' ℓ' e'} where
       module colimit-D = Colimit colimit-D
       module E = Functor E
       module D = Functor D
+      module 𝒞 = Category 𝒞
 
       η-codom : 𝒟.Obj → ℰ.Obj
       η-codom d = CommaObj.β (Final.non-empty Final-E d)
@@ -75,18 +73,38 @@ module _ {ℰ : Category o'' ℓ'' e''} {𝒟 : Category o' ℓ' e'} where
         } }
 
       -- but we can also transform cocones in the other direction
-      reflect-ψ : ∀ (K : Cocone (D ∘F E)) (d : 𝒟.Obj) → 𝒞 [ D.₀ d , {!!} ]
-      reflect-ψ K d = {!!}
-
-      cocone-reflect : Cocone (D ∘F E) → Cocone D
-      cocone-reflect K = record { coapex = record {
-          ψ = λ d →
-              {!η-!}
-              ;
-          commute = {!!}
-        } }
-        where
+      module cocone-reflection (K : Cocone (D ∘F E)) where
+        -- first some lemmas when we fix a 𝒟 object d:
+        private
           module K = Cocone K
+        module _  (d : 𝒟.Obj) where
+          private
+            module d/E = Category (d ↙ E)
+
+          open Category 𝒞
+          open HomReasoning
+
+          eval-comma : d/E.Obj → 𝒞 [ D.₀ d , K.N ]
+          eval-comma f = K.ψ (CommaObj.β f) 𝒞.∘ D.₁ (CommaObj.f f)
+
+          reflect-ψ : 𝒞 [ D.₀ d , K.N ]
+          reflect-ψ = K.ψ (η-codom d) 𝒞.∘ D.₁ (η d)
+
+          -- this η is kind of a 'choice', which we now prove
+          -- to be well-defined:
+          zigzag-commutes : (A B : d/E.Obj) → ZigZag (d ↙ E) A B →
+                            𝒞 [ eval-comma A ≈ eval-comma B ]
+          zigzag-commutes A .A (nil .A) = 𝒞.Equiv.refl
+          zigzag-commutes A C (forward .A B .C f B/C) = ?
+          zigzag-commutes A C (backward .A B .C f zz) = {!!}
+
+
+        to-D-cocone : Cocone D
+        to-D-cocone = record { coapex = record {
+            ψ = λ d → reflect-ψ d
+                ;
+            commute = {!!}
+          } }
 
       -- cocone-mor : ∀ (K : Cocone (D ∘F E)) → Cocone⇒ _ cocone-D∘E K
       -- cocone-mor = {!!}

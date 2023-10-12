@@ -19,6 +19,7 @@ import F-Coalgebra-Colimit
 
 -- Properties of filtered diagrams
 import Filtered
+import Cofinal
 
 -- definition of weak lfp category
 import LFP
