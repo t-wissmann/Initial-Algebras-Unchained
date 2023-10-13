@@ -273,16 +273,23 @@ module _ (P : Category ℓ ℓ ℓ → Set prop-level) where
         (Cocone.ψ Functor[ fin ↓ X ] Cocone[ fin ↓ X ])
     fin-generator X = colimit-is-jointly-epic (Colimit-from-prop (build-from-fin X))
 
-    -- presentable-split-in-fin : ∀ (X : 𝒞.Obj) → presented X → Σ[ i ∈ Idx ] (Retract X (fin i))
-    -- presentable-split-in-fin X X-pres = {!!}
-    --   where
-    --     -- we let the identity on X factor through the canonical
-    --     -- diagram for X:
-    --     t : Triangle (canonical-colimit X) (𝒞.id{X})
-    --     t = hom-colim-choice
-    --           (canonical-colimit X)
-    --           X
-    --           {!canonical-diagram-scheme X!} (𝒞.id{X})
+    presentable-split-in-fin : ∀ (X : 𝒞.Obj) → presented X → Σ[ i ∈ Idx ] (Retract X (fin i))
+    presentable-split-in-fin X X-pres = (proj₁ (Triangle.x t)) ,
+      (record {
+        section = Triangle.p' t ;
+        retract = (proj₂ (Triangle.x t)) ;
+        is-retract = 𝒞.Equiv.sym (Triangle.commutes t) })
+      where
+        -- we let the identity on X factor through the canonical
+        -- diagram for X:
+        t : Triangle (canonical-colimit X) (𝒞.id{X})
+        t = hom-colim-choice
+              (canonical-colimit X)
+              X
+              (X-pres
+                (canonical-diagram-scheme X)
+                (canonical-has-prop X)
+                (canonical-diagram X)) (𝒞.id{X})
 
   -- the property whether a category has coproducts of presented objects
   HasCoproductOfPresentedObjects : Set _
