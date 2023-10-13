@@ -320,23 +320,28 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
       record
       { F₀ = λ t → (CC.P+X-fin-idx t) , (CC.hom-to-FA.f t ∘ CC.P+X-fin.retract t)
       ; F₁ = λ {t1} {t2} h →
-           let
-             module f = F-Coalgebra-Morphism (Slice⇒.h h)
-             open HomReasoning
-           in
+           let module f = F-Coalgebra-Morphism (Slice⇒.h h) in
            slicearr
            {h = CC.P+X-fin.section t2 ∘ f.f ∘ CC.P+X-fin.retract t1}
            (begin
            (CC.hom-to-FA.f t2 ∘ CC.P+X-fin.retract t2) ∘ (CC.P+X-fin.section t2 ∘ f.f ∘ CC.P+X-fin.retract t1)
-             ≈⟨ assoc ⟩
-           CC.hom-to-FA.f t2 ∘ CC.P+X-fin.retract t2 ∘ CC.P+X-fin.section t2 ∘ f.f ∘ CC.P+X-fin.retract t1
-             ≈⟨ refl⟩∘⟨ {!!}  ⟩
-           --  ≈⟨ refl⟩∘⟨ CC.P+X-fin.is-retract t2 ⟩∘⟨refl ⟩
-           CC.hom-to-FA.f t2 ∘ id ∘ f.f ∘ CC.P+X-fin.retract t1
-             ≈⟨ {!!} ⟩
+             ≈⟨ assoc ○ (refl⟩∘⟨ sym-assoc) ⟩
+           CC.hom-to-FA.f t2 ∘ (CC.P+X-fin.retract t2 ∘ CC.P+X-fin.section t2) ∘ f.f ∘ CC.P+X-fin.retract t1
+             ≈⟨ elim-center (CC.P+X-fin.is-retract t2) ⟩
+           CC.hom-to-FA.f t2 ∘ f.f ∘ CC.P+X-fin.retract t1
+             ≈⟨ sym-assoc ⟩
+           (CC.hom-to-FA.f t2 ∘ f.f) ∘ CC.P+X-fin.retract t1
+             ≈⟨ Slice⇒.△ h ⟩∘⟨refl ⟩
            (CC.hom-to-FA.f t1 ∘ CC.P+X-fin.retract t1)
            ∎)
-      ; identity = {!!}
+      ; identity = λ {t} →
+        begin
+        CC.P+X-fin.section t ∘ id ∘ CC.P+X-fin.retract t
+             ≈⟨ ? ⟩
+        id
+        ∎
       ; homomorphism = {!!}
-      ; F-resp-≈ = {!!}
+      ; F-resp-≈ = λ eq → refl⟩∘⟨ eq ⟩∘⟨refl
       }
+      where
+        open HomReasoning
