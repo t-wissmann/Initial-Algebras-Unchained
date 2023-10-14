@@ -4,9 +4,9 @@ open import Level
 open import Categories.Category
 open import Categories.Category.Lift
 open import Categories.Functor using (Functor)
-open import Categories.Diagram.Colimit using (Colimit)
+open import Categories.Diagram.Colimit
+open import Categories.Diagram.Cocone
 open import Categories.Diagram.Cocone.Properties
-open import Categories.Category.Construction.Cocones
 open import Categories.Category.SubCategory
 open import Categories.Functor.Construction.SubCategory
 open import Categories.Object.Initial
@@ -61,7 +61,7 @@ private
     prop-level : Level
 
 -- For each family of fp objects and another objects, we have a slice category:
-Cat[_↓_] : {I : Set ℓ} → (𝒞-fp : I → 𝒞.Obj) → 𝒞.Obj → Category ℓ ℓ ℓ
+Cat[_↓_] : {ℓ-I : Level} {I : Set ℓ-I} → (𝒞-fp : I → 𝒞.Obj) → 𝒞.Obj → Category (ℓ-I ⊔ ℓ) ℓ ℓ
 Cat[_↓_]  {I = I} 𝒞-fp X = FullSubCategory (Slice 𝒞 X) objects
   where
     open Category 𝒞
@@ -69,11 +69,11 @@ Cat[_↓_]  {I = I} 𝒞-fp X = FullSubCategory (Slice 𝒞 X) objects
     objects (i , i⇒X) = sliceobj i⇒X
 
 -- and an obvious forgetful functor (resp. diagram)
-Functor[_↓_] : {I : Set ℓ} → (𝒞-fp : I → 𝒞.Obj) → (X : 𝒞.Obj) → Functor (Cat[ 𝒞-fp ↓ X ]) 𝒞
+Functor[_↓_] : {ℓ-I : Level} {I : Set ℓ-I} → (𝒞-fp : I → 𝒞.Obj) → (X : 𝒞.Obj) → Functor (Cat[ 𝒞-fp ↓ X ]) 𝒞
 Functor[_↓_]  𝒞-fp X = Forgetful ∘F (FullSub _)
 
 -- which has a canonical Cocone: X itself
-Cocone[_↓_] : {I : Set ℓ} → (𝒞-fp : I → 𝒞.Obj) → (X : 𝒞.Obj) → Cocone (Functor[ 𝒞-fp ↓ X ])
+Cocone[_↓_] : {ℓ-I : Level} {I : Set ℓ-I} → (𝒞-fp : I → 𝒞.Obj) → (X : 𝒞.Obj) → Cocone (Functor[ 𝒞-fp ↓ X ])
 Cocone[_↓_]  𝒞-fp X = record { coapex = record {
     ψ = λ (i , i⇒X) → i⇒X ;
     commute = Slice⇒.△
@@ -270,7 +270,7 @@ module _ (P : Category ℓ ℓ ℓ → Set prop-level) where
       jointly-epic
         {𝒞 = 𝒞}
         {codom = X}
-        (Cocone.ψ Functor[ fin ↓ X ] Cocone[ fin ↓ X ])
+        (Cocone.ψ Cocone[ fin ↓ X ])
     fin-generator X = colimit-is-jointly-epic (Colimit-from-prop (build-from-fin X))
 
     presentable-split-in-fin : ∀ (X : 𝒞.Obj) → presented X → Σ[ i ∈ Idx ] (Retract X (fin i))
@@ -290,6 +290,29 @@ module _ (P : Category ℓ ℓ ℓ → Set prop-level) where
                 (canonical-diagram-scheme X)
                 (canonical-has-prop X)
                 (canonical-diagram X)) (𝒞.id{X})
+
+    -- the family of presented objects
+    presented-obj : Σ 𝒞.Obj presented → 𝒞.Obj
+    presented-obj = proj₁
+
+    presented-colimit : ∀ (X : 𝒞.Obj) → IsLimitting (Cocone[ presented-obj ↓ X ])
+    presented-colimit X = record {
+        ! = {!!} ;
+        !-unique = {!!} }
+      where
+        pres = presented-obj
+        fp-colimit : Colimit (Functor[ fin ↓ X ])
+        fp-colimit = Colimit-from-prop (build-from-fin X)
+
+        pres-cocone-to-fin : Cocone (Functor[ pres ↓ X ]) → Cocone (Functor[ fin ↓ X ])
+        pres-cocone-to-fin K =
+          record { coapex =
+            record {
+              ψ = λ {(k , f) → K.ψ (((fin k) , (fin-presented k)) , f)} ;
+              commute = K.commute
+            } }
+          where
+            module K = Cocone K
 
   -- the property whether a category has coproducts of presented objects
   HasCoproductOfPresentedObjects : Set _
