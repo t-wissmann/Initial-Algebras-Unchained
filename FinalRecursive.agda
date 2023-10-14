@@ -22,6 +22,7 @@ open import Categories.Functor.Coalgebra
 open import Data.Product
 open import LFP using (WeaklyLFP)
 open import Filtered
+open import Cofinal
 open import Setoids-Choice
 open import Unchained-Utils
 
@@ -298,50 +299,74 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
               ∎)
           }
 
-      P+X-fin-idx : 𝒞-lfp.Idx
-      P+X-fin-idx = proj₁ (𝒞-lfp.presentable-split-in-fin P+X.obj P+X-is-presented)
-
-      -- P+X.obj is a split subobject of one from the fin family:
-      P+X-fin : Retract P+X.obj (𝒞-lfp.fin P+X-fin-idx)
-      P+X-fin = proj₂ (𝒞-lfp.presentable-split-in-fin P+X.obj P+X-is-presented)
-      module P+X-fin = Retract P+X-fin
+      -- -- from an old proof attempt:
+      -- P+X-fin-idx : 𝒞-lfp.Idx
+      -- P+X-fin-idx = proj₁ (𝒞-lfp.presentable-split-in-fin P+X.obj P+X-is-presented)
+      -- -- P+X.obj is a split subobject of one from the fin family:
+      -- P+X-fin : Retract P+X.obj (𝒞-lfp.fin P+X-fin-idx)
+      -- P+X-fin = proj₂ (𝒞-lfp.presentable-split-in-fin P+X.obj P+X-is-presented)
+      -- module P+X-fin = Retract P+X-fin
 
     -- the diagram scheme for the constructed LProp-Coalgebra
-    𝒮 : Category _ _ _
-    𝒮 = -- it is the full subcategory
+    ℰ : Category _ _ _
+    ℰ = -- it is the full subcategory
         FullSubCategory
         -- of the slicecategory for FA, Fα
         (Slice (F-Coalgebras F) (iterate A,α))
         -- containing the constructed P+X coalgebras
         λ t → sliceobj (CC.hom-to-FA t)
 
-    𝒮-to-𝒟 : Functor 𝒮 𝒟
-    𝒮-to-𝒟 =
-      record
-      { F₀ = λ t → (CC.P+X-fin-idx t) , (CC.hom-to-FA.f t ∘ CC.P+X-fin.retract t)
-      ; F₁ = λ {t1} {t2} h →
-           let module f = F-Coalgebra-Morphism (Slice⇒.h h) in
-           slicearr
-           {h = CC.P+X-fin.section t2 ∘ f.f ∘ CC.P+X-fin.retract t1}
-           (begin
-           (CC.hom-to-FA.f t2 ∘ CC.P+X-fin.retract t2) ∘ (CC.P+X-fin.section t2 ∘ f.f ∘ CC.P+X-fin.retract t1)
-             ≈⟨ assoc ○ (refl⟩∘⟨ sym-assoc) ⟩
-           CC.hom-to-FA.f t2 ∘ (CC.P+X-fin.retract t2 ∘ CC.P+X-fin.section t2) ∘ f.f ∘ CC.P+X-fin.retract t1
-             ≈⟨ elim-center (CC.P+X-fin.is-retract t2) ⟩
-           CC.hom-to-FA.f t2 ∘ f.f ∘ CC.P+X-fin.retract t1
-             ≈⟨ sym-assoc ⟩
-           (CC.hom-to-FA.f t2 ∘ f.f) ∘ CC.P+X-fin.retract t1
-             ≈⟨ Slice⇒.△ h ⟩∘⟨refl ⟩
-           (CC.hom-to-FA.f t1 ∘ CC.P+X-fin.retract t1)
-           ∎)
-      ; identity = λ {t} →
-        begin
-        CC.P+X-fin.section t ∘ id ∘ CC.P+X-fin.retract t
-             ≈⟨ ? ⟩
-        id
-        ∎
-      ; homomorphism = {!!}
-      ; F-resp-≈ = λ eq → refl⟩∘⟨ eq ⟩∘⟨refl
-      }
-      where
-        open HomReasoning
+    -- In order to show that FA is the colimit of ℰ,
+    -- we construct a final functor to the following category:
+    𝒮 : Category _ _ _
+    𝒮 = Cat[ 𝒞-lfp.presented-obj ↓ (F.₀ A) ]
+
+    S-colim : Colimit Functor[ 𝒞-lfp.presented-obj ↓ (F.₀ A) ]
+    S-colim = Colimit-from-prop (𝒞-lfp.presented-colimit (F.₀ A))
+    module S-colim = Colimit S-colim
+
+    E : Functor ℰ 𝒮
+    E = record
+         { F₀ = λ t → ((CC.P+X.obj t) , (CC.P+X-is-presented t)) , (CC.hom-to-FA.f t)
+         ; F₁ = λ { f → slicearr (Slice⇒.△ f) }
+         ; identity = 𝒞.Equiv.refl
+         ; homomorphism = λ {X} {Y} {Z} {f} {g} → 𝒞.Equiv.refl
+         ; F-resp-≈ = λ {X} {Y} {f} {g} eq → eq
+         }
+
+    -- Next:
+    -- E-is-final : Final E
+    -- E-is-final = record {
+    --   non-empty = {!!} ;
+    --   every-slice-connected = {!!} }
+
+    -- 𝒮-to-𝒟 : Functor 𝒮 𝒟
+    -- 𝒮-to-𝒟 =
+    --   record
+    --   { F₀ = λ t → (CC.P+X-fin-idx t) , (CC.hom-to-FA.f t ∘ CC.P+X-fin.retract t)
+    --   ; F₁ = λ {t1} {t2} h →
+    --        let module f = F-Coalgebra-Morphism (Slice⇒.h h) in
+    --        slicearr
+    --        {h = CC.P+X-fin.section t2 ∘ f.f ∘ CC.P+X-fin.retract t1}
+    --        (begin
+    --        (CC.hom-to-FA.f t2 ∘ CC.P+X-fin.retract t2) ∘ (CC.P+X-fin.section t2 ∘ f.f ∘ CC.P+X-fin.retract t1)
+    --          ≈⟨ assoc ○ (refl⟩∘⟨ sym-assoc) ⟩
+    --        CC.hom-to-FA.f t2 ∘ (CC.P+X-fin.retract t2 ∘ CC.P+X-fin.section t2) ∘ f.f ∘ CC.P+X-fin.retract t1
+    --          ≈⟨ elim-center (CC.P+X-fin.is-retract t2) ⟩
+    --        CC.hom-to-FA.f t2 ∘ f.f ∘ CC.P+X-fin.retract t1
+    --          ≈⟨ sym-assoc ⟩
+    --        (CC.hom-to-FA.f t2 ∘ f.f) ∘ CC.P+X-fin.retract t1
+    --          ≈⟨ Slice⇒.△ h ⟩∘⟨refl ⟩
+    --        (CC.hom-to-FA.f t1 ∘ CC.P+X-fin.retract t1)
+    --        ∎)
+    --   ; identity = λ {t} →
+    --     begin
+    --     CC.P+X-fin.section t ∘ id ∘ CC.P+X-fin.retract t
+    --          ≈⟨ ? ⟩
+    --     id
+    --     ∎
+    --   ; homomorphism = {!!}
+    --   ; F-resp-≈ = λ eq → refl⟩∘⟨ eq ⟩∘⟨refl
+    --   }
+    --   where
+    --     open HomReasoning
