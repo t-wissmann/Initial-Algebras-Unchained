@@ -297,12 +297,47 @@ module _ (P : Category ℓ ℓ ℓ → Set prop-level) where
 
     presented-colimit : ∀ (X : 𝒞.Obj) → IsLimitting (Cocone[ presented-obj ↓ X ])
     presented-colimit X = record {
-        ! = {!!} ;
-        !-unique = {!!} }
+        ! = λ {K} → record {
+          arr = fin-colimit.rep (pres-cocone-to-fin K) ;
+          commute = λ{ {(A , A-pres), f} →
+            let
+              k , g = presentable-split-in-fin A A-pres
+              module g = Retract g
+              module K = Cocone K
+              k-obj : Category.Obj (Cat[ fin ↓ X ])
+              k-obj = k , (f ∘ g.retract)
+              sliceident =
+                begin
+                (f ∘ g.retract) ∘ g.section
+                ≈⟨ assoc ⟩
+                f ∘ g.retract ∘ g.section
+                ≈⟨ elimʳ g.is-retract ⟩
+                f
+                ∎
+            in
+            begin
+            fin-colimit.rep (pres-cocone-to-fin K) ∘ f
+              ≈˘⟨ refl⟩∘⟨ elimʳ g.is-retract ⟩
+            fin-colimit.rep (pres-cocone-to-fin K) ∘ f ∘ g.retract ∘ g.section
+              ≈˘⟨ assoc²' ⟩
+            (fin-colimit.rep (pres-cocone-to-fin K) ∘ f ∘ g.retract) ∘ g.section
+              ≈⟨ fin-colimit.commute ⟩∘⟨refl ⟩
+            Cocone.ψ (pres-cocone-to-fin K) k-obj ∘ g.section
+              ≡⟨⟩
+            K.ψ (((fin k) , (fin-presented k)) , f ∘ g.retract) ∘ g.section
+              ≈⟨ K.commute (slicearr sliceident) ⟩
+            K.ψ ((A , A-pres), f)
+            ∎
+            }};
+        !-unique = λ f → {!!} }
       where
+        open Category 𝒞
+        open HomReasoning
+
         pres = presented-obj
-        fp-colimit : Colimit (Functor[ fin ↓ X ])
-        fp-colimit = Colimit-from-prop (build-from-fin X)
+        fin-colimit : Colimit (Functor[ fin ↓ X ])
+        fin-colimit = Colimit-from-prop (build-from-fin X)
+        module fin-colimit = Colimit fin-colimit
 
         pres-cocone-to-fin : Cocone (Functor[ pres ↓ X ]) → Cocone (Functor[ fin ↓ X ])
         pres-cocone-to-fin K =
