@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --allow-unsolved-metas #-}
+{-# OPTIONS --without-K #-}
 open import Level
 
 open import Categories.Category
@@ -329,7 +329,13 @@ module _ (P : Category ℓ ℓ ℓ → Set prop-level) where
             K.ψ ((A , A-pres), f)
             ∎
             }};
-        !-unique = λ f → {!!} }
+        !-unique = λ {K} f →
+          begin
+          fin-colimit.rep (pres-cocone-to-fin K)
+              ≈⟨ fin-colimit.initial.!-unique (transform-cocone⇒ f) ⟩
+          Cocone⇒.arr f
+          ∎
+          }
       where
         open Category 𝒞
         open HomReasoning
@@ -348,6 +354,15 @@ module _ (P : Category ℓ ℓ ℓ → Set prop-level) where
             } }
           where
             module K = Cocone K
+
+        transform-cocone⇒ : ∀ {K : Cocone _} →
+                            Cocone⇒ _ (Cocone[ presented-obj ↓ X ]) K →
+                            Cocone⇒ _ (fin-colimit.colimit) (pres-cocone-to-fin K)
+        transform-cocone⇒ {K} mor =
+          record {
+            arr = Cocone⇒.arr mor ;
+            commute = λ { {(k , f)} → Cocone⇒.commute mor }
+          }
 
   -- the property whether a category has coproducts of presented objects
   HasCoproductOfPresentedObjects : Set _
