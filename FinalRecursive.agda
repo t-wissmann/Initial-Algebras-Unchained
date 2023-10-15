@@ -13,6 +13,8 @@ open import Categories.Category.Product
 open import Agda.Builtin.Equality
 open import Categories.Category.Construction.F-Coalgebras
 open import Categories.Category.SubCategory
+open import Categories.Category.Construction.Comma
+open import Categories.Category.Slice
 open import Categories.Functor.Construction.SubCategory
 open import Categories.Functor using (Functor; Endofunctor)
 open import Data.Product
@@ -315,11 +317,13 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
         (Slice (F-Coalgebras F) (iterate A,α))
         -- containing the constructed P+X coalgebras
         λ t → sliceobj (CC.hom-to-FA t)
+    module ℰ = Category ℰ
 
     -- In order to show that FA is the colimit of ℰ,
     -- we construct a final functor to the following category:
     𝒮 : Category _ _ _
     𝒮 = Cat[ 𝒞-lfp.presented-obj ↓ (F.₀ A) ]
+    module 𝒮 = Category 𝒮
 
     S-colim : Colimit Functor[ 𝒞-lfp.presented-obj ↓ (F.₀ A) ]
     S-colim = Colimit-from-prop (𝒞-lfp.presented-colimit (F.₀ A))
@@ -333,12 +337,76 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
          ; homomorphism = λ {X} {Y} {Z} {f} {g} → 𝒞.Equiv.refl
          ; F-resp-≈ = λ {X} {Y} {f} {g} eq → eq
          }
+    module E = Functor E
+
+    module reflect-𝒮 (s : 𝒮.Obj) where
+
+    reflect-𝒮-to-ℰ : (s : 𝒮.Obj) → Σ[ t ∈ all-triangles ](s 𝒮.⇒ E.₀ t)
+    reflect-𝒮-to-ℰ ((A , A-pres) , f) =
+      let
+        k , r = 𝒞-lfp.presentable-split-in-fin A A-pres
+        module r = Retract r
+        t = P-to-triangle (k , (f ∘ r.retract))
+        open CC t
+        open HomReasoning
+      in
+      t , slicearr {h = P+X.i₁ ∘ r.section} (
+        begin
+        hom-to-FA.f ∘ P+X.i₁ ∘ r.section ≈⟨ sym-assoc ⟩
+        (hom-to-FA.f ∘ P+X.i₁) ∘ r.section ≈˘⟨ hom-to-FA-i₁ ⟩∘⟨refl ⟩
+        (f ∘ r.retract) ∘ r.section ≈⟨ assoc ○ elimʳ r.is-retract ⟩
+        f
+        ∎)
 
     -- Next:
-    -- E-is-final : Final E
-    -- E-is-final = record {
-    --   non-empty = {!!} ;
-    --   every-slice-connected = {!!} }
+    E-is-final : Final E
+    E-is-final = record {
+      non-empty = λ s →
+        let t , f = reflect-𝒮-to-ℰ s in
+        record { β = t ; f = f } ;
+      every-slice-connected = λ { S → record { connect =
+        λ comma-obj1 comma-obj2 →
+        let
+          ((A , A-pres) , p) = S
+          t1 : all-triangles
+          t1 = CommaObj.β comma-obj1
+          s1 : 𝒮 [ S , E.₀ t1 ]
+          s1 = CommaObj.f comma-obj1
+          t2 : all-triangles
+          t2 = CommaObj.β comma-obj2
+          s2 : 𝒮 [ S , E.₀ t2 ]
+          s2 = CommaObj.f comma-obj2
+
+          Union : Coproduct (CC.P+X.obj t1) (CC.P+X.obj t2)
+          Union = has-coprod (CC.P+X.obj t1) (CC.P+X.obj t2) (CC.P+X-is-presented t1) (CC.P+X-is-presented t2)
+          module Union = Coproduct Union renaming (A+B to obj)
+
+          Union-in-𝒮 : 𝒮.Obj
+          Union-in-𝒮 =
+            ((Union.obj
+              , presented-coproduct Fil Fil-to-filtered Union (CC.P+X-is-presented t1) (CC.P+X-is-presented t2))
+            , Union.[ CC.hom-to-FA.f t1 , CC.hom-to-FA.f t2 ])
+
+          t3 , f = reflect-𝒮-to-ℰ Union-in-𝒮
+          module f = Slice⇒ f
+          open HomReasoning
+          open CC
+          e1-hom : F-Coalgebra-Morphism (CC.P+X-coalg t1) (CC.P+X-coalg t3)
+          e1-hom = record { f = f.h ∘ Union.i₁ ;
+            commutes = begin
+            Fi₂[p',x] t3 ∘ f.h ∘ Union.i₁ ≈⟨ {!!} ⟩
+            Fi₂[p',x] t3 ∘ f.h ∘ Union.i₁ ≈⟨ {!!} ⟩
+            (F.₁ (f.h ∘ Union.i₁) ∘ Fi₂[p',x] t1)
+            ∎
+            }
+          -- e1 : ℰ [ t1 , t3 ]
+          -- e1 = slicearr {h = e1-hom} {!!}
+        in
+        -- we need to show that the two coalgebras for triangles t1 and t2
+        -- are connected
+        {!!}
+      } } }
+
 
     -- 𝒮-to-𝒟 : Functor 𝒮 𝒟
     -- 𝒮-to-𝒟 =
