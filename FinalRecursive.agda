@@ -381,22 +381,20 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
           Union = has-coprod (CC.P+X.obj t1) (CC.P+X.obj t2) (CC.P+X-is-presented t1) (CC.P+X-is-presented t2)
           module Union = Coproduct Union renaming (A+B to obj)
 
-          Union-in-𝒮 : 𝒮.Obj
-          Union-in-𝒮 =
-            ((Union.obj
-              , presented-coproduct Fil Fil-to-filtered Union (CC.P+X-is-presented t1) (CC.P+X-is-presented t2))
-            , Union.[ CC.hom-to-FA.f t1 , CC.hom-to-FA.f t2 ])
-
-          t3 , f = reflect-𝒮-to-ℰ Union-in-𝒮
-          module f = Slice⇒ f
-          open HomReasoning
           open CC
+
+          Union-presentable = presented-coproduct Fil Fil-to-filtered Union (CC.P+X-is-presented t1) (CC.P+X-is-presented t2)
+          k , r = 𝒞-lfp.presentable-split-in-fin Union.obj Union-presentable
+          module r = Retract r
+          t3 = P-to-triangle (k , (Union.[ hom-to-FA.f t1 , hom-to-FA.f t2 ] ∘ r.retract))
+
+          open HomReasoning
           e1-hom : F-Coalgebra-Morphism (CC.P+X-coalg t1) (CC.P+X-coalg t3)
-          e1-hom = record { f = f.h ∘ Union.i₁ ;
+          e1-hom = record { f = P+X.i₁ t3 ∘ r.section ∘ Union.i₁ ;
             commutes = begin
-            Fi₂[p',x] t3 ∘ f.h ∘ Union.i₁ ≈⟨ {!!} ⟩
-            Fi₂[p',x] t3 ∘ f.h ∘ Union.i₁ ≈⟨ {!!} ⟩
-            (F.₁ (f.h ∘ Union.i₁) ∘ Fi₂[p',x] t1)
+            Fi₂[p',x] t3 ∘ (P+X.i₁ t3 ∘ r.section ∘ Union.i₁) ≈⟨ {!!} ⟩
+            F.₁ (P+X.i₂ t3) ∘ (P+X.[_,_] t3 (p' t3) (x t3) ∘ P+X.i₁ t3) ∘ r.section ∘ Union.i₁ ≈⟨ {!!} ⟩
+            (F.₁ (P+X.i₁ t3 ∘ r.section ∘ Union.i₁) ∘ Fi₂[p',x] t1)
             ∎
             }
           -- e1 : ℰ [ t1 , t3 ]
