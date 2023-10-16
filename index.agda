@@ -22,6 +22,7 @@ import Filtered
 import Cofinal
 
 -- definition of weak lfp category
+import LFP-slices
 import LFP
 
 -- some lemmas about recursive coalgebras

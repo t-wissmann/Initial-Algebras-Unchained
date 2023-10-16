@@ -37,6 +37,7 @@ private
     -- levels for setoids themselves:
     o ℓ : Level
 
+open import LFP-slices (Setoids 0ℓ 0ℓ)
 open import LFP (Setoids 0ℓ 0ℓ)
 open import Categories.Category.Slice (Setoids 0ℓ 0ℓ)
 
@@ -57,7 +58,10 @@ Fin≈ n = setoid (Fin n)
 Fin≈-zero-empty : {ℓ-a : Level} {a : Set ℓ-a} → Fin 0 → a
 Fin≈-zero-empty ()
 
-Fin-is-presented : ∀ (n : ℕ) → presented filtered (Fin≈ n)
+id-filtered : ∀ {𝒟} → filtered 𝒟 → filtered 𝒟
+id-filtered f = f
+
+Fin-is-presented : ∀ (n : ℕ) → presented filtered id-filtered (Fin≈ n)
 Fin-is-presented n 𝒟 𝒟-filtered J colim =
   -- see where-clause at the end
   bounded-colimiting
@@ -323,7 +327,7 @@ canonical-cat-is-filtered X =
     exfalso : ∀ {a : Level} {A : Set a} → Fin 0 → A
     exfalso ()
 
-setoids-LFP : WeaklyLFP filtered
+setoids-LFP : WeaklyLFP filtered id-filtered
 setoids-LFP = record
                { Idx = ℕ
                ; fin = Fin≈
