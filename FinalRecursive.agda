@@ -46,6 +46,7 @@ module 𝒞 = Category 𝒞
 open import recursive-coalgebra 𝒞 F
 open import LFP-slices 𝒞
 open import Hom-Colimit-Choice 𝒞
+open import Categories.Diagram.Pushout 𝒞
 open import Categories.Morphism 𝒞
 open import Categories.Object.Coproduct 𝒞
 open import Categories.Morphism.Reasoning.Core 𝒞
@@ -320,6 +321,9 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
       C : 𝒞.Obj
       C = F-Coalgebra.A coalg
 
+      c : C ⇒ F.₀ C
+      c = F-Coalgebra.α coalg
+
 
     -- the diagram scheme for the constructed LProp-Coalgebra
     ℰ : Category _ _ _
@@ -353,10 +357,43 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
 
     ℰ-slice-is-connected : ∀ (s : 𝒮.Obj) (e1 e2 : Category.Obj (s ↙ E))
                            → ZigZag (s ↙ E) e1 e2
-    ℰ-slice-is-connected s e1 e2 = {!!}
+    ℰ-slice-is-connected s comma1 comma2 = {!!}
       where
-        module e1 = CommaObj e1
-        module e2 = CommaObj e2
+        module comma1 = CommaObj comma1
+        module comma2 = CommaObj comma2
+        e1 = comma1.β
+        e2 = comma2.β
+        module e1 = ℰ-object e1
+        module e2 = ℰ-object e2
+        s-in-𝒞 = proj₁ (proj₁ s)
+
+        p1 : s-in-𝒞 ⇒ e1.C
+        p1 = Slice⇒.h (comma1.f)
+        p2 : s-in-𝒞 ⇒ e2.C
+        p2 = Slice⇒.h (comma2.f)
+
+        -- we join the carriers of the two coalgebras
+        union : Pushout p1 p2
+        union =
+          𝒞-lfp.pushout p1 p2
+          (proj₂ (proj₁ s)) e1.finite-carrier e2.finite-carrier
+        module union = Pushout union
+
+        open HomReasoning
+        -- this union extends to an object in E:
+        union-in-ℰ : ℰ-object
+        union-in-ℰ = record {
+          -- we have a coalgebra structure on E:
+          coalg = record {
+              A = union.Q ;
+              α = union.universal (begin
+                  ((F.₁ union.i₁ ∘ e1.c) ∘ p1) ≈⟨ {!!} ⟩
+                  ((F.₁ union.i₂ ∘ e2.c) ∘ p2)
+                  ∎)} ;
+            point = {!!} ;
+            finrec = {!!}
+          }
+
 
     E-is-final : Final E
     E-is-final = record {
