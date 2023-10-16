@@ -36,12 +36,15 @@ module FinalRecursive {o ℓ fil-level}
   (F : Endofunctor 𝒞)
   (Fil : ∀ {o' ℓ' e' : Level} → Category o' ℓ' e' → Set fil-level) -- some variant of 'filtered'
   (Fil-to-filtered : ∀ {𝒟 : Category ℓ ℓ ℓ} → Fil 𝒟 → filtered 𝒟) -- .. which implies filtered
-  (𝒞-lfp : WeaklyLFP 𝒞 Fil)
+  (𝒞-lfp : WeaklyLFP 𝒞 Fil Fil-to-filtered)
   where
 
-open import LFP 𝒞 hiding (WeaklyLFP)
+
+open import LFP 𝒞 Fil Fil-to-filtered hiding (WeaklyLFP)
+
 module 𝒞 = Category 𝒞
 open import recursive-coalgebra 𝒞 F
+open import LFP-slices 𝒞
 open import Hom-Colimit-Choice 𝒞
 open import Categories.Morphism 𝒞
 open import Categories.Object.Coproduct 𝒞
@@ -54,7 +57,7 @@ record FinitaryRecursive (coalg : F-Coalgebra F) : Set (o ⊔ suc ℓ ⊔ fil-le
   -- the property that a coalgebra
   field
     -- 1. has finite carrier
-    finite-carrier : presented Fil (F-Coalgebra.A coalg)
+    finite-carrier : presented (F-Coalgebra.A coalg)
     -- 2. is recursive
     is-recursive : IsRecursive coalg
 
@@ -70,12 +73,9 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                       -- ^- coalg is a colimit of a filtered diagram
                       (F-preserves-colim : preserves-colimit (LProp-Coalgebra.carrier-diagram coalg-colim) F)
                       -- ^- F preserves the colimit 'coalg'
-                      (has-coprod : HasCoproductOfPresentedObjects Fil)
-                      -- we have sufficiently many coproducts
                       where
     -- in the proof, let V be the forgetful functor from coalgebras to 𝒞
     module V = Functor forget-Coalgebra
-    Fil-presented = presented Fil
     open LiftHom ℓ ℓ ℓ
     -- the provided coalgebra:
     module coalg-colim = LProp-Coalgebra coalg-colim
@@ -166,14 +166,14 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
       p : P ⇒ F.₀ A
       p = FA-colim.proj (proj₁ t)
 
-      P-is-presented : Fil-presented P
+      P-is-presented : presented P
       P-is-presented =
         -- here, we need to unfold the definition of P as a sliceobj
         -- from the index of a presented object
         let (idx , _) = (proj₁ t) in
         𝒞-lfp.fin-presented idx
 
-      X-is-presented : Fil-presented X
+      X-is-presented : presented X
       X-is-presented = FinitaryRecursive.finite-carrier coalg-colim.all-have-prop
 
       X,x-is-recursive : IsRecursive X,x
@@ -181,7 +181,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
 
       -- the constructed coalgebra has a coproduct as its carrier
       P+X : Coproduct P X
-      P+X = has-coprod P X P-is-presented X-is-presented
+      P+X = 𝒞-lfp.coproduct P X P-is-presented X-is-presented
       module P+X = Coproduct P+X renaming (A+B to obj)
 
       p' : P ⇒ F.₀ X
@@ -280,10 +280,9 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
         where
           open HomReasoning
 
-      P+X-is-presented : presented Fil P+X.obj
+      P+X-is-presented : presented P+X.obj
       P+X-is-presented =
-            presented-coproduct Fil
-              Fil-to-filtered
+            presented-coproduct
               P+X P-is-presented X-is-presented
 
       --   The property that all objects in the diagram ...
@@ -309,6 +308,19 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
       -- P+X-fin = proj₂ (𝒞-lfp.presentable-split-in-fin P+X.obj P+X-is-presented)
       -- module P+X-fin = Retract P+X-fin
 
+    record ℰ-object : Set (o ⊔ suc ℓ ⊔ fil-level) where
+      field
+        coalg : F-Coalgebra F
+        point : F-Coalgebra-Morphism coalg (iterate A,α)
+        finrec : FinitaryRecursive coalg
+
+      open FinitaryRecursive finrec public
+      module point = F-Coalgebra-Morphism point
+
+      C : 𝒞.Obj
+      C = F-Coalgebra.A coalg
+
+
     -- the diagram scheme for the constructed LProp-Coalgebra
     ℰ : Category _ _ _
     ℰ = -- it is the full subcategory
@@ -316,7 +328,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
         -- of the slicecategory for FA, Fα
         (Slice (F-Coalgebras F) (iterate A,α))
         -- containing the constructed P+X coalgebras
-        λ t → sliceobj (CC.hom-to-FA t)
+        λ e → sliceobj (ℰ-object.point e)
     module ℰ = Category ℰ
 
     -- In order to show that FA is the colimit of ℰ,
@@ -331,7 +343,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
 
     E : Functor ℰ 𝒮
     E = record
-         { F₀ = λ t → ((CC.P+X.obj t) , (CC.P+X-is-presented t)) , (CC.hom-to-FA.f t)
+         { F₀ = λ e → (ℰ-object.C e , ℰ-object.finite-carrier e) , ℰ-object.point.f e
          ; F₁ = λ { f → slicearr (Slice⇒.△ f) }
          ; identity = 𝒞.Equiv.refl
          ; homomorphism = λ {X} {Y} {Z} {f} {g} → 𝒞.Equiv.refl
@@ -339,71 +351,107 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
          }
     module E = Functor E
 
-    module reflect-𝒮 (s : 𝒮.Obj) where
+    ℰ-slice-is-connected : ∀ (s : 𝒮.Obj) (e1 e2 : Category.Obj (s ↙ E))
+                           → ZigZag (s ↙ E) e1 e2
+    ℰ-slice-is-connected s e1 e2 = {!!}
+      where
+        module e1 = CommaObj e1
+        module e2 = CommaObj e2
 
-    reflect-𝒮-to-ℰ : (s : 𝒮.Obj) → Σ[ t ∈ all-triangles ](s 𝒮.⇒ E.₀ t)
-    reflect-𝒮-to-ℰ ((A , A-pres) , f) =
-      let
-        k , r = 𝒞-lfp.presentable-split-in-fin A A-pres
-        module r = Retract r
-        t = P-to-triangle (k , (f ∘ r.retract))
-        open CC t
-        open HomReasoning
-      in
-      t , slicearr {h = P+X.i₁ ∘ r.section} (
-        begin
-        hom-to-FA.f ∘ P+X.i₁ ∘ r.section ≈⟨ sym-assoc ⟩
-        (hom-to-FA.f ∘ P+X.i₁) ∘ r.section ≈˘⟨ hom-to-FA-i₁ ⟩∘⟨refl ⟩
-        (f ∘ r.retract) ∘ r.section ≈⟨ assoc ○ elimʳ r.is-retract ⟩
-        f
-        ∎)
-
-    -- Next:
     E-is-final : Final E
     E-is-final = record {
-      non-empty = λ s →
-        let t , f = reflect-𝒮-to-ℰ s in
-        record { β = t ; f = f } ;
-      every-slice-connected = λ { S → record { connect =
-        λ comma-obj1 comma-obj2 →
+      non-empty = λ { ((P , P-pres) , f) →
         let
-          ((A , A-pres) , p) = S
-          t1 : all-triangles
-          t1 = CommaObj.β comma-obj1
-          s1 : 𝒮 [ S , E.₀ t1 ]
-          s1 = CommaObj.f comma-obj1
-          t2 : all-triangles
-          t2 = CommaObj.β comma-obj2
-          s2 : 𝒮 [ S , E.₀ t2 ]
-          s2 = CommaObj.f comma-obj2
-
-          Union : Coproduct (CC.P+X.obj t1) (CC.P+X.obj t2)
-          Union = has-coprod (CC.P+X.obj t1) (CC.P+X.obj t2) (CC.P+X-is-presented t1) (CC.P+X-is-presented t2)
-          module Union = Coproduct Union renaming (A+B to obj)
-
-          open CC
-
-          Union-presentable = presented-coproduct Fil Fil-to-filtered Union (CC.P+X-is-presented t1) (CC.P+X-is-presented t2)
-          k , r = 𝒞-lfp.presentable-split-in-fin Union.obj Union-presentable
+          k , r = 𝒞-lfp.presentable-split-in-fin P P-pres
           module r = Retract r
-          t3 = P-to-triangle (k , (Union.[ hom-to-FA.f t1 , hom-to-FA.f t2 ] ∘ r.retract))
-
+          t = P-to-triangle (k , (f ∘ r.retract))
+          open CC t
           open HomReasoning
-          e1-hom : F-Coalgebra-Morphism (CC.P+X-coalg t1) (CC.P+X-coalg t3)
-          e1-hom = record { f = P+X.i₁ t3 ∘ r.section ∘ Union.i₁ ;
-            commutes = begin
-            Fi₂[p',x] t3 ∘ (P+X.i₁ t3 ∘ r.section ∘ Union.i₁) ≈⟨ {!!} ⟩
-            F.₁ (P+X.i₂ t3) ∘ (P+X.[_,_] t3 (p' t3) (x t3) ∘ P+X.i₁ t3) ∘ r.section ∘ Union.i₁ ≈⟨ {!!} ⟩
-            (F.₁ (P+X.i₁ t3 ∘ r.section ∘ Union.i₁) ∘ Fi₂[p',x] t1)
-            ∎
-            }
-          -- e1 : ℰ [ t1 , t3 ]
-          -- e1 = slicearr {h = e1-hom} {!!}
         in
-        -- we need to show that the two coalgebras for triangles t1 and t2
-        -- are connected
-        {!!}
-      } } }
+        record {
+          β = record {
+            coalg = P+X-coalg ;
+            point = hom-to-FA ;
+            finrec = P+X-coalg-is-FinitaryRecursive };
+          f = slicearr {h = P+X.i₁ ∘ r.section}
+          (begin
+          hom-to-FA.f ∘ P+X.i₁ ∘ r.section ≈⟨ sym-assoc ⟩
+          (hom-to-FA.f ∘ P+X.i₁) ∘ r.section ≈˘⟨ hom-to-FA-i₁ ⟩∘⟨refl ⟩
+          (f ∘ r.retract) ∘ r.section ≈⟨ assoc ○ elimʳ r.is-retract ⟩
+          f
+          ∎)
+        }
+        } ;
+      every-slice-connected = λ s → record {
+        connect = ℰ-slice-is-connected s
+      }
+      }
+
+    -- module reflect-𝒮 (s : 𝒮.Obj) where
+
+    -- reflect-𝒮-to-ℰ : (s : 𝒮.Obj) → Σ[ t ∈ all-triangles ](s 𝒮.⇒ E.₀ t)
+    -- reflect-𝒮-to-ℰ ((A , A-pres) , f) =
+    --   let
+    --     k , r = 𝒞-lfp.presentable-split-in-fin A A-pres
+    --     module r = Retract r
+    --     t = P-to-triangle (k , (f ∘ r.retract))
+    --     open CC t
+    --     open HomReasoning
+    --   in
+    --   t , slicearr {h = P+X.i₁ ∘ r.section} (
+    --     begin
+    --     hom-to-FA.f ∘ P+X.i₁ ∘ r.section ≈⟨ sym-assoc ⟩
+    --     (hom-to-FA.f ∘ P+X.i₁) ∘ r.section ≈˘⟨ hom-to-FA-i₁ ⟩∘⟨refl ⟩
+    --     (f ∘ r.retract) ∘ r.section ≈⟨ assoc ○ elimʳ r.is-retract ⟩
+    --     f
+    --     ∎)
+
+    -- -- Next:
+    -- E-is-final : Final E
+    -- E-is-final = record {
+    --   non-empty = λ s →
+    --     let t , f = reflect-𝒮-to-ℰ s in
+    --     record { β = t ; f = f } ;
+    --   every-slice-connected = λ { S → record { connect =
+    --     λ comma-obj1 comma-obj2 →
+    --     let
+    --       ((A , A-pres) , p) = S
+    --       t1 : all-triangles
+    --       t1 = CommaObj.β comma-obj1
+    --       s1 : 𝒮 [ S , E.₀ t1 ]
+    --       s1 = CommaObj.f comma-obj1
+    --       t2 : all-triangles
+    --       t2 = CommaObj.β comma-obj2
+    --       s2 : 𝒮 [ S , E.₀ t2 ]
+    --       s2 = CommaObj.f comma-obj2
+
+    --       Union : Coproduct (CC.P+X.obj t1) (CC.P+X.obj t2)
+    --       Union = has-coprod (CC.P+X.obj t1) (CC.P+X.obj t2) (CC.P+X-is-presented t1) (CC.P+X-is-presented t2)
+    --       module Union = Coproduct Union renaming (A+B to obj)
+
+    --       open CC
+
+    --       Union-presentable = presented-coproduct Fil Fil-to-filtered Union (CC.P+X-is-presented t1) (CC.P+X-is-presented t2)
+    --       k , r = 𝒞-lfp.presentable-split-in-fin Union.obj Union-presentable
+    --       module r = Retract r
+    --       t3 = P-to-triangle (k , (Union.[ hom-to-FA.f t1 , hom-to-FA.f t2 ] ∘ r.retract))
+
+    --       open HomReasoning
+    --       e1-hom : F-Coalgebra-Morphism (CC.P+X-coalg t1) (CC.P+X-coalg t3)
+    --       e1-hom = record { f = P+X.i₁ t3 ∘ r.section ∘ Union.i₁ ;
+    --         commutes = begin
+    --         Fi₂[p',x] t3 ∘ (P+X.i₁ t3 ∘ r.section ∘ Union.i₁) ≈⟨ {!!} ⟩
+    --         F.₁ (P+X.i₂ t3) ∘ (P+X.[_,_] t3 (p' t3) (x t3) ∘ P+X.i₁ t3) ∘ r.section ∘ Union.i₁ ≈⟨ {!!} ⟩
+    --         (F.₁ (P+X.i₁ t3 ∘ r.section ∘ Union.i₁) ∘ Fi₂[p',x] t1)
+    --         ∎
+    --         }
+    --       -- e1 : ℰ [ t1 , t3 ]
+    --       -- e1 = slicearr {h = e1-hom} {!!}
+    --     in
+    --     -- we need to show that the two coalgebras for triangles t1 and t2
+    --     -- are connected
+    --     {!!}
+    --   } } }
 
 
     -- 𝒮-to-𝒟 : Functor 𝒮 𝒟
