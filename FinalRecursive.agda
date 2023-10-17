@@ -338,6 +338,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
 
     E : Functor ℰ (F-Coalgebras F)
     E = Sl.Forgetful (F-Coalgebras F) ∘F FullSub (Slice (F-Coalgebras F) (iterate A,α))
+    module E = Functor E
 
     FA,Fα-Cocone : Cocone E
     FA,Fα-Cocone = record { coapex =
@@ -392,11 +393,81 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
     -- of carriers is colimitting:
     FA,Fα-Cocone-on-carriers : Cocone (V ∘F E)
     FA,Fα-Cocone-on-carriers = F-map-Coconeˡ V FA,Fα-Cocone
+    module FA,Fα-Cocone-on-carriers = Cocone FA,Fα-Cocone-on-carriers
 
     lift-Cocone⇒ : ∀ (K : Cocone (V ∘F E)) → (j : Cocone⇒ D FA-colim.colimit (E-Cocone-to-D K))
                    → Cocone⇒ (V ∘F E) FA,Fα-Cocone-on-carriers K
     lift-Cocone⇒ K j =
-      record { arr = Cocone⇒.arr j ; commute = {!!} }
+      record { arr = Cocone⇒.arr j ; commute = λ {C} →
+        let
+          module C = ℰ-object C
+          C+C : Coproduct C.C C.C
+          C+C = 𝒞-lfp.coproduct C.C C.C C.finite-carrier C.finite-carrier
+          module C+C = Coproduct C+C renaming (A+B to obj)
+          C+C-coalg : ℰ-object
+          C+C-coalg = record {
+            coalg = record {
+              A = C+C.obj ;
+              α = F.₁ C+C.i₂ ∘ C+C.[ C.c , C.c ] } ;
+            point = record { f = C+C.[ V.₁ C.point , V.₁ C.point ] ; commutes = TODO-later } ;
+            finrec = TODO-later }
+          nabla : C+C-coalg ℰ.⇒ C
+          nabla = slicearr {h = record { f = C+C.[ id , id ] ; commutes = TODO-later }} TODO-later
+          m , r = 𝒞-lfp.presentable-split-in-fin C.C C.finite-carrier
+          module r = Retract r
+          d : 𝒟.Obj
+          d = m , (V.₁ C.point ∘ r.retract)
+          t = P-to-triangle d
+        in
+        begin
+        j.arr ∘ V.₁ C.point ≈˘⟨ refl⟩∘⟨ elimʳ r.is-retract  ⟩
+        j.arr ∘ V.₁ C.point ∘ r.retract ∘ r.section ≈˘⟨ assoc²'  ⟩
+        (j.arr ∘ (V.₁ C.point ∘ r.retract)) ∘ r.section ≈⟨ j.commute {d} ⟩∘⟨refl ⟩
+        Cocone.ψ (E-Cocone-to-D K) d ∘ r.section ≡⟨⟩
+        (K.ψ (triangle-to-ℰ-obj t) ∘ CC.P+X.i₁ t) ∘ r.section
+          -- This is the crucial part!
+          ≈⟨ TODO-later ⟩
+        K.ψ C+C-coalg ∘ C+C.i₁  ≈˘⟨ K.commute nabla ⟩∘⟨refl ⟩
+        (K.ψ C ∘ C+C.[ id , id ]) ∘ C+C.i₁  ≈⟨ assoc ⟩
+        K.ψ C ∘ C+C.[ id , id ] ∘ C+C.i₁  ≈⟨ elimʳ C+C.inject₁ ⟩
+        K.ψ C
+        ∎
+      }
+      where
+        module j = Cocone⇒ j
+        open HomReasoning
+        module K = Cocone K
+
+    reflect-Cocone⇒ : ∀ (K : Cocone (V ∘F E))
+                   → Cocone⇒ (V ∘F E) FA,Fα-Cocone-on-carriers K
+                   → Cocone⇒ D FA-colim.colimit (E-Cocone-to-D K)
+    reflect-Cocone⇒ K other =
+      record {
+        arr = other.arr ;
+        commute = λ {d} →
+          let
+            t = P-to-triangle d
+            e = triangle-to-ℰ-obj t
+          in
+          begin
+          other.arr ∘ FA-colim.proj d ≈⟨ refl⟩∘⟨ CC.hom-to-FA-i₁ t ⟩
+          other.arr ∘ (V.₁ (ℰ-object.point e) ∘ CC.P+X.i₁ t) ≈⟨ sym-assoc ⟩
+          (other.arr ∘ V.₁ (ℰ-object.point e)) ∘ CC.P+X.i₁ t ≈⟨ other.commute {e} ⟩∘⟨refl ⟩
+          K.ψ e ∘ CC.P+X.i₁ t ≡⟨⟩
+          Cocone.ψ (E-Cocone-to-D K) d
+          ∎}
+      where
+        module other = Cocone⇒ other
+        module K = Cocone K
+        open HomReasoning
+
+    FA,Fα-Colimit-on-carriers : IsLimitting FA,Fα-Cocone-on-carriers
+    FA,Fα-Colimit-on-carriers =
+      record {
+        ! = λ {K} → lift-Cocone⇒ K (induced K) ;
+        !-unique = λ {K} other →
+          FA-colim.initial.!-unique (reflect-Cocone⇒ K other)
+      }
 
     -- -- In order to show that FA is the colimit of ℰ,
     -- -- we construct a final functor to the following category:
