@@ -15,6 +15,7 @@ open import Categories.Category.Construction.F-Coalgebras
 open import Categories.Category.SubCategory
 open import Categories.Category.Construction.Comma
 open import Categories.Category.Slice
+open import Categories.Functor.Slice as Sl
 open import Categories.Functor.Construction.SubCategory
 open import Categories.Functor using (Functor; Endofunctor)
 open import Data.Product
@@ -76,6 +77,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                       -- ^- F preserves the colimit 'coalg'
                       where
     -- in the proof, let V be the forgetful functor from coalgebras to 𝒞
+    V = forget-Coalgebra
     module V = Functor forget-Coalgebra
     open LiftHom ℓ ℓ ℓ
     -- the provided coalgebra:
@@ -331,98 +333,159 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
         FullSubCategory
         -- of the slicecategory for FA, Fα
         (Slice (F-Coalgebras F) (iterate A,α))
-        -- containing the constructed P+X coalgebras
         λ e → sliceobj (ℰ-object.point e)
     module ℰ = Category ℰ
 
-    -- In order to show that FA is the colimit of ℰ,
-    -- we construct a final functor to the following category:
-    𝒮 : Category _ _ _
-    𝒮 = Cat[ 𝒞-lfp.presented-obj ↓ (F.₀ A) ]
-    module 𝒮 = Category 𝒮
+    E : Functor ℰ (F-Coalgebras F)
+    E = Sl.Forgetful (F-Coalgebras F) ∘F FullSub (Slice (F-Coalgebras F) (iterate A,α))
 
-    S-colim : Colimit Functor[ 𝒞-lfp.presented-obj ↓ (F.₀ A) ]
-    S-colim = Colimit-from-prop (𝒞-lfp.presented-colimit (F.₀ A))
-    module S-colim = Colimit S-colim
+    FA,Fα-Cocone : Cocone E
+    FA,Fα-Cocone = record { coapex =
+      record {
+        ψ = ℰ-object.point ;
+        commute = λ f → Slice⇒.△ f } }
+    module FA,Fα-Cocone = Cocone FA,Fα-Cocone
 
-    E : Functor ℰ 𝒮
-    E = record
-         { F₀ = λ e → (ℰ-object.C e , ℰ-object.finite-carrier e) , ℰ-object.point.f e
-         ; F₁ = λ { f → slicearr (Slice⇒.△ f) }
-         ; identity = 𝒞.Equiv.refl
-         ; homomorphism = λ {X} {Y} {Z} {f} {g} → 𝒞.Equiv.refl
-         ; F-resp-≈ = λ {X} {Y} {f} {g} eq → eq
-         }
-    module E = Functor E
+    data ⊥ : Set where
 
-    ℰ-slice-is-connected : ∀ (s : 𝒮.Obj) (e1 e2 : Category.Obj (s ↙ E))
-                           → ZigZag (s ↙ E) e1 e2
-    ℰ-slice-is-connected s comma1 comma2 = {!!}
+    exp : ∀ {n} {x : Set n} → ⊥ → x
+    exp ()
+
+    TODO-later : ∀ {n} {x : Set n} → x
+    TODO-later = exp _
+
+    triangle-to-ℰ-obj : all-triangles → ℰ.Obj
+    triangle-to-ℰ-obj t = record {
+              coalg = CC.P+X-coalg t ;
+              point = CC.hom-to-FA t ;
+              finrec = CC.P+X-coalg-is-FinitaryRecursive t }
+
+    E-Cocone-to-D : Cocone (V ∘F E) → Cocone D
+    E-Cocone-to-D E-Cocone =
+      record { coapex = record {
+        ψ = λ { d →
+          let
+            t = P-to-triangle d
+          in
+          E-Cocone.ψ (triangle-to-ℰ-obj t) ∘ CC.P+X.i₁ t} ;
+        commute = λ {d1} {d2} f →
+          let
+            t1 = P-to-triangle d1
+            t2 = P-to-triangle d2
+            e1 = triangle-to-ℰ-obj t1
+            e2 = triangle-to-ℰ-obj t2
+          in
+          begin
+          (E-Cocone.ψ e2 ∘ CC.P+X.i₁ t2) ∘ (Slice⇒.h f)
+          ≈⟨ TODO-later ⟩
+          (E-Cocone.ψ e1 ∘ CC.P+X.i₁ t1)
+          ∎
+        } }
       where
-        module comma1 = CommaObj comma1
-        module comma2 = CommaObj comma2
-        e1 = comma1.β
-        e2 = comma2.β
-        module e1 = ℰ-object e1
-        module e2 = ℰ-object e2
-        s-in-𝒞 = proj₁ (proj₁ s)
-
-        p1 : s-in-𝒞 ⇒ e1.C
-        p1 = Slice⇒.h (comma1.f)
-        p2 : s-in-𝒞 ⇒ e2.C
-        p2 = Slice⇒.h (comma2.f)
-
-        -- we join the carriers of the two coalgebras
-        union : Pushout p1 p2
-        union =
-          𝒞-lfp.pushout p1 p2
-          (proj₂ (proj₁ s)) e1.finite-carrier e2.finite-carrier
-        module union = Pushout union
-
+        module E-Cocone = Cocone E-Cocone
         open HomReasoning
-        -- this union extends to an object in E:
-        union-in-ℰ : ℰ-object
-        union-in-ℰ = record {
-          -- we have a coalgebra structure on E:
-          coalg = record {
-              A = union.Q ;
-              α = union.universal (begin
-                  ((F.₁ union.i₁ ∘ e1.c) ∘ p1) ≈⟨ {!!} ⟩
-                  ((F.₁ union.i₂ ∘ e2.c) ∘ p2)
-                  ∎)} ;
-            point = {!!} ;
-            finrec = {!!}
-          }
+
+    induced : ∀ (K : Cocone (V ∘F E)) → Cocone⇒ D FA-colim.colimit (E-Cocone-to-D K)
+    induced K = FA-colim.rep-cocone (E-Cocone-to-D K)
+
+    -- The definition of LProp-Coalgebra requires that the cocone on the level
+    -- of carriers is colimitting:
+    FA,Fα-Cocone-on-carriers : Cocone (V ∘F E)
+    FA,Fα-Cocone-on-carriers = F-map-Coconeˡ V FA,Fα-Cocone
+
+    lift-Cocone⇒ : ∀ (K : Cocone (V ∘F E)) → (j : Cocone⇒ D FA-colim.colimit (E-Cocone-to-D K))
+                   → Cocone⇒ (V ∘F E) FA,Fα-Cocone-on-carriers K
+    lift-Cocone⇒ K j =
+      record { arr = Cocone⇒.arr j ; commute = {!!} }
+
+    -- -- In order to show that FA is the colimit of ℰ,
+    -- -- we construct a final functor to the following category:
+    -- 𝒮 : Category _ _ _
+    -- 𝒮 = Cat[ 𝒞-lfp.presented-obj ↓ (F.₀ A) ]
+    -- module 𝒮 = Category 𝒮
+
+    -- S-colim : Colimit Functor[ 𝒞-lfp.presented-obj ↓ (F.₀ A) ]
+    -- S-colim = Colimit-from-prop (𝒞-lfp.presented-colimit (F.₀ A))
+    -- module S-colim = Colimit S-colim
+
+    -- E : Functor ℰ 𝒮
+    -- E = record
+    --      { F₀ = λ e → (ℰ-object.C e , ℰ-object.finite-carrier e) , ℰ-object.point.f e
+    --      ; F₁ = λ { f → slicearr (Slice⇒.△ f) }
+    --      ; identity = 𝒞.Equiv.refl
+    --      ; homomorphism = λ {X} {Y} {Z} {f} {g} → 𝒞.Equiv.refl
+    --      ; F-resp-≈ = λ {X} {Y} {f} {g} eq → eq
+    --      }
+    -- module E = Functor E
+
+    -- ℰ-slice-is-connected : ∀ (s : 𝒮.Obj) (e1 e2 : Category.Obj (s ↙ E))
+    --                        → ZigZag (s ↙ E) e1 e2
+    -- ℰ-slice-is-connected s comma1 comma2 = {!!}
+    --   where
+    --     module comma1 = CommaObj comma1
+    --     module comma2 = CommaObj comma2
+    --     e1 = comma1.β
+    --     e2 = comma2.β
+    --     module e1 = ℰ-object e1
+    --     module e2 = ℰ-object e2
+    --     s-in-𝒞 = proj₁ (proj₁ s)
+
+    --     p1 : s-in-𝒞 ⇒ e1.C
+    --     p1 = Slice⇒.h (comma1.f)
+    --     p2 : s-in-𝒞 ⇒ e2.C
+    --     p2 = Slice⇒.h (comma2.f)
+
+    --     -- we join the carriers of the two coalgebras
+    --     union : Pushout p1 p2
+    --     union =
+    --       𝒞-lfp.pushout p1 p2
+    --       (proj₂ (proj₁ s)) e1.finite-carrier e2.finite-carrier
+    --     module union = Pushout union
+
+    --     open HomReasoning
+    --     -- this union extends to an object in E:
+    --     union-in-ℰ : ℰ-object
+    --     union-in-ℰ = record {
+    --       -- we have a coalgebra structure on E:
+    --       coalg = record {
+    --           A = union.Q ;
+    --           α = union.universal (begin
+    --               ((F.₁ union.i₁ ∘ e1.c) ∘ p1) ≈⟨ {!!} ⟩
+    --               ((F.₁ union.i₁ ∘ e1.c) ∘ p2)
+    --               ∎)} ;
+    --         point = {!!} ;
+    --         finrec = {!!}
+    --       }
 
 
-    E-is-final : Final E
-    E-is-final = record {
-      non-empty = λ { ((P , P-pres) , f) →
-        let
-          k , r = 𝒞-lfp.presentable-split-in-fin P P-pres
-          module r = Retract r
-          t = P-to-triangle (k , (f ∘ r.retract))
-          open CC t
-          open HomReasoning
-        in
-        record {
-          β = record {
-            coalg = P+X-coalg ;
-            point = hom-to-FA ;
-            finrec = P+X-coalg-is-FinitaryRecursive };
-          f = slicearr {h = P+X.i₁ ∘ r.section}
-          (begin
-          hom-to-FA.f ∘ P+X.i₁ ∘ r.section ≈⟨ sym-assoc ⟩
-          (hom-to-FA.f ∘ P+X.i₁) ∘ r.section ≈˘⟨ hom-to-FA-i₁ ⟩∘⟨refl ⟩
-          (f ∘ r.retract) ∘ r.section ≈⟨ assoc ○ elimʳ r.is-retract ⟩
-          f
-          ∎)
-        }
-        } ;
-      every-slice-connected = λ s → record {
-        connect = ℰ-slice-is-connected s
-      }
-      }
+    -- E-is-final : Final E
+    -- E-is-final = record {
+    --   non-empty = λ { ((P , P-pres) , f) →
+    --     let
+    --       k , r = 𝒞-lfp.presentable-split-in-fin P P-pres
+    --       module r = Retract r
+    --       t = P-to-triangle (k , (f ∘ r.retract))
+    --       open CC t
+    --       open HomReasoning
+    --     in
+    --     record {
+    --       β = record {
+    --         coalg = P+X-coalg ;
+    --         point = hom-to-FA ;
+    --         finrec = P+X-coalg-is-FinitaryRecursive };
+    --       f = slicearr {h = P+X.i₁ ∘ r.section}
+    --       (begin
+    --       hom-to-FA.f ∘ P+X.i₁ ∘ r.section ≈⟨ sym-assoc ⟩
+    --       (hom-to-FA.f ∘ P+X.i₁) ∘ r.section ≈˘⟨ hom-to-FA-i₁ ⟩∘⟨refl ⟩
+    --       (f ∘ r.retract) ∘ r.section ≈⟨ assoc ○ elimʳ r.is-retract ⟩
+    --       f
+    --       ∎)
+    --     }
+    --     } ;
+    --   every-slice-connected = λ s → record {
+    --     connect = ℰ-slice-is-connected s
+    --   }
+    --   }
 
     -- module reflect-𝒮 (s : 𝒮.Obj) where
 
