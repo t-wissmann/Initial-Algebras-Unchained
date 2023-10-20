@@ -409,51 +409,89 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
               ≈⟨  E-Cocone-to-D-choice K t ⟩
             K.ψ t ∘ P+X.i₁
             ∎ ;
-          case-precompose-i₂ = begin
+          case-precompose-i₂ =
+            let
+              open case2-defs t
+              t' = P-to-triangle (proj₁ t-X)
+            in
+            begin
             (v.arr ∘ hom-to-FA.f) ∘ P+X.i₂ ≈⟨ assoc ⟩
             v.arr ∘ hom-to-FA.f ∘ P+X.i₂ ≈˘⟨ refl⟩∘⟨ hom-to-FA-i₂ ⟩
-            v.arr ∘ α ∘ proj-X,x.f ≈⟨ {!!} ⟩
+            v.arr ∘ α ∘ proj-X,x.f
+              ≈˘⟨ refl⟩∘⟨ refl⟩∘⟨ elimʳ r.is-retract ⟩
+            v.arr ∘ α ∘ t.proj-X,x.f ∘ r.retract ∘ r.section
+              ≈˘⟨ refl⟩∘⟨ assoc²' ⟩
+            v.arr ∘ FA-colim.proj α∘proj-x ∘ r.section
+              ≈⟨ extendʳ v.commute ⟩
+            K.ψ t' ∘ CC.P+X.i₁ t' ∘ r.section
+              ≈⟨ sym-assoc ⟩
+            Cocone.ψ (E-Cocone-to-D K) (proj₁ t-X) ∘ r.section
+              ≈⟨ pushˡ (E-Cocone-to-D-choice K t-X) ⟩
+            K.ψ t-X ∘ t-X.P+X.i₁ ∘ r.section
+              ≈˘⟨ pullˡ (K.commute ∇)  ⟩
+            K.ψ t ∘ ∇-f ∘ t-X.P+X.i₁ ∘ r.section
+              ≈⟨ refl⟩∘⟨ extendʳ t-X.P+X.inject₁ ⟩
+            K.ψ t ∘ t.P+X.i₂ ∘ r.retract ∘ r.section
+              ≈⟨ refl⟩∘⟨ elimʳ r.is-retract ⟩
             K.ψ t ∘ P+X.i₂
             ∎
         })
-        -- let
-        --   module C = ℰ-object C
-        --   C+C : Coproduct C.C C.C
-        --   C+C = 𝒞-lfp.coproduct C.C C.C C.finite-carrier C.finite-carrier
-        --   module C+C = Coproduct C+C renaming (A+B to obj)
-        --   C+C-coalg : ℰ-object
-        --   C+C-coalg = record {
-        --     coalg = record {
-        --       A = C+C.obj ;
-        --       α = F.₁ C+C.i₂ ∘ C+C.[ C.c , C.c ] } ;
-        --     point = record { f = C+C.[ V.₁ C.point , V.₁ C.point ] ; commutes = TODO-later } ;
-        --     finrec = TODO-later }
-        --   nabla : C+C-coalg ℰ.⇒ C
-        --   nabla = slicearr {h = record { f = C+C.[ id , id ] ; commutes = TODO-later }} TODO-later
-        --   m , r = 𝒞-lfp.presentable-split-in-fin C.C C.finite-carrier
-        --   module r = Retract r
-        --   d : 𝒟.Obj
-        --   d = m , (V.₁ C.point ∘ r.retract)
-        --   t = P-to-triangle d
-        -- in
-        -- begin
-        -- j.arr ∘ V.₁ C.point ≈˘⟨ refl⟩∘⟨ elimʳ r.is-retract  ⟩
-        -- j.arr ∘ V.₁ C.point ∘ r.retract ∘ r.section ≈˘⟨ assoc²'  ⟩
-        -- (j.arr ∘ (V.₁ C.point ∘ r.retract)) ∘ r.section ≈⟨ j.commute {d} ⟩∘⟨refl ⟩
-        -- Cocone.ψ (E-Cocone-to-D K) d ∘ r.section ≡⟨⟩
-        -- (K.ψ (triangle-to-ℰ-obj t) ∘ CC.P+X.i₁ t) ∘ r.section
-        --   -- This is the crucial part!
-        --   ≈⟨ TODO-later ⟩
-        -- K.ψ C+C-coalg ∘ C+C.i₁  ≈˘⟨ K.commute nabla ⟩∘⟨refl ⟩
-        -- (K.ψ C ∘ C+C.[ id , id ]) ∘ C+C.i₁  ≈⟨ assoc ⟩
-        -- K.ψ C ∘ C+C.[ id , id ] ∘ C+C.i₁  ≈⟨ elimʳ C+C.inject₁ ⟩
-        -- K.ψ C
-        -- ∎
       }
       where
         module v = Cocone⇒ v
         open HomReasoning
         module K = Cocone K
+        module case2-defs (t : all-triangles) where
+          module t = CC t
+          m,r = 𝒞-lfp.presentable-split-in-fin t.X t.X-is-presented
+          m : 𝒞-lfp.Idx
+          m = proj₁ m,r
+          r = proj₂ m,r
+          module r = Retract r
+          -- X ⇒ FA canonically factors through the diagram:
+          α∘proj-x : 𝒟.Obj
+          α∘proj-x = (m , (α ∘ t.proj-X,x.f ∘ r.retract))
+          t-X : all-triangles
+          t-X = α∘proj-x , triangle t.X,x-dia (t.x ∘ r.retract) (extendʳ t.proj-X,x.commutes)
+          module t-X = CC t-X
+
+          -- this morphism is an ℰ-morphism from t-X to t:
+          ∇-f = t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ]
+          ∇ : ℰ [ t-X , t ]
+          ∇ =
+            let
+              open HomReasoning
+              helper = begin
+                F.F₁ t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ] ∘ t-X.Fi₂[p',x]
+                      ≈⟨ sym-assoc ⟩
+                (F.F₁ t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ] ∘ F.₁ t-X.P+X.i₂) ∘ t-X.P+X.[ t-X.p' , t-X.x ]
+                      ≈˘⟨ (F.homomorphism ⟩∘⟨refl) ⟩
+                F.F₁ (t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ] ∘ t-X.P+X.i₂) ∘ t-X.P+X.[ t-X.p' , t-X.x ]
+                      ≈⟨ (F.F-resp-≈ t-X.P+X.inject₂ ⟩∘⟨refl) ⟩
+                F.F₁ t.P+X.i₂ ∘ t-X.P+X.[ t-X.p' , t-X.x ]
+                ∎
+            in
+            slicearr {h = record {
+                -- the coalgebra morphism:
+                f = ∇-f ;
+                commutes = coproduct-jointly-epic t-X.P+X
+                  (record {
+                    case-precompose-i₁ = begin
+                    (t.Fi₂[p',x] ∘ t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ]) ∘ t-X.P+X.i₁
+                      ≈⟨ (assoc ○ (refl⟩∘⟨ t-X.P+X.inject₁)) ⟩
+                    t.Fi₂[p',x] ∘ t.P+X.i₂ ∘ r.retract
+                      ≈˘⟨ TODO-later ⟩
+                    (F.F₁ t.P+X.i₂ ∘ t-X.P+X.[ t-X.p' , t-X.x ]) ∘ t-X.P+X.i₁
+                      ≈˘⟨ helper ⟩∘⟨refl ⟩
+                    (F.F₁ t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ] ∘ t-X.Fi₂[p',x]) ∘ t-X.P+X.i₁
+                    ∎
+                    ;
+                    case-precompose-i₂ = TODO-later
+                  })
+                }} (begin
+                t.hom-to-FA.f ∘ ∇-f ≈⟨ TODO-later ⟩
+                t-X.hom-to-FA.f
+                ∎)
 
     -- reflect-Cocone⇒ : ∀ (K : Cocone (V ∘F E))
     --                → Cocone⇒ (V ∘F E) FA,Fα-Cocone-on-carriers K
