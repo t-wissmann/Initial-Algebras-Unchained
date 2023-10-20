@@ -340,11 +340,22 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
     TODO-later : ∀ {n} {x : Set n} → x
     TODO-later = exp _
 
-    -- triangle-to-ℰ-obj : all-triangles → ℰ.Obj
-    -- triangle-to-ℰ-obj t = record {
-    --           coalg = CC.P+X-coalg t ;
-    --           point = CC.hom-to-FA t ;
-    --           finrec = CC.P+X-coalg-is-FinitaryRecursive t }
+    coalg-hom-to-ℰ-hom : ∀ (P : 𝒟.Obj) (t1 t2 : Triangle F-coalg-colim (FA-colim.proj P))
+                       → coalg-colim.𝒟 [ CC.X,x-dia (P , t1) , CC.X,x-dia (P , t2) ]
+                       → ℰ [ (P , t1) , (P , t2) ]
+    coalg-hom-to-ℰ-hom P t1 t2 coalg-hom =
+      slicearr {h = record {
+        f = t1.P+X.[ t2.P+X.i₁ , t2.P+X.i₂ ∘ coalg-hom.f ] ;
+        commutes = TODO-later }}
+      TODO-later
+      where
+        Pt1 : all-triangles
+        Pt1 = (P , t1)
+        module t1 = CC Pt1
+        Pt2 : all-triangles
+        Pt2 = (P , t2)
+        module t2 = CC Pt2
+        module coalg-hom = F-Coalgebra-Morphism (coalg-colim.D.₁ coalg-hom)
 
     E-Cocone-to-D : Cocone (V ∘F E) → Cocone D
     E-Cocone-to-D E-Cocone =
