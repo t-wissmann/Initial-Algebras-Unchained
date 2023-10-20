@@ -371,14 +371,14 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
 
     E-Cocone-to-D-choice : ∀ (K : Cocone (V ∘F E)) → (t : all-triangles) →
                          Cocone.ψ (E-Cocone-to-D K) (proj₁ t) ≈ Cocone.ψ K t ∘ CC.P+X.i₁ t
-    E-Cocone-to-D-choice K t =
+    E-Cocone-to-D-choice K t1 =
       begin
-      Cocone.ψ (E-Cocone-to-D K) (proj₁ t) ≡⟨⟩
-      K.ψ t' ∘ CC.P+X.i₁ t' ≈⟨ {!!} ⟩ -- Take upper bound of t1 and t2
-      K.ψ t ∘ CC.P+X.i₁ t
+      Cocone.ψ (E-Cocone-to-D K) (proj₁ t1) ≡⟨⟩
+      K.ψ t2 ∘ CC.P+X.i₁ t2 ≈⟨ TODO-later ⟩ -- Take upper bound of t1 and t2
+      K.ψ t1 ∘ CC.P+X.i₁ t1
       ∎
       where
-        t' = P-to-triangle (proj₁ t)
+        t2 = P-to-triangle (proj₁ t1)
         open HomReasoning
         module K = Cocone K
 
@@ -493,36 +493,40 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                 t-X.hom-to-FA.f
                 ∎)
 
-    -- reflect-Cocone⇒ : ∀ (K : Cocone (V ∘F E))
-    --                → Cocone⇒ (V ∘F E) FA,Fα-Cocone-on-carriers K
-    --                → Cocone⇒ D FA-colim.colimit (E-Cocone-to-D K)
-    -- reflect-Cocone⇒ K other =
-    --   record {
-    --     arr = other.arr ;
-    --     commute = λ {d} →
-    --       let
-    --         t = P-to-triangle d
-    --         e = triangle-to-ℰ-obj t
-    --       in
-    --       begin
-    --       other.arr ∘ FA-colim.proj d ≈⟨ refl⟩∘⟨ CC.hom-to-FA-i₁ t ⟩
-    --       other.arr ∘ (V.₁ (ℰ-object.point e) ∘ CC.P+X.i₁ t) ≈⟨ sym-assoc ⟩
-    --       (other.arr ∘ V.₁ (ℰ-object.point e)) ∘ CC.P+X.i₁ t ≈⟨ other.commute {e} ⟩∘⟨refl ⟩
-    --       K.ψ e ∘ CC.P+X.i₁ t ≡⟨⟩
-    --       Cocone.ψ (E-Cocone-to-D K) d
-    --       ∎}
-    --   where
-    --     module other = Cocone⇒ other
-    --     module K = Cocone K
-    --     open HomReasoning
+    reflect-Cocone⇒ : ∀ (K : Cocone (V ∘F E))
+                   → Cocone⇒ (V ∘F E) FA,Fα-Cocone-on-carriers K
+                   → Cocone⇒ D FA-colim.colimit (E-Cocone-to-D K)
+    reflect-Cocone⇒ K other =
+      record {
+        arr = other.arr ;
+        commute = λ {d} →
+          let t = P-to-triangle d in
+          begin
+          other.arr ∘ FA-colim.proj d ≈⟨ refl⟩∘⟨ CC.hom-to-FA-i₁ t ⟩
+          other.arr ∘ (CC.hom-to-FA.f t ∘ CC.P+X.i₁ t) ≈⟨ sym-assoc ⟩
+          (other.arr ∘ CC.hom-to-FA.f t) ∘ CC.P+X.i₁ t ≈⟨ other.commute {t} ⟩∘⟨refl ⟩
+          K.ψ t ∘ CC.P+X.i₁ t ≡⟨⟩
+          Cocone.ψ (E-Cocone-to-D K) d
+          ∎}
+      where
+        module other = Cocone⇒ other
+        module K = Cocone K
+        open HomReasoning
 
-    -- FA,Fα-Colimit-on-carriers : IsLimitting FA,Fα-Cocone-on-carriers
-    -- FA,Fα-Colimit-on-carriers =
-    --   record {
-    --     ! = λ {K} → lift-Cocone⇒ K (induced K) ;
-    --     !-unique = λ {K} other →
-    --       FA-colim.initial.!-unique (reflect-Cocone⇒ K other)
-    --   }
+    FA,Fα-Colimit-on-carriers : IsLimitting FA,Fα-Cocone-on-carriers
+    FA,Fα-Colimit-on-carriers =
+      record {
+        ! = λ {K} → lift-Cocone⇒ K (induced K) ;
+        !-unique = λ {K} other →
+          FA-colim.initial.!-unique (reflect-Cocone⇒ K other)
+      }
+
+    FA,Fα-locally-finite : LProp-Coalgebra
+    FA,Fα-locally-finite = record {
+      𝒟 = ℰ ; D = E ;
+      all-have-prop = λ {t} → CC.P+X-coalg-is-FinitaryRecursive t ;
+      carrier-colim = Colimit-from-prop FA,Fα-Colimit-on-carriers
+      }
 
     -- --- 8< --- 8< --- 8< --- 8< --- 8< --- 8< --- 8< --- 8< ---
     -- -- In order to show that FA is the colimit of ℰ,
