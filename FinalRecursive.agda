@@ -311,21 +311,6 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
       -- P+X-fin = proj₂ (𝒞-lfp.presentable-split-in-fin P+X.obj P+X-is-presented)
       -- module P+X-fin = Retract P+X-fin
 
-    record ℰ-object : Set (o ⊔ suc ℓ ⊔ fil-level) where
-      field
-        coalg : F-Coalgebra F
-        point : F-Coalgebra-Morphism coalg (iterate A,α)
-        finrec : FinitaryRecursive coalg
-
-      open FinitaryRecursive finrec public
-      module point = F-Coalgebra-Morphism point
-
-      C : 𝒞.Obj
-      C = F-Coalgebra.A coalg
-
-      c : C ⇒ F.₀ C
-      c = F-Coalgebra.α coalg
-
 
     -- the diagram scheme for the constructed LProp-Coalgebra
     ℰ : Category _ _ _
@@ -333,7 +318,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
         FullSubCategory
         -- of the slicecategory for FA, Fα
         (Slice (F-Coalgebras F) (iterate A,α))
-        λ e → sliceobj (ℰ-object.point e)
+        λ t → sliceobj (CC.hom-to-FA t)
     module ℰ = Category ℰ
 
     E : Functor ℰ (F-Coalgebras F)
@@ -343,7 +328,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
     FA,Fα-Cocone : Cocone E
     FA,Fα-Cocone = record { coapex =
       record {
-        ψ = ℰ-object.point ;
+        ψ = CC.hom-to-FA ;
         commute = λ f → Slice⇒.△ f } }
     module FA,Fα-Cocone = Cocone FA,Fα-Cocone
 
@@ -355,11 +340,11 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
     TODO-later : ∀ {n} {x : Set n} → x
     TODO-later = exp _
 
-    triangle-to-ℰ-obj : all-triangles → ℰ.Obj
-    triangle-to-ℰ-obj t = record {
-              coalg = CC.P+X-coalg t ;
-              point = CC.hom-to-FA t ;
-              finrec = CC.P+X-coalg-is-FinitaryRecursive t }
+    -- triangle-to-ℰ-obj : all-triangles → ℰ.Obj
+    -- triangle-to-ℰ-obj t = record {
+    --           coalg = CC.P+X-coalg t ;
+    --           point = CC.hom-to-FA t ;
+    --           finrec = CC.P+X-coalg-is-FinitaryRecursive t }
 
     E-Cocone-to-D : Cocone (V ∘F E) → Cocone D
     E-Cocone-to-D E-Cocone =
@@ -368,23 +353,34 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
           let
             t = P-to-triangle d
           in
-          E-Cocone.ψ (triangle-to-ℰ-obj t) ∘ CC.P+X.i₁ t} ;
+          E-Cocone.ψ t ∘ CC.P+X.i₁ t} ;
         commute = λ {d1} {d2} f →
           let
             t1 = P-to-triangle d1
             t2 = P-to-triangle d2
-            e1 = triangle-to-ℰ-obj t1
-            e2 = triangle-to-ℰ-obj t2
           in
           begin
-          (E-Cocone.ψ e2 ∘ CC.P+X.i₁ t2) ∘ (Slice⇒.h f)
+          (E-Cocone.ψ t2 ∘ CC.P+X.i₁ t2) ∘ (Slice⇒.h f)
           ≈⟨ TODO-later ⟩
-          (E-Cocone.ψ e1 ∘ CC.P+X.i₁ t1)
+          (E-Cocone.ψ t1 ∘ CC.P+X.i₁ t1)
           ∎
         } }
       where
         module E-Cocone = Cocone E-Cocone
         open HomReasoning
+
+    E-Cocone-to-D-choice : ∀ (K : Cocone (V ∘F E)) → (t : all-triangles) →
+                         Cocone.ψ (E-Cocone-to-D K) (proj₁ t) ≈ Cocone.ψ K t ∘ CC.P+X.i₁ t
+    E-Cocone-to-D-choice K t =
+      begin
+      Cocone.ψ (E-Cocone-to-D K) (proj₁ t) ≡⟨⟩
+      K.ψ t' ∘ CC.P+X.i₁ t' ≈⟨ {!!} ⟩ -- Take upper bound of t1 and t2
+      K.ψ t ∘ CC.P+X.i₁ t
+      ∎
+      where
+        t' = P-to-triangle (proj₁ t)
+        open HomReasoning
+        module K = Cocone K
 
     induced : ∀ (K : Cocone (V ∘F E)) → Cocone⇒ D FA-colim.colimit (E-Cocone-to-D K)
     induced K = FA-colim.rep-cocone (E-Cocone-to-D K)
@@ -395,80 +391,102 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
     FA,Fα-Cocone-on-carriers = F-map-Coconeˡ V FA,Fα-Cocone
     module FA,Fα-Cocone-on-carriers = Cocone FA,Fα-Cocone-on-carriers
 
-    lift-Cocone⇒ : ∀ (K : Cocone (V ∘F E)) → (j : Cocone⇒ D FA-colim.colimit (E-Cocone-to-D K))
+    lift-Cocone⇒ : ∀ (K : Cocone (V ∘F E)) → Cocone⇒ D FA-colim.colimit (E-Cocone-to-D K)
                    → Cocone⇒ (V ∘F E) FA,Fα-Cocone-on-carriers K
-    lift-Cocone⇒ K j =
-      record { arr = Cocone⇒.arr j ; commute = λ {C} →
+    lift-Cocone⇒ K v =
+      record { arr = v.arr ; commute = λ {t} →
         let
-          module C = ℰ-object C
-          C+C : Coproduct C.C C.C
-          C+C = 𝒞-lfp.coproduct C.C C.C C.finite-carrier C.finite-carrier
-          module C+C = Coproduct C+C renaming (A+B to obj)
-          C+C-coalg : ℰ-object
-          C+C-coalg = record {
-            coalg = record {
-              A = C+C.obj ;
-              α = F.₁ C+C.i₂ ∘ C+C.[ C.c , C.c ] } ;
-            point = record { f = C+C.[ V.₁ C.point , V.₁ C.point ] ; commutes = TODO-later } ;
-            finrec = TODO-later }
-          nabla : C+C-coalg ℰ.⇒ C
-          nabla = slicearr {h = record { f = C+C.[ id , id ] ; commutes = TODO-later }} TODO-later
-          m , r = 𝒞-lfp.presentable-split-in-fin C.C C.finite-carrier
-          module r = Retract r
-          d : 𝒟.Obj
-          d = m , (V.₁ C.point ∘ r.retract)
-          t = P-to-triangle d
+          open CC t
+          open HomReasoning
+          t' = P-to-triangle (proj₁ t)
         in
-        begin
-        j.arr ∘ V.₁ C.point ≈˘⟨ refl⟩∘⟨ elimʳ r.is-retract  ⟩
-        j.arr ∘ V.₁ C.point ∘ r.retract ∘ r.section ≈˘⟨ assoc²'  ⟩
-        (j.arr ∘ (V.₁ C.point ∘ r.retract)) ∘ r.section ≈⟨ j.commute {d} ⟩∘⟨refl ⟩
-        Cocone.ψ (E-Cocone-to-D K) d ∘ r.section ≡⟨⟩
-        (K.ψ (triangle-to-ℰ-obj t) ∘ CC.P+X.i₁ t) ∘ r.section
-          -- This is the crucial part!
-          ≈⟨ TODO-later ⟩
-        K.ψ C+C-coalg ∘ C+C.i₁  ≈˘⟨ K.commute nabla ⟩∘⟨refl ⟩
-        (K.ψ C ∘ C+C.[ id , id ]) ∘ C+C.i₁  ≈⟨ assoc ⟩
-        K.ψ C ∘ C+C.[ id , id ] ∘ C+C.i₁  ≈⟨ elimʳ C+C.inject₁ ⟩
-        K.ψ C
-        ∎
+        coproduct-jointly-epic P+X (record {
+          case-precompose-i₁ = begin
+            (v.arr ∘ hom-to-FA.f) ∘ P+X.i₁ ≈⟨ assoc ⟩
+            v.arr ∘ (hom-to-FA.f ∘ P+X.i₁) ≈˘⟨ refl⟩∘⟨ hom-to-FA-i₁ ⟩
+            v.arr ∘ p       ≈⟨  v.commute {proj₁ t}   ⟩
+            Cocone.ψ (E-Cocone-to-D K) (proj₁ t)
+              ≈⟨  E-Cocone-to-D-choice K t ⟩
+            K.ψ t ∘ P+X.i₁
+            ∎ ;
+          case-precompose-i₂ = begin
+            (v.arr ∘ hom-to-FA.f) ∘ P+X.i₂ ≈⟨ assoc ⟩
+            v.arr ∘ hom-to-FA.f ∘ P+X.i₂ ≈˘⟨ refl⟩∘⟨ hom-to-FA-i₂ ⟩
+            v.arr ∘ α ∘ proj-X,x.f ≈⟨ {!!} ⟩
+            K.ψ t ∘ P+X.i₂
+            ∎
+        })
+        -- let
+        --   module C = ℰ-object C
+        --   C+C : Coproduct C.C C.C
+        --   C+C = 𝒞-lfp.coproduct C.C C.C C.finite-carrier C.finite-carrier
+        --   module C+C = Coproduct C+C renaming (A+B to obj)
+        --   C+C-coalg : ℰ-object
+        --   C+C-coalg = record {
+        --     coalg = record {
+        --       A = C+C.obj ;
+        --       α = F.₁ C+C.i₂ ∘ C+C.[ C.c , C.c ] } ;
+        --     point = record { f = C+C.[ V.₁ C.point , V.₁ C.point ] ; commutes = TODO-later } ;
+        --     finrec = TODO-later }
+        --   nabla : C+C-coalg ℰ.⇒ C
+        --   nabla = slicearr {h = record { f = C+C.[ id , id ] ; commutes = TODO-later }} TODO-later
+        --   m , r = 𝒞-lfp.presentable-split-in-fin C.C C.finite-carrier
+        --   module r = Retract r
+        --   d : 𝒟.Obj
+        --   d = m , (V.₁ C.point ∘ r.retract)
+        --   t = P-to-triangle d
+        -- in
+        -- begin
+        -- j.arr ∘ V.₁ C.point ≈˘⟨ refl⟩∘⟨ elimʳ r.is-retract  ⟩
+        -- j.arr ∘ V.₁ C.point ∘ r.retract ∘ r.section ≈˘⟨ assoc²'  ⟩
+        -- (j.arr ∘ (V.₁ C.point ∘ r.retract)) ∘ r.section ≈⟨ j.commute {d} ⟩∘⟨refl ⟩
+        -- Cocone.ψ (E-Cocone-to-D K) d ∘ r.section ≡⟨⟩
+        -- (K.ψ (triangle-to-ℰ-obj t) ∘ CC.P+X.i₁ t) ∘ r.section
+        --   -- This is the crucial part!
+        --   ≈⟨ TODO-later ⟩
+        -- K.ψ C+C-coalg ∘ C+C.i₁  ≈˘⟨ K.commute nabla ⟩∘⟨refl ⟩
+        -- (K.ψ C ∘ C+C.[ id , id ]) ∘ C+C.i₁  ≈⟨ assoc ⟩
+        -- K.ψ C ∘ C+C.[ id , id ] ∘ C+C.i₁  ≈⟨ elimʳ C+C.inject₁ ⟩
+        -- K.ψ C
+        -- ∎
       }
       where
-        module j = Cocone⇒ j
+        module v = Cocone⇒ v
         open HomReasoning
         module K = Cocone K
 
-    reflect-Cocone⇒ : ∀ (K : Cocone (V ∘F E))
-                   → Cocone⇒ (V ∘F E) FA,Fα-Cocone-on-carriers K
-                   → Cocone⇒ D FA-colim.colimit (E-Cocone-to-D K)
-    reflect-Cocone⇒ K other =
-      record {
-        arr = other.arr ;
-        commute = λ {d} →
-          let
-            t = P-to-triangle d
-            e = triangle-to-ℰ-obj t
-          in
-          begin
-          other.arr ∘ FA-colim.proj d ≈⟨ refl⟩∘⟨ CC.hom-to-FA-i₁ t ⟩
-          other.arr ∘ (V.₁ (ℰ-object.point e) ∘ CC.P+X.i₁ t) ≈⟨ sym-assoc ⟩
-          (other.arr ∘ V.₁ (ℰ-object.point e)) ∘ CC.P+X.i₁ t ≈⟨ other.commute {e} ⟩∘⟨refl ⟩
-          K.ψ e ∘ CC.P+X.i₁ t ≡⟨⟩
-          Cocone.ψ (E-Cocone-to-D K) d
-          ∎}
-      where
-        module other = Cocone⇒ other
-        module K = Cocone K
-        open HomReasoning
+    -- reflect-Cocone⇒ : ∀ (K : Cocone (V ∘F E))
+    --                → Cocone⇒ (V ∘F E) FA,Fα-Cocone-on-carriers K
+    --                → Cocone⇒ D FA-colim.colimit (E-Cocone-to-D K)
+    -- reflect-Cocone⇒ K other =
+    --   record {
+    --     arr = other.arr ;
+    --     commute = λ {d} →
+    --       let
+    --         t = P-to-triangle d
+    --         e = triangle-to-ℰ-obj t
+    --       in
+    --       begin
+    --       other.arr ∘ FA-colim.proj d ≈⟨ refl⟩∘⟨ CC.hom-to-FA-i₁ t ⟩
+    --       other.arr ∘ (V.₁ (ℰ-object.point e) ∘ CC.P+X.i₁ t) ≈⟨ sym-assoc ⟩
+    --       (other.arr ∘ V.₁ (ℰ-object.point e)) ∘ CC.P+X.i₁ t ≈⟨ other.commute {e} ⟩∘⟨refl ⟩
+    --       K.ψ e ∘ CC.P+X.i₁ t ≡⟨⟩
+    --       Cocone.ψ (E-Cocone-to-D K) d
+    --       ∎}
+    --   where
+    --     module other = Cocone⇒ other
+    --     module K = Cocone K
+    --     open HomReasoning
 
-    FA,Fα-Colimit-on-carriers : IsLimitting FA,Fα-Cocone-on-carriers
-    FA,Fα-Colimit-on-carriers =
-      record {
-        ! = λ {K} → lift-Cocone⇒ K (induced K) ;
-        !-unique = λ {K} other →
-          FA-colim.initial.!-unique (reflect-Cocone⇒ K other)
-      }
+    -- FA,Fα-Colimit-on-carriers : IsLimitting FA,Fα-Cocone-on-carriers
+    -- FA,Fα-Colimit-on-carriers =
+    --   record {
+    --     ! = λ {K} → lift-Cocone⇒ K (induced K) ;
+    --     !-unique = λ {K} other →
+    --       FA-colim.initial.!-unique (reflect-Cocone⇒ K other)
+    --   }
 
+    -- --- 8< --- 8< --- 8< --- 8< --- 8< --- 8< --- 8< --- 8< ---
     -- -- In order to show that FA is the colimit of ℰ,
     -- -- we construct a final functor to the following category:
     -- 𝒮 : Category _ _ _
