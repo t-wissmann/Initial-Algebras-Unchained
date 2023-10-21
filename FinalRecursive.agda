@@ -359,7 +359,75 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
 
     cocone-is-triangle-independent : ∀ (K : Cocone (V ∘F E)) (P : 𝒟.Obj) (t1 t2 : Triangle F-coalg-colim (FA-colim.proj P))
                        → Cocone.ψ K (P , t1) ∘ CC.P+X.i₁ (P , t1) ≈ Cocone.ψ K (P , t2) ∘ CC.P+X.i₁ (P , t2)
-    cocone-is-triangle-independent K P t1 t2 = ?
+    cocone-is-triangle-independent K P t1 t2 = begin
+      K.ψ Pt1 ∘ CC.P+X.i₁ Pt1
+        ≈˘⟨ K.commute (ℰ-hom t1 t3 X,x-bound.i₁) ⟩∘⟨refl ⟩
+      (K.ψ Pt3 ∘ (V.₁ (E.₁ (ℰ-hom t1 t3 X,x-bound.i₁)))) ∘ CC.P+X.i₁ Pt1
+        ≈⟨ {!!} ⟩
+      K.ψ Pt2 ∘ CC.P+X.i₁ Pt2
+      ∎
+      where
+        ℰ-hom : (t t' : Triangle F-coalg-colim (FA-colim.proj P))
+                       → coalg-colim.𝒟 [ CC.X,x-dia (P , t) , CC.X,x-dia (P , t') ]
+                       → ℰ [ (P , t) , (P , t') ]
+        ℰ-hom t t' 𝒟-mor = coalg-hom-to-ℰ-hom P t t' 𝒟-mor
+        module t1 = CC (P , t1)
+        module t2 = CC (P , t2)
+        module K = Cocone K
+        fil : filtered coalg-colim.𝒟
+        fil = Fil-to-filtered 𝒟-filtered
+        module fil = filtered fil
+        X,x-bound : UpperBound _ t1.X,x-dia t2.X,x-dia
+        X,x-bound = fil.construct-upper-bound t1.X,x-dia t2.X,x-dia
+        module X,x-bound = UpperBound X,x-bound
+
+        open HomReasoning
+
+        -- take the upper bound of t1 and t2
+        t3 : Triangle F-coalg-colim (FA-colim.proj P)
+        t3 = triangle X,x-bound.obj
+          (F.₁ (V.₁ (coalg-colim.D.₁ X,x-bound.i₁))  ∘ t1.p' )
+          (begin
+          FA-colim.proj P ≈⟨ t1.triangle-commutes ⟩
+          F.₁ t1.proj-X,x.f ∘ t1.p' ≈˘⟨ (F-coalg-colim.colimit-commute X,x-bound.i₁ ⟩∘⟨refl) ⟩
+          (F-coalg-colim.proj X,x-bound.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁  X,x-bound.i₁))) ∘ t1.p'
+              ≈⟨ assoc ⟩
+          F-coalg-colim.proj X,x-bound.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁  X,x-bound.i₁)) ∘ t1.p'
+          ∎)
+        module t3 = CC (P , t3)
+        -- there is a nother factorization for t3, namely via t2:
+        to-t3-via-t2 = begin
+          FA-colim.proj P ≈⟨ t2.triangle-commutes ⟩
+          F.₁ t2.proj-X,x.f ∘ t2.p' ≈˘⟨ (F-coalg-colim.colimit-commute X,x-bound.i₂ ⟩∘⟨refl) ⟩
+          (F-coalg-colim.proj X,x-bound.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁  X,x-bound.i₂))) ∘ t2.p'
+              ≈⟨ assoc ⟩
+          F-coalg-colim.proj X,x-bound.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁  X,x-bound.i₂)) ∘ t2.p'
+          ∎
+        tripl = t3.p'-unique _ to-t3-via-t2
+        Y,y-dia = proj₁ tripl
+        h = proj₁ (proj₂ tripl)
+        h-equalizes = proj₂ (proj₂ tripl)
+        t4 : Triangle F-coalg-colim (FA-colim.proj P)
+        t4 = triangle Y,y-dia
+          (F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ X,x-bound.i₁)))  ∘ t1.p' )
+          (begin
+          FA-colim.proj P ≈⟨ t3.triangle-commutes ⟩
+          F-coalg-colim.proj X,x-bound.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁  X,x-bound.i₁)) ∘ t1.p'
+            ≈˘⟨ F-coalg-colim.colimit-commute h ⟩∘⟨refl ⟩
+          (F-coalg-colim.proj Y,y-dia ∘ F.₁ (V.₁ (coalg-colim.D.₁ h)))
+            ∘ F.₁ (V.₁ (coalg-colim.D.₁  X,x-bound.i₁)) ∘ t1.p'
+            ≈⟨ (assoc ○ (refl⟩∘⟨ pullˡ (⟺ (F.F-resp-≈ coalg-colim.D.homomorphism ○ F.homomorphism)))) ⟩
+          F-coalg-colim.proj Y,y-dia
+            ∘ F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘  X,x-bound.i₁)))
+            ∘ t1.p'
+          ∎)
+
+        Pt1 = (P , t1)
+        Pt2 = (P , t2)
+        Pt3 : all-triangles
+        Pt3 = (P , t3)
+        Pt4 : all-triangles
+        Pt4 = (P , t4)
 
     E-Cocone-to-D : Cocone (V ∘F E) → Cocone D
     E-Cocone-to-D E-Cocone =
