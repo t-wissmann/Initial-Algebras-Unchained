@@ -362,46 +362,99 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
               ≈⟨ ((F.homomorphism ⟩∘⟨refl) ○ assoc) ⟩
           F.₁ f ∘ t1.Fi₂[p',x]
           ∎
-      }} {!!}
+      }} (coproduct-jointly-epic t1.P+X (record {
+          case-precompose-i₁ =
+            begin
+            (t2.hom-to-FA.f ∘ f) ∘ t1.P+X.i₁
+              ≈⟨ assoc ○ (refl⟩∘⟨ t1.P+X.inject₁) ⟩
+            t2.hom-to-FA.f ∘ h1
+              ≈˘⟨ h1-slice ⟩
+            t1.p
+              ≈⟨ t1.hom-to-FA-i₁ ⟩
+            t1.hom-to-FA.f ∘ t1.P+X.i₁
+            ∎
+          ;
+          case-precompose-i₂ =
+            begin
+            (t2.hom-to-FA.f ∘ f) ∘ t1.P+X.i₂
+              ≈⟨ assoc ○ (refl⟩∘⟨ t1.P+X.inject₂) ⟩
+            t2.hom-to-FA.f ∘ t2.P+X.i₂ ∘ V.₁ (coalg-colim.D.₁ h2)
+              ≈⟨ sym-assoc ⟩
+            (t2.hom-to-FA.f ∘ t2.P+X.i₂) ∘ V.₁ (coalg-colim.D.₁ h2)
+              ≈˘⟨ sym-assoc ○ t2.hom-to-FA-i₂ ⟩∘⟨refl ⟩
+            α ∘ t2.proj-X,x.f ∘ V.₁ (coalg-colim.D.₁ h2)
+              ≈⟨ refl⟩∘⟨ coalg-colim.carrier-colim.colimit-commute h2 ⟩
+            α ∘ t1.proj-X,x.f
+              ≈⟨ t1.hom-to-FA-i₂ ⟩
+            t1.hom-to-FA.f ∘ t1.P+X.i₂
+            ∎
+          }))
       where
         open HomReasoning
         module t1 = CC t1
         module t2 = CC t2
         f = t1.P+X.[ h1 , t2.P+X.i₂ ∘ V.₁ (coalg-colim.D.₁ h2) ]
         first-square : t2.[p',x] ∘ t1.P+X.[ h1 , t2.P+X.i₂ ∘ V.₁ (coalg-colim.D.₁ h2) ] ≈ F.₁ (V.₁ (coalg-colim.D.₁ h2)) ∘ t1.[p',x]
-        first-square = {!!}
+        first-square = coproduct-jointly-epic t1.P+X
+          (record {
+            case-precompose-i₁ = begin
+              (t2.[p',x] ∘ t1.P+X.[ h1 , t2.P+X.i₂ ∘ V.₁ (coalg-colim.D.₁ h2) ]) ∘ t1.P+X.i₁
+                ≈⟨ assoc ○ (refl⟩∘⟨ t1.P+X.inject₁) ⟩
+              t2.[p',x] ∘ h1
+                ≈⟨ h1-coalg-hom ⟩
+              F.₁ (V.₁ (coalg-colim.D.₁ h2)) ∘ CC.p' t1
+                ≈⟨ (refl⟩∘⟨ (⟺ t1.P+X.inject₁)) ○ sym-assoc ⟩
+              (F.₁ (V.₁ (coalg-colim.D.₁ h2)) ∘ t1.[p',x]) ∘ t1.P+X.i₁
+              ∎ ;
+            case-precompose-i₂ = begin
+              (t2.[p',x] ∘ t1.P+X.[ h1 , t2.P+X.i₂ ∘ V.₁ (coalg-colim.D.₁ h2) ]) ∘ t1.P+X.i₂
+                ≈⟨ assoc ○ (refl⟩∘⟨ t1.P+X.inject₂) ⟩
+              t2.[p',x] ∘ t2.P+X.i₂ ∘ V.₁ (coalg-colim.D.₁ h2)
+                ≈⟨ sym-assoc ○ (t2.P+X.inject₂ ⟩∘⟨refl ) ⟩
+              t2.x ∘ V.₁ (coalg-colim.D.₁ h2)
+                ≈⟨ F-Coalgebra-Morphism.commutes (coalg-colim.D.₁ h2) ⟩
+              F.₁ (V.₁ (coalg-colim.D.₁ h2)) ∘ t1.x
+                ≈˘⟨ assoc ○ (refl⟩∘⟨ t1.P+X.inject₂) ⟩
+              (F.₁ (V.₁ (coalg-colim.D.₁ h2)) ∘ t1.[p',x]) ∘ t1.P+X.i₂
+              ∎
+          })
 
     coalg-hom-to-ℰ-hom : ∀ (P : 𝒟.Obj) (t1 t2 : Triangle F-coalg-colim (FA-colim.proj P))
-                       → coalg-colim.𝒟 [ CC.X,x-dia (P , t1) , CC.X,x-dia (P , t2) ]
+                       (h : coalg-colim.𝒟 [ CC.X,x-dia (P , t1) , CC.X,x-dia (P , t2) ])
+                       → CC.p' (P , t2) ≈ F.₁ (V.₁ (coalg-colim.D.₁ h)) ∘ CC.p' (P , t1)
                        → ℰ [ (P , t1) , (P , t2) ]
-    coalg-hom-to-ℰ-hom P t1 t2 coalg-hom =
-      slicearr {h = record {
-        f = t1.P+X.[ t2.P+X.i₁ , t2.P+X.i₂ ∘ coalg-hom.f ] ;
-        commutes = TODO-later }}
-      TODO-later
+    coalg-hom-to-ℰ-hom P t1 t2 h hom-preserves-p' =
+      build-ℰ-hom (P , t1) (P , t2)
+        t2.P+X.i₁ h hom-prop t2.hom-to-FA-i₁
       where
-        Pt1 : all-triangles
-        Pt1 = (P , t1)
-        module t1 = CC Pt1
-        Pt2 : all-triangles
-        Pt2 = (P , t2)
-        module t2 = CC Pt2
-        module coalg-hom = F-Coalgebra-Morphism (coalg-colim.D.₁ coalg-hom)
+        module t1 = CC (P , t1)
+        module t2 = CC (P , t2)
+        open HomReasoning
+        hom-prop = begin
+          t2.[p',x] ∘ t2.P+X.i₁ ≈⟨ t2.P+X.inject₁ ⟩
+          t2.p' ≈⟨ hom-preserves-p' ⟩
+          F.₁ (V.₁ (coalg-colim.D.₁ h)) ∘ t1.p'
+          ∎
 
     cocone-is-triangle-independent : ∀ (K : Cocone (V ∘F E)) (P : 𝒟.Obj) (t1 t2 : Triangle F-coalg-colim (FA-colim.proj P))
                        → Cocone.ψ K (P , t1) ∘ CC.P+X.i₁ (P , t1) ≈ Cocone.ψ K (P , t2) ∘ CC.P+X.i₁ (P , t2)
     cocone-is-triangle-independent K P t1 t2 = begin
       K.ψ Pt1 ∘ CC.P+X.i₁ Pt1
-        ≈˘⟨ K.commute (ℰ-hom t1 t3 X,x-bound.i₁) ⟩∘⟨refl ⟩
-      (K.ψ Pt3 ∘ (V.₁ (E.₁ (ℰ-hom t1 t3 X,x-bound.i₁)))) ∘ CC.P+X.i₁ Pt1
-        ≈⟨ {!!} ⟩
+        ≈˘⟨ K.commute t1⇒t3 ⟩∘⟨refl ⟩
+      (K.ψ Pt3 ∘ (V.₁ (E.₁ t1⇒t3))) ∘ CC.P+X.i₁ Pt1
+        ≈˘⟨ ((K.commute t3⇒t4 ⟩∘⟨refl) ⟩∘⟨refl) ⟩
+      ((K.ψ Pt4 ∘ (V.₁ (E.₁ t3⇒t4))) ∘ V.₁ (E.₁ t1⇒t3)) ∘ CC.P+X.i₁ Pt1
+        ≈⟨ (assoc² ○ (refl⟩∘⟨ identified-in-t4) ○ sym-assoc) ⟩
+      (K.ψ Pt4 ∘ (V.₁ (E.₁ t2⇒t4))) ∘ CC.P+X.i₁ Pt2
+        ≈⟨ K.commute t2⇒t4 ⟩∘⟨refl ⟩
       K.ψ Pt2 ∘ CC.P+X.i₁ Pt2
       ∎
       where
         ℰ-hom : (t t' : Triangle F-coalg-colim (FA-colim.proj P))
-                       → coalg-colim.𝒟 [ CC.X,x-dia (P , t) , CC.X,x-dia (P , t') ]
+                       (h : coalg-colim.𝒟 [ CC.X,x-dia (P , t) , CC.X,x-dia (P , t') ])
+                       → CC.p' (P , t') ≈ F.₁ (V.₁ (coalg-colim.D.₁ h)) ∘ CC.p' (P , t)
                        → ℰ [ (P , t) , (P , t') ]
-        ℰ-hom t t' 𝒟-mor = coalg-hom-to-ℰ-hom P t t' 𝒟-mor
+        ℰ-hom t t' 𝒟-mor preserves-p' = coalg-hom-to-ℰ-hom P t t' 𝒟-mor preserves-p'
         module t1 = CC (P , t1)
         module t2 = CC (P , t2)
         module K = Cocone K
@@ -426,6 +479,8 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
           F-coalg-colim.proj X,x-bound.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁  X,x-bound.i₁)) ∘ t1.p'
           ∎)
         module t3 = CC (P , t3)
+        t1⇒t3 : ℰ [ (P , t1) , (P , t3) ]
+        t1⇒t3 = coalg-hom-to-ℰ-hom P _ _ X,x-bound.i₁ 𝒞.Equiv.refl
         -- there is a nother factorization for t3, namely via t2:
         to-t3-via-t2 = begin
           FA-colim.proj P ≈⟨ t2.triangle-commutes ⟩
@@ -452,6 +507,23 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
             ∘ F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘  X,x-bound.i₁)))
             ∘ t1.p'
           ∎)
+        module t4 = CC (P , t4)
+        t3⇒t4 : ℰ [ (P , t3) , (P , t4) ]
+        t3⇒t4 = coalg-hom-to-ℰ-hom P _ _ h (begin
+          F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ X,x-bound.i₁)))  ∘ t1.p'
+          ≈⟨ (Functor.homomorphism (F ∘F V ∘F coalg-colim.D) ⟩∘⟨refl) ○ assoc ⟩
+          F.₁ (V.₁ (coalg-colim.D.₁ h)) ∘ F.₁ (V.₁ (coalg-colim.D.₁ X,x-bound.i₁))  ∘ t1.p'
+          ∎)
+        t2⇒t4 : ℰ [ (P , t2) , (P , t4) ]
+        t2⇒t4 = coalg-hom-to-ℰ-hom P _ _ (h coalg-colim.𝒟.∘ X,x-bound.i₂) (begin
+          F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ X,x-bound.i₁)))  ∘ t1.p'
+           ≈⟨ ((Functor.homomorphism (F ∘F V ∘F coalg-colim.D) ⟩∘⟨refl) ○ assoc) ⟩
+          F.₁ (V.₁ (coalg-colim.D.₁ h)) ∘ F.₁ (V.₁ (coalg-colim.D.₁ X,x-bound.i₁))  ∘ t1.p'
+           ≈⟨ h-equalizes ⟩
+          F.₁ (V.₁ (coalg-colim.D.₁ h)) ∘ F.₁ (V.₁ (coalg-colim.D.₁ X,x-bound.i₂))  ∘ t2.p'
+           ≈˘⟨ ((Functor.homomorphism (F ∘F V ∘F coalg-colim.D) ⟩∘⟨refl) ○ assoc) ⟩
+          F.₁ (V.₁ (coalg-colim.D.₁ (h coalg-colim.𝒟.∘ X,x-bound.i₂))) ∘ t2.p'
+          ∎)
 
         Pt1 = (P , t1)
         Pt2 = (P , t2)
@@ -459,6 +531,13 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
         Pt3 = (P , t3)
         Pt4 : all-triangles
         Pt4 = (P , t4)
+
+        identified-in-t4 =
+          begin
+          V.₁ (E.₁ t3⇒t4) ∘ V.₁ (E.₁ t1⇒t3) ∘ CC.P+X.i₁ Pt1
+            ≈⟨ {!!} ⟩
+          V.₁ (E.₁ t2⇒t4) ∘ CC.P+X.i₁ Pt2
+          ∎
 
     E-Cocone-to-D : Cocone (V ∘F E) → Cocone D
     E-Cocone-to-D E-Cocone =
