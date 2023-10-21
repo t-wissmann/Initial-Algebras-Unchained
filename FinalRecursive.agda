@@ -218,6 +218,8 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
             F.₁ proj-X,x.f ∘ p''
             ∎)
 
+      [p',x] : P+X.obj ⇒ F.₀ X
+      [p',x] = P+X.[ p' , x ]
 
       -- the structure of the constructed coalgebra:
       Fi₂[p',x] : P+X.obj ⇒ F.₀ P+X.obj
@@ -340,6 +342,35 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
     TODO-later : ∀ {n} {x : Set n} → x
     TODO-later = exp _
 
+    build-ℰ-hom : (t1 t2 : all-triangles)
+                  (h1 : CC.P t1 ⇒ CC.P+X.obj t2)
+                  (h2 : coalg-colim.𝒟 [ CC.X,x-dia t1 , CC.X,x-dia t2 ])
+                  → (CC.[p',x] t2 ∘ h1 ≈ F.₁ (V.₁ (coalg-colim.D.₁ h2)) ∘ CC.p' t1)
+                  → (CC.p t1 ≈ CC.hom-to-FA.f t2 ∘ h1)
+                  → ℰ [ t1 , t2 ]
+    build-ℰ-hom t1 t2 h1 h2 h1-coalg-hom h1-slice =
+      slicearr {h = record {
+        f = f ;
+        commutes = begin
+          t2.Fi₂[p',x] ∘ t1.P+X.[ h1 , t2.P+X.i₂ ∘ V.₁ (coalg-colim.D.₁ h2) ]
+              ≈⟨ assoc ○ (refl⟩∘⟨ first-square) ○ sym-assoc ⟩
+          (F.₁ t2.P+X.i₂ ∘ F.₁ (V.₁ (coalg-colim.D.₁ h2))) ∘ t1.[p',x]
+              ≈˘⟨ F.homomorphism ⟩∘⟨refl ⟩
+          F.₁ (t2.P+X.i₂ ∘ V.₁ (coalg-colim.D.₁ h2)) ∘ t1.[p',x]
+              ≈˘⟨ F.F-resp-≈ t1.P+X.inject₂ ⟩∘⟨refl ⟩
+          F.₁ (f ∘ t1.P+X.i₂) ∘ t1.[p',x]
+              ≈⟨ ((F.homomorphism ⟩∘⟨refl) ○ assoc) ⟩
+          F.₁ f ∘ t1.Fi₂[p',x]
+          ∎
+      }} {!!}
+      where
+        open HomReasoning
+        module t1 = CC t1
+        module t2 = CC t2
+        f = t1.P+X.[ h1 , t2.P+X.i₂ ∘ V.₁ (coalg-colim.D.₁ h2) ]
+        first-square : t2.[p',x] ∘ t1.P+X.[ h1 , t2.P+X.i₂ ∘ V.₁ (coalg-colim.D.₁ h2) ] ≈ F.₁ (V.₁ (coalg-colim.D.₁ h2)) ∘ t1.[p',x]
+        first-square = {!!}
+
     coalg-hom-to-ℰ-hom : ∀ (P : 𝒟.Obj) (t1 t2 : Triangle F-coalg-colim (FA-colim.proj P))
                        → coalg-colim.𝒟 [ CC.X,x-dia (P , t1) , CC.X,x-dia (P , t2) ]
                        → ℰ [ (P , t1) , (P , t2) ]
@@ -437,31 +468,59 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
             t = P-to-triangle d
           in
           E-Cocone.ψ t ∘ CC.P+X.i₁ t} ;
-        commute = λ {d1} {d2} h →
+        commute = λ {P} {Q} h →
           let
-            module h = Slice⇒ h
-            t1 = P-to-triangle d1
-            t2 = P-to-triangle d2
-            Y,y-dia , g , g-eq = CC.p'-unique t2 {!!} {!!}
+            open commute-defs h
           in
           begin
           (E-Cocone.ψ t2 ∘ CC.P+X.i₁ t2) ∘ h.h
           ≈⟨ assoc ⟩
           E-Cocone.ψ t2 ∘ CC.P+X.i₁ t2 ∘ h.h
-          ≈⟨ TODO-later ⟩
+          ≈˘⟨ refl⟩∘⟨ h+id∘i₁ ⟩
+          E-Cocone.ψ t2 ∘ (V.₁ (E.₁ h+id-in-ℰ)) ∘ t2∘h.P+X.i₁
+          ≈⟨ sym-assoc ○ (E-Cocone.commute h+id-in-ℰ ⟩∘⟨refl) ⟩
+          E-Cocone.ψ (P , t2∘h) ∘ t2∘h.P+X.i₁
+          ≈⟨ cocone-is-triangle-independent E-Cocone P t2∘h (proj₂ t1) ⟩
           (E-Cocone.ψ t1 ∘ CC.P+X.i₁ t1)
           ∎
         } }
       where
         module E-Cocone = Cocone E-Cocone
         open HomReasoning
+        module commute-defs {P Q : 𝒟.Obj} (h : 𝒟 [ P , Q ]) where
+            module h = Slice⇒ h
+            t1 = P-to-triangle P
+            t2 = P-to-triangle Q
+            module t1 = CC t1
+            module t2 = CC t2
+            t2∘h : Triangle F-coalg-colim (FA-colim.proj P)
+            t2∘h = triangle t2.X,x-dia (t2.p' ∘ h.h) (begin
+              FA-colim.proj P ≈˘⟨ h.△  ⟩
+              FA-colim.proj Q ∘ h.h ≈⟨ pushˡ t2.triangle-commutes  ⟩
+              F-coalg-colim.proj t2.X,x-dia ∘ t2.p' ∘ h.h
+              ∎)
+            module t2∘h = CC (P , t2∘h)
+            h+id : t2∘h.P+X.obj ⇒ t2.P+X.obj
+            h+id = t2∘h.P+X.[ t2.P+X.i₁ ∘ h.h , t2.P+X.i₂ ]
+            h+id∘i₁ = begin
+              h+id ∘ t2∘h.P+X.i₁
+              ≈⟨ t2∘h.P+X.inject₁ ⟩
+              t2.P+X.i₁ ∘ h.h
+              ∎
+            h+id-in-ℰ : ℰ [ (P , t2∘h) , t2 ]
+            h+id-in-ℰ = slicearr {h = record {
+              f = h+id ;
+              commutes = {!!}
+              }}
+              {!!}
+
 
     E-Cocone-to-D-choice : ∀ (K : Cocone (V ∘F E)) → (t : all-triangles) →
                          Cocone.ψ (E-Cocone-to-D K) (proj₁ t) ≈ Cocone.ψ K t ∘ CC.P+X.i₁ t
     E-Cocone-to-D-choice K t1 =
       begin
       Cocone.ψ (E-Cocone-to-D K) (proj₁ t1) ≡⟨⟩
-      K.ψ t2 ∘ CC.P+X.i₁ t2 ≈⟨ TODO-later ⟩ -- Take upper bound of t1 and t2
+      K.ψ t2 ∘ CC.P+X.i₁ t2 ≈⟨ cocone-is-triangle-independent K (proj₁ t1) (proj₂ t2) (proj₂ t1)  ⟩
       K.ψ t1 ∘ CC.P+X.i₁ t1
       ∎
       where
