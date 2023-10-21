@@ -534,9 +534,9 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
 
         identified-in-t4 =
           begin
-          V.₁ (E.₁ t3⇒t4) ∘ V.₁ (E.₁ t1⇒t3) ∘ CC.P+X.i₁ Pt1
+          V.₁ (E.₁ t3⇒t4) ∘ V.₁ (E.₁ t1⇒t3) ∘ t1.P+X.i₁
             ≈⟨ {!!} ⟩
-          V.₁ (E.₁ t2⇒t4) ∘ CC.P+X.i₁ Pt2
+          V.₁ (E.₁ t2⇒t4) ∘ t2.P+X.i₁
           ∎
 
     E-Cocone-to-D : Cocone (V ∘F E) → Cocone D
