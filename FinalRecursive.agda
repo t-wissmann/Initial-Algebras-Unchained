@@ -357,6 +357,10 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
         module t2 = CC Pt2
         module coalg-hom = F-Coalgebra-Morphism (coalg-colim.D.₁ coalg-hom)
 
+    cocone-is-triangle-independent : ∀ (K : Cocone (V ∘F E)) (P : 𝒟.Obj) (t1 t2 : Triangle F-coalg-colim (FA-colim.proj P))
+                       → Cocone.ψ K (P , t1) ∘ CC.P+X.i₁ (P , t1) ≈ Cocone.ψ K (P , t2) ∘ CC.P+X.i₁ (P , t2)
+    cocone-is-triangle-independent K P t1 t2 = ?
+
     E-Cocone-to-D : Cocone (V ∘F E) → Cocone D
     E-Cocone-to-D E-Cocone =
       record { coapex = record {
@@ -365,13 +369,17 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
             t = P-to-triangle d
           in
           E-Cocone.ψ t ∘ CC.P+X.i₁ t} ;
-        commute = λ {d1} {d2} f →
+        commute = λ {d1} {d2} h →
           let
+            module h = Slice⇒ h
             t1 = P-to-triangle d1
             t2 = P-to-triangle d2
+            Y,y-dia , g , g-eq = CC.p'-unique t2 {!!} {!!}
           in
           begin
-          (E-Cocone.ψ t2 ∘ CC.P+X.i₁ t2) ∘ (Slice⇒.h f)
+          (E-Cocone.ψ t2 ∘ CC.P+X.i₁ t2) ∘ h.h
+          ≈⟨ assoc ⟩
+          E-Cocone.ψ t2 ∘ CC.P+X.i₁ t2 ∘ h.h
           ≈⟨ TODO-later ⟩
           (E-Cocone.ψ t1 ∘ CC.P+X.i₁ t1)
           ∎
