@@ -732,7 +732,13 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                     (t.Fi₂[p',x] ∘ t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ]) ∘ t-X.P+X.i₁
                       ≈⟨ (assoc ○ (refl⟩∘⟨ t-X.P+X.inject₁)) ⟩
                     t.Fi₂[p',x] ∘ t.P+X.i₂ ∘ r.retract
-                      ≈˘⟨ TODO-later ⟩
+                      ≈⟨ assoc ⟩
+                    F.F₁ t.P+X.i₂ ∘ t.[p',x] ∘ t.P+X.i₂ ∘ r.retract
+                      ≈⟨ refl⟩∘⟨ pullˡ t.P+X.inject₂ ⟩
+                    F.F₁ t.P+X.i₂ ∘ t.x ∘ r.retract
+                      ≡⟨⟩
+                    F.F₁ t.P+X.i₂ ∘ t-X.p'
+                      ≈˘⟨ pullʳ t-X.P+X.inject₁ ⟩
                     (F.F₁ t.P+X.i₂ ∘ t-X.P+X.[ t-X.p' , t-X.x ]) ∘ t-X.P+X.i₁
                       ≈˘⟨ helper ⟩∘⟨refl ⟩
                     (F.F₁ t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ] ∘ t-X.Fi₂[p',x]) ∘ t-X.P+X.i₁
