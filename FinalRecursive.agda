@@ -467,8 +467,13 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
         module X,x-bound = UpperBound X,x-bound
 
         open HomReasoning
+        -- we construct the following morphisms in ℰ:
+        --   t1 ----> t3 ----> t4
+        --                     ^
+        --                     |
+        --   t2 ---------------'
 
-        -- take the upper bound of t1 and t2
+        -- take the upper bound of t1 and t2 in coalg-colim.𝒟
         t3 : Triangle F-coalg-colim (FA-colim.proj P)
         t3 = triangle X,x-bound.obj
           (F.₁ (V.₁ (coalg-colim.D.₁ X,x-bound.i₁))  ∘ t1.p' )
