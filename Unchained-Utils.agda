@@ -50,7 +50,8 @@ jointly-epic {i} {I} {dom} {codom} sink =
 colimit-is-jointly-epic : ∀ {o′ ℓ′ e′} {J : Category o′ ℓ′ e′} {G : Functor J 𝒞} →
                           (colim : Colimit G) → jointly-epic (Colimit.proj colim)
 colimit-is-jointly-epic {G = G} colim {Z} {g} {h} equalize-g-h =
-  let
+  IsInitial.!-unique₂ colim.initial.⊥-is-initial g-morph h-morph
+  where
     open Category 𝒞
     open HomReasoning
     module colim = Colimit colim
@@ -79,8 +80,6 @@ colimit-is-jointly-epic {G = G} colim {Z} {g} {h} equalize-g-h =
     g-morph = record
       { arr = g ;
       commute = λ {X} → equalize-g-h X }
-  in
-  IsInitial.!-unique₂ colim.initial.⊥-is-initial g-morph h-morph
 
 -- Lemma:
 -- Consider a diagram J in a full subcategory of 𝒞 with a colimit in 𝒞.
