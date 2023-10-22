@@ -419,6 +419,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
               ∎
           })
 
+    -- build an ℰ-hom of shape id_P + h where h: X → Y is a coalgebra morphism
     coalg-hom-to-ℰ-hom : ∀ (P : 𝒟.Obj) (t1 t2 : Triangle F-coalg-colim (FA-colim.proj P))
                        (h : coalg-colim.𝒟 [ CC.X,x-dia (P , t1) , CC.X,x-dia (P , t2) ])
                        → CC.p' (P , t2) ≈ F.₁ (V.₁ (coalg-colim.D.₁ h)) ∘ CC.p' (P , t1)
@@ -444,7 +445,7 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
       (K.ψ Pt3 ∘ (V.₁ (E.₁ t1⇒t3))) ∘ CC.P+X.i₁ Pt1
         ≈˘⟨ ((K.commute t3⇒t4 ⟩∘⟨refl) ⟩∘⟨refl) ⟩
       ((K.ψ Pt4 ∘ (V.₁ (E.₁ t3⇒t4))) ∘ V.₁ (E.₁ t1⇒t3)) ∘ CC.P+X.i₁ Pt1
-        ≈⟨ (assoc² ○ (refl⟩∘⟨ identified-in-t4) ○ sym-assoc) ⟩
+        ≈⟨ (assoc² ○ (refl⟩∘⟨ first-component-always-P) ○ sym-assoc) ⟩
       (K.ψ Pt4 ∘ (V.₁ (E.₁ t2⇒t4))) ∘ CC.P+X.i₁ Pt2
         ≈⟨ K.commute t2⇒t4 ⟩∘⟨refl ⟩
       K.ψ Pt2 ∘ CC.P+X.i₁ Pt2
@@ -481,7 +482,9 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
         module t3 = CC (P , t3)
         t1⇒t3 : ℰ [ (P , t1) , (P , t3) ]
         t1⇒t3 = coalg-hom-to-ℰ-hom P _ _ X,x-bound.i₁ 𝒞.Equiv.refl
-        -- there is a nother factorization for t3, namely via t2:
+        -- However, there is no ℰ morphism from t2 to t3 because
+        -- the coalgebra structure in t3 uses the pointing t1.p'.
+        -- Using the pointing t2.p' yields another factorization for t3:
         to-t3-via-t2 = begin
           FA-colim.proj P ≈⟨ t2.triangle-commutes ⟩
           F.₁ t2.proj-X,x.f ∘ t2.p' ≈˘⟨ (F-coalg-colim.colimit-commute X,x-bound.i₂ ⟩∘⟨refl) ⟩
@@ -489,8 +492,11 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
               ≈⟨ assoc ⟩
           F-coalg-colim.proj X,x-bound.obj ∘ F.₁ (V.₁ (coalg-colim.D.₁  X,x-bound.i₂)) ∘ t2.p'
           ∎
+        -- By essential uniqueness, those two factorizations
+        -- are identified somewhere in the diagram, say t4:
         tripl = t3.p'-unique _ to-t3-via-t2
         Y,y-dia = proj₁ tripl
+        h : coalg-colim.𝒟 [ t3.X,x-dia , Y,y-dia ]
         h = proj₁ (proj₂ tripl)
         h-equalizes = proj₂ (proj₂ tripl)
         t4 : Triangle F-coalg-colim (FA-colim.proj P)
@@ -532,10 +538,14 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
         Pt4 : all-triangles
         Pt4 = (P , t4)
 
-        identified-in-t4 =
+        first-component-always-P =
           begin
           V.₁ (E.₁ t3⇒t4) ∘ V.₁ (E.₁ t1⇒t3) ∘ t1.P+X.i₁
-            ≈⟨ {!!} ⟩
+            ≈⟨ refl⟩∘⟨ t1.P+X.inject₁ ⟩
+          V.₁ (E.₁ t3⇒t4) ∘ t3.P+X.i₁
+            ≈⟨ t3.P+X.inject₁ ⟩
+          t4.P+X.i₁
+            ≈˘⟨ t2.P+X.inject₁ ⟩
           V.₁ (E.₁ t2⇒t4) ∘ t2.P+X.i₁
           ∎
 
