@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K  --lossy-unification --allow-unsolved-metas #-}
+{-# OPTIONS --without-K  --lossy-unification  #-}
 open import Level
 
 open import Categories.Category

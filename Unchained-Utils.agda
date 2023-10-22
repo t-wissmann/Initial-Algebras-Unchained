@@ -96,7 +96,8 @@ FullSub-Colimit : {o' ℓ' e' i : Level}
                 → Colimit.coapex C-colim ≅ U lifted-colim-obj
                 → Colimit J
 FullSub-Colimit {D = D} {I = I} U J plain-C-colim lifted-colim-obj iso =
-  let
+  record { initial = record { ⊥ = Sub-Cocone ; ⊥-is-initial = Sub-Cocone-initial } }
+  where
     C-colim = (transport-by-iso (FullSub 𝒞 ∘F  J) plain-C-colim iso)
     module C-colim = Colimit (C-colim)
     open Category 𝒞
@@ -116,18 +117,18 @@ FullSub-Colimit {D = D} {I = I} U J plain-C-colim lifted-colim-obj iso =
 
     Sub-Cocone-ump : {other : Cocone J} → Cocone⇒ J Sub-Cocone other
     Sub-Cocone-ump {other} =
-      let
-        module other = Cocone other
-        C-other : Cocone (FullSub 𝒞 ∘F J)
-        C-other = (F-map-Coconeˡ (FullSub 𝒞) other)
-        morph : 𝒞 [ C-colim.coapex , U other.N ]
-        morph = Cocone⇒.arr (C-colim.initial.! {A = C-other})
-      in
       record {
         arr = morph ;
         commute = λ {X} →
           Cocone⇒.commute (C-colim.initial.! {A = C-other})
         }
+      where
+        module other = Cocone other
+        C-other : Cocone (FullSub 𝒞 ∘F J)
+        C-other = (F-map-Coconeˡ (FullSub 𝒞) other)
+        morph : 𝒞 [ C-colim.coapex , U other.N ]
+        morph = Cocone⇒.arr (C-colim.initial.! {A = C-other})
+
     Sub-Cocone-initial : IsInitial (Cocones J) Sub-Cocone
     Sub-Cocone-initial = record {
       ! = Sub-Cocone-ump ;
@@ -146,8 +147,6 @@ FullSub-Colimit {D = D} {I = I} U J plain-C-colim lifted-colim-obj iso =
         in
         IsInitial.!-unique C-colim.initial.⊥-is-initial C-cocone-morph
       }
-  in
-  record { initial = record { ⊥ = Sub-Cocone ; ⊥-is-initial = Sub-Cocone-initial } }
 
 -- The property that a cocone is Colimitting/Limitting:
 IsLimitting : {o' ℓ' e' : Level} {D : Category o' ℓ' e'} {J : Functor D 𝒞} → Cocone J → Set _
