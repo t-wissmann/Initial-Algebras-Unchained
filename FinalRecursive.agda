@@ -595,18 +595,30 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
               ∎)
             module t2∘h = CC (P , t2∘h)
             h+id : t2∘h.P+X.obj ⇒ t2.P+X.obj
-            h+id = t2∘h.P+X.[ t2.P+X.i₁ ∘ h.h , t2.P+X.i₂ ]
+            h+id = t2∘h.P+X.[
+                     t2.P+X.i₁ ∘ h.h ,
+                     t2.P+X.i₂ ∘ V.₁ (coalg-colim.D.₁ coalg-colim.𝒟.id) ]
+                     -- ^-- here, we need to postcompose with 'id' because
+                     --     this is what build-ℰ-hom returns.
             h+id∘i₁ = begin
               h+id ∘ t2∘h.P+X.i₁
               ≈⟨ t2∘h.P+X.inject₁ ⟩
               t2.P+X.i₁ ∘ h.h
               ∎
             h+id-in-ℰ : ℰ [ (P , t2∘h) , t2 ]
-            h+id-in-ℰ = slicearr {h = record {
-              f = h+id ;
-              commutes = {!!}
-              }}
-              {!!}
+            h+id-in-ℰ = build-ℰ-hom (P , t2∘h) t2
+              (t2.P+X.i₁ ∘ h.h) coalg-colim.𝒟.id
+                (begin
+                 t2.[p',x] ∘ t2.P+X.i₁ ∘ h.h ≈⟨ pullˡ t2.P+X.inject₁ ⟩
+                 t2.p' ∘ h.h ≡⟨⟩
+                 t2∘h.p' ≈˘⟨ elimˡ (Functor.identity (F ∘F V ∘F coalg-colim.D)) ⟩
+                 F.₁ (V.₁ (coalg-colim.D.₁ coalg-colim.𝒟.id)) ∘ t2∘h.p'
+                 ∎)
+                (begin
+                t2∘h.p       ≈˘⟨ h.△ ⟩
+                t2.p ∘ h.h   ≈⟨ pushˡ t2.hom-to-FA-i₁ ⟩
+                t2.hom-to-FA.f ∘ t2.P+X.i₁ ∘ h.h
+                ∎)
 
 
     E-Cocone-to-D-choice : ∀ (K : Cocone (V ∘F E)) → (t : all-triangles) →
