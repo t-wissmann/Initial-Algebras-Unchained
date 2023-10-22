@@ -336,12 +336,6 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
 
     data ⊥ : Set where
 
-    exp : ∀ {n} {x : Set n} → ⊥ → x
-    exp ()
-
-    TODO-later : ∀ {n} {x : Set n} → x
-    TODO-later = exp _
-
     build-ℰ-hom : (t1 t2 : all-triangles)
                   (h1 : CC.P t1 ⇒ CC.P+X.obj t2)
                   (h2 : coalg-colim.𝒟 [ CC.X,x-dia t1 , CC.X,x-dia t2 ])
@@ -707,8 +701,19 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
           t-X = α∘proj-x , triangle t.X,x-dia (t.x ∘ r.retract) (extendʳ t.proj-X,x.commutes)
           module t-X = CC t-X
 
-          -- this morphism is an ℰ-morphism from t-X to t:
+          -- This morphism is an ℰ-morphism from t-X to t:
           ∇-f = t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ]
+          -- Equivalently, we can put the i₂ also outside the [_,_]:
+          ∇-f' = t.P+X.i₂ ∘ t-X.P+X.[ r.retract , 𝒞.id {t.X} ]
+          ∇-f'-eq : ∇-f ≈ ∇-f'
+          ∇-f'-eq = let open HomReasoning in
+            begin
+            t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ]
+                      ≈˘⟨ t-X.P+X.[]-cong₂ 𝒞.Equiv.refl (𝒞.identityʳ) ⟩
+            t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ∘ 𝒞.id {t.X} ]
+                      ≈˘⟨ t-X.P+X.∘-distribˡ-[] ⟩
+            t.P+X.i₂ ∘ t-X.P+X.[ r.retract , 𝒞.id {t.X} ]
+            ∎
           ∇ : ℰ [ t-X , t ]
           ∇ =
             let
@@ -744,10 +749,21 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                     (F.F₁ t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ] ∘ t-X.Fi₂[p',x]) ∘ t-X.P+X.i₁
                     ∎
                     ;
-                    case-precompose-i₂ = TODO-later
+                    case-precompose-i₂ = ?
                   })
                 }} (begin
-                t.hom-to-FA.f ∘ ∇-f ≈⟨ TODO-later ⟩
+                t.hom-to-FA.f ∘ ∇-f
+                  ≈⟨ refl⟩∘⟨ ∇-f'-eq ⟩
+                t.hom-to-FA.f ∘ t.P+X.i₂ ∘ t-X.P+X.[ r.retract , id ]
+                  ≈˘⟨ extendʳ t.hom-to-FA-i₂ ⟩
+                α ∘ t.proj-X,x.f ∘ t-X.P+X.[ r.retract , id ]
+                  ≈⟨ extendʳ t.proj-X,x.commutes ⟩
+                F.₁ t.proj-X,x.f ∘ t.x ∘ t-X.P+X.[ r.retract , id ]
+                  ≈⟨ refl⟩∘⟨ t-X.P+X.∘-distribˡ-[] ⟩
+                F.₁ t.proj-X,x.f ∘ t-X.P+X.[ t.x ∘ r.retract , t.x ∘ id ]
+                  ≈⟨ refl⟩∘⟨ t-X.P+X.[]-cong₂ 𝒞.Equiv.refl (𝒞.identityʳ) ⟩
+                F.₁ t.proj-X,x.f ∘ t-X.P+X.[ t.x ∘ r.retract , t.x ]
+                  ≡⟨⟩
                 t-X.hom-to-FA.f
                 ∎)
 
