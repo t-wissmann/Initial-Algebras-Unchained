@@ -707,17 +707,6 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                    t.P+X.i₂ ∘ V.₁ (coalg-colim.D.₁ coalg-colim.𝒟.id)
                    ]  --     ^-- we have the 'id' because it's returned this way
                       --         by build-ℰ-hom
-          -- -- Equivalently, we can put the i₂ also outside the [_,_]:
-          -- ∇-f' = t.P+X.i₂ ∘ t-X.P+X.[ r.retract , 𝒞.id {t.X} ]
-          -- ∇-f'-eq : ∇-f ≈ ∇-f'
-          -- ∇-f'-eq = let open HomReasoning in
-          --   begin
-          --   t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ]
-          --             ≈˘⟨ t-X.P+X.[]-cong₂ 𝒞.Equiv.refl (𝒞.identityʳ) ⟩
-          --   t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ∘ 𝒞.id {t.X} ]
-          --             ≈˘⟨ t-X.P+X.∘-distribˡ-[] ⟩
-          --   t.P+X.i₂ ∘ t-X.P+X.[ r.retract , 𝒞.id {t.X} ]
-          --   ∎
           ∇ : ℰ [ t-X , t ]
           ∇ = let open HomReasoning in
              build-ℰ-hom t-X t (t.P+X.i₂ ∘ r.retract) coalg-colim.𝒟.id
@@ -734,64 +723,6 @@ module IterationProof (coalg-colim : LProp-Coalgebra)
                   ≈⟨ extendʳ t.hom-to-FA-i₂ ⟩
                 t.hom-to-FA.f ∘ t.P+X.i₂ ∘ r.retract
                ∎)
-            -- let
-            --   open HomReasoning
-            --   helper = begin
-            --     F.F₁ t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ] ∘ t-X.Fi₂[p',x]
-            --           ≈⟨ sym-assoc ⟩
-            --     (F.F₁ t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ] ∘ F.₁ t-X.P+X.i₂) ∘ t-X.P+X.[ t-X.p' , t-X.x ]
-            --           ≈˘⟨ (F.homomorphism ⟩∘⟨refl) ⟩
-            --     F.F₁ (t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ] ∘ t-X.P+X.i₂) ∘ t-X.P+X.[ t-X.p' , t-X.x ]
-            --           ≈⟨ (F.F-resp-≈ t-X.P+X.inject₂ ⟩∘⟨refl) ⟩
-            --     F.F₁ t.P+X.i₂ ∘ t-X.P+X.[ t-X.p' , t-X.x ]
-            --     ∎
-            -- in
-            -- slicearr {h = record {
-            --     -- the coalgebra morphism:
-            --     f = ∇-f ;
-            --     commutes = coproduct-jointly-epic t-X.P+X
-            --       (record {
-            --         case-precompose-i₁ = begin
-            --         (t.Fi₂[p',x] ∘ t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ]) ∘ t-X.P+X.i₁
-            --           ≈⟨ (assoc ○ (refl⟩∘⟨ t-X.P+X.inject₁)) ⟩
-            --         t.Fi₂[p',x] ∘ t.P+X.i₂ ∘ r.retract
-            --           ≈⟨ assoc ⟩
-            --         F.F₁ t.P+X.i₂ ∘ t.[p',x] ∘ t.P+X.i₂ ∘ r.retract
-            --           ≈⟨ refl⟩∘⟨ pullˡ t.P+X.inject₂ ⟩
-            --         F.F₁ t.P+X.i₂ ∘ t.x ∘ r.retract
-            --           ≡⟨⟩
-            --         F.F₁ t.P+X.i₂ ∘ t-X.p'
-            --           ≈˘⟨ pullʳ t-X.P+X.inject₁ ⟩
-            --         (F.F₁ t.P+X.i₂ ∘ t-X.P+X.[ t-X.p' , t-X.x ]) ∘ t-X.P+X.i₁
-            --           ≈˘⟨ helper ⟩∘⟨refl ⟩
-            --         (F.F₁ t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ] ∘ t-X.Fi₂[p',x]) ∘ t-X.P+X.i₁
-            --         ∎
-            --         ;
-            --         case-precompose-i₂ = begin
-            --           (t.Fi₂[p',x] ∘ t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ]) ∘ t-X.P+X.i₂
-            --             ≈⟨ pullʳ t-X.P+X.inject₂ ⟩
-            --           t.Fi₂[p',x] ∘ t.P+X.i₂
-            --             ≈⟨ {!!} ⟩
-            --           (F.F₁ t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ] ∘ t-X.Fi₂[p',x]) ∘ t-X.P+X.i₂
-            --             ≈˘⟨ {!!} ⟩
-            --           (F.F₁ t-X.P+X.[ t.P+X.i₂ ∘ r.retract , t.P+X.i₂ ] ∘ t-X.Fi₂[p',x]) ∘ t-X.P+X.i₂
-            --           ∎
-            --       })
-            --     }} (begin
-            --     t.hom-to-FA.f ∘ ∇-f
-            --       ≈⟨ refl⟩∘⟨ ∇-f'-eq ⟩
-            --     t.hom-to-FA.f ∘ t.P+X.i₂ ∘ t-X.P+X.[ r.retract , id ]
-            --       ≈˘⟨ extendʳ t.hom-to-FA-i₂ ⟩
-            --     α ∘ t.proj-X,x.f ∘ t-X.P+X.[ r.retract , id ]
-            --       ≈⟨ extendʳ t.proj-X,x.commutes ⟩
-            --     F.₁ t.proj-X,x.f ∘ t.x ∘ t-X.P+X.[ r.retract , id ]
-            --       ≈⟨ refl⟩∘⟨ t-X.P+X.∘-distribˡ-[] ⟩
-            --     F.₁ t.proj-X,x.f ∘ t-X.P+X.[ t.x ∘ r.retract , t.x ∘ id ]
-            --       ≈⟨ refl⟩∘⟨ t-X.P+X.[]-cong₂ 𝒞.Equiv.refl (𝒞.identityʳ) ⟩
-            --     F.₁ t.proj-X,x.f ∘ t-X.P+X.[ t.x ∘ r.retract , t.x ]
-            --       ≡⟨⟩
-            --     t-X.hom-to-FA.f
-            --     ∎)
 
     reflect-Cocone⇒ : ∀ (K : Cocone (V ∘F E))
                    → Cocone⇒ (V ∘F E) FA,Fα-Cocone-on-carriers K
