@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K  --lossy-unification  #-}
+{-# OPTIONS --without-K   #-}
 open import Level
 
 open import Categories.Category
