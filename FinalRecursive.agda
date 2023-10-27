@@ -93,3 +93,12 @@ iterate-CoalgColimit coalg-colim 𝒟-filtered F-preserves-colim = goal
   -- the iteration of the input coalgebra:
   test-correct-carrier : goal.to-Coalgebra ≡ iterate (coalg-colim.to-Coalgebra)
   test-correct-carrier = ≡-refl
+
+
+module unique-proj (A,α : CoalgColim {ℓ} {ℓ} {ℓ}) where
+  module A,α = CoalgColim A,α
+
+  unique-proj : ∀ {i : A,α.𝒟.Obj}
+    (h : F-Coalgebras F [ A,α.D.₀ i , A,α.to-Coalgebra ]) →
+    F-Coalgebras F [ h ≈ A,α.colim.proj i ]
+  unique-proj = {!!}
