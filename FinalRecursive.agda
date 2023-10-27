@@ -78,7 +78,7 @@ iterate-CoalgColimit :
 iterate-CoalgColimit coalg-colim 𝒟-filtered F-preserves-colim = goal
   where
   goal = I-C.FA,Fα-locally-finite Fil
-    (record
+     record
      { 𝒞 = 𝒞
      ; F = F
      ; Fil-to-filtered = Fil-to-filtered
@@ -86,7 +86,7 @@ iterate-CoalgColimit coalg-colim 𝒟-filtered F-preserves-colim = goal
      ; coalg-colim = coalg-colim
      ; 𝒟-filtered = 𝒟-filtered
      ; F-preserves-colim = F-preserves-colim
-     })
+     }
   module goal = LProp-Coalgebra goal
   module coalg-colim = LProp-Coalgebra coalg-colim
   -- Here, we double-check that the constructed coalgebra really normalizes to
