@@ -23,7 +23,7 @@ module Iterate.ProofGlobals {fil-level}
   (Fil : ∀ {o' ℓ' e' : Level} → Category o' ℓ' e' → Set fil-level) -- some variant of 'filtered'
   where
 
-open import Prop-Coalgebra
+open import CoalgColim
 import Iterate.Assumptions as Assumption
 
 record ProofGlobals (o ℓ : Level) : Set (suc fil-level ⊔ suc (o ⊔ ℓ)) where
@@ -35,10 +35,10 @@ record ProofGlobals (o ℓ : Level) : Set (suc fil-level ⊔ suc (o ⊔ ℓ)) wh
     Fil-to-filtered : ∀ {𝒟 : Category ℓ ℓ ℓ} → Fil 𝒟 → filtered 𝒟
     𝒞-lfp : WeaklyLFP 𝒞 Fil Fil-to-filtered
     -- A coalgebra colimit:
-    coalg-colim : LProp-Coalgebra 𝒞 F (Assumption.FinitaryRecursive 𝒞 F Fil) {ℓ} {ℓ} {ℓ}
-    𝒟-filtered : Fil (LProp-Coalgebra.𝒟 coalg-colim)
+    coalg-colim : CoalgColim 𝒞 F (Assumption.FinitaryRecursive 𝒞 F Fil) {ℓ} {ℓ} {ℓ}
+    𝒟-filtered : Fil (CoalgColim.𝒟 coalg-colim)
     -- ^- coalg is a colimit of a filtered diagram
-    F-preserves-colim : preserves-colimit (LProp-Coalgebra.carrier-diagram coalg-colim) F
+    F-preserves-colim : preserves-colimit (CoalgColim.carrier-diagram coalg-colim) F
     -- ^- F preserves the colimit 'coalg'
 
 
@@ -62,7 +62,7 @@ record ProofGlobals (o ℓ : Level) : Set (suc fil-level ⊔ suc (o ⊔ ℓ)) wh
   V = forget-Coalgebra
   module V = Functor forget-Coalgebra
   -- the provided coalgebra:
-  module coalg-colim = LProp-Coalgebra coalg-colim
+  module coalg-colim = CoalgColim.CoalgColim coalg-colim
   A,α = coalg-colim.to-Coalgebra
   open F-Coalgebra A,α public
   -- ^- this brings A and α into scope

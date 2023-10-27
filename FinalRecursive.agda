@@ -59,7 +59,7 @@ module F-Coalgebras = Category (F-Coalgebras F)
 open import Iterate.Assumptions 𝒞 F Fil
 
 module 𝒞-lfp = WeaklyLFP 𝒞-lfp
-open import Prop-Coalgebra 𝒞 F FinitaryRecursive
+open import CoalgColim 𝒞 F FinitaryRecursive
 
 import Iterate.Colimit as I-C
 import Iterate.DiagramScheme as I-D
@@ -69,12 +69,12 @@ import Iterate.ProofGlobals as I-P
 -- We structure the proof as a module because it makes it easier
 -- to globally fix a certian parameters along the way.
 iterate-CoalgColimit :
-  (coalg-colim : LProp-Coalgebra {ℓ} {ℓ} {ℓ}) →
-  Fil (LProp-Coalgebra.𝒟 coalg-colim) →
+  (coalg-colim : CoalgColim {ℓ} {ℓ} {ℓ}) →
+  Fil (CoalgColim.𝒟 coalg-colim) →
   -- ^- coalg is a colimit of a filtered diagram
-  preserves-colimit (LProp-Coalgebra.carrier-diagram coalg-colim) F →
+  preserves-colimit (CoalgColim.carrier-diagram coalg-colim) F →
   -- ^- F preserves the colimit 'coalg'
-  LProp-Coalgebra
+  CoalgColim
 iterate-CoalgColimit coalg-colim 𝒟-filtered F-preserves-colim = goal
   where
   goal = I-C.FA,Fα-locally-finite Fil
@@ -87,8 +87,8 @@ iterate-CoalgColimit coalg-colim 𝒟-filtered F-preserves-colim = goal
      ; 𝒟-filtered = 𝒟-filtered
      ; F-preserves-colim = F-preserves-colim
      }
-  module goal = LProp-Coalgebra goal
-  module coalg-colim = LProp-Coalgebra coalg-colim
+  module goal = CoalgColim goal
+  module coalg-colim = CoalgColim coalg-colim
   -- Here, we double-check that the constructed coalgebra really normalizes to
   -- the iteration of the input coalgebra:
   test-correct-carrier : goal.to-Coalgebra ≡ iterate (coalg-colim.to-Coalgebra)

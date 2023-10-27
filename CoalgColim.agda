@@ -14,7 +14,7 @@ open import Categories.Diagram.Cocone.Properties using (F-map-Coconeˡ)
 
 open import F-Coalgebra-Colimit
 
-module Prop-Coalgebra {o ℓ e}
+module CoalgColim {o ℓ e}
   {P-level : Level}
   (𝒞 : Category o ℓ e)
   (F : Endofunctor 𝒞)
@@ -27,8 +27,8 @@ private
 
 open import Unchained-Utils
 
-record LProp-Coalgebra {o' ℓ' e'} : Set (o ⊔ ℓ ⊔ e ⊔ P-level ⊔ suc (o' ⊔ ℓ' ⊔ e')) where
-  -- A locally finite coalgebra is a colimit of coalgebras whose carriers
+record CoalgColim {o' ℓ' e'} : Set (o ⊔ ℓ ⊔ e ⊔ P-level ⊔ suc (o' ⊔ ℓ' ⊔ e')) where
+  -- A Coalg(ebra)Colim(it) is a colimit of coalgebras whose carriers
   -- all satisfies a fixed property.
   field
     -- So it consists of: 1. a diagram scheme

@@ -30,7 +30,7 @@ module Iterate.Colimit {o ℓ} {fil-level}
 open import Iterate.FiniteSubcoalgebra Fil proof-globals
 open import Iterate.DiagramScheme Fil proof-globals
 open ProofGlobals proof-globals
-open import Prop-Coalgebra 𝒞 F FinitaryRecursive
+open import CoalgColim 𝒞 F FinitaryRecursive
 
 
 cocone-is-triangle-independent : ∀ (K : Cocone (V ∘F E)) (P : 𝒟.Obj) (t1 t2 : Triangle F-coalg-colim (FA-colim.proj P))
@@ -233,7 +233,7 @@ E-Cocone-to-D-choice K t1 =
 induced : ∀ (K : Cocone (V ∘F E)) → Cocone⇒ D FA-colim.colimit (E-Cocone-to-D K)
 induced K = FA-colim.rep-cocone (E-Cocone-to-D K)
 
--- The definition of LProp-Coalgebra requires that the cocone on the level
+-- The definition of CoalgColim requires that the cocone on the level
 -- of carriers is colimitting:
 FA,Fα-Cocone-on-carriers : Cocone (V ∘F E)
 FA,Fα-Cocone-on-carriers = F-map-Coconeˡ V FA,Fα-Cocone
@@ -354,7 +354,7 @@ FA,Fα-Colimit-on-carriers =
         FA-colim.initial.!-unique (reflect-Cocone⇒ K other)
     }
 
-FA,Fα-locally-finite : LProp-Coalgebra
+FA,Fα-locally-finite : CoalgColim
 FA,Fα-locally-finite =
   record
   { 𝒟 = ℰ

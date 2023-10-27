@@ -32,7 +32,7 @@ module Iterate.DiagramScheme {o ℓ} {fil-level}
 open import Iterate.FiniteSubcoalgebra Fil proof-globals
 open ProofGlobals proof-globals
 
--- the diagram scheme for the constructed LProp-Coalgebra
+-- the diagram scheme for the constructed CoalgColim
 ℰ : Category _ _ _
 ℰ = -- it is the full subcategory
     FullSubCategory
