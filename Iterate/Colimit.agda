@@ -355,8 +355,11 @@ FA,Fα-Colimit-on-carriers =
     }
 
 FA,Fα-locally-finite : LProp-Coalgebra
-FA,Fα-locally-finite = record {
-    𝒟 = ℰ ; D = E ;
-    all-have-prop = λ {t} → CC.P+X-coalg-is-FinitaryRecursive t ;
-    carrier-colim = Colimit-from-prop FA,Fα-Colimit-on-carriers
-    }
+FA,Fα-locally-finite =
+  record
+  { 𝒟 = ℰ
+  ; D = E
+  ; all-have-prop = λ {t} → CC.P+X-coalg-is-FinitaryRecursive t 
+  ; cocone = FA,Fα-Cocone
+  ; carrier-colimitting = FA,Fα-Colimit-on-carriers
+  }

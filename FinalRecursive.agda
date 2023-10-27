@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --lossy-unification #-}
+{-# OPTIONS --without-K #-}
 open import Level
 
 open import Categories.Category
@@ -10,7 +10,7 @@ open import Categories.Diagram.Cocone
 open import Categories.Category.Slice
 open import Categories.Diagram.Cocone.Properties using (F-map-Coconeˡ)
 open import Categories.Category.Product
-open import Agda.Builtin.Equality
+open import Agda.Builtin.Equality renaming (refl to ≡-refl)
 open import Categories.Category.Construction.F-Coalgebras
 open import Categories.Category.SubCategory
 open import Categories.Category.Construction.Comma
@@ -89,7 +89,7 @@ iterate-CoalgColimit coalg-colim 𝒟-filtered F-preserves-colim = goal
      })
   module goal = LProp-Coalgebra goal
   module coalg-colim = LProp-Coalgebra coalg-colim
-  -- Here, we test, that the constructed coalgebra really normalizes to
+  -- Here, we double-check that the constructed coalgebra really normalizes to
   -- the iteration of the input coalgebra:
-  -- test-correct-carrier : goal.to-Coalgebra ≡ iterate (coalg-colim.to-Coalgebra)
-  -- test-correct-carrier = {!!}
+  test-correct-carrier : goal.to-Coalgebra ≡ iterate (coalg-colim.to-Coalgebra)
+  test-correct-carrier = ≡-refl
