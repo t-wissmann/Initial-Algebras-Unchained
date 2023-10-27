@@ -39,6 +39,7 @@ private
 
 open import LFP-slices (Setoids 0ℓ 0ℓ)
 open import LFP (Setoids 0ℓ 0ℓ)
+open import Presented (Setoids 0ℓ 0ℓ) filtered
 open import Categories.Category.Slice (Setoids 0ℓ 0ℓ)
 
 -- -- we use a custom 'setoid' variation to achieve arbitrary levels o, ℓ
@@ -61,7 +62,7 @@ Fin≈-zero-empty ()
 id-filtered : ∀ {𝒟} → filtered 𝒟 → filtered 𝒟
 id-filtered f = f
 
-Fin-is-presented : ∀ (n : ℕ) → presented filtered id-filtered (Fin≈ n)
+Fin-is-presented : ∀ (n : ℕ) → presented (Fin≈ n)
 Fin-is-presented n 𝒟 𝒟-filtered J colim =
   -- see where-clause at the end
   bounded-colimiting
