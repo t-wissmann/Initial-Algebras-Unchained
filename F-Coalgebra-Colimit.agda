@@ -1,8 +1,13 @@
 {-# OPTIONS --without-K #-}
 open import Categories.Category
 open import Categories.Functor using (Functor; Endofunctor)
+open import Agda.Builtin.Equality renaming (refl to ≡-refl)
+open import Categories.Diagram.Cocone.Properties using (F-map-Coconeˡ; F-map-Cocone⇒ˡ)
 
 module F-Coalgebra-Colimit {o ℓ e} {C : Category o ℓ e} {F : Endofunctor C} where
+
+private
+  module C = Category C
 
 open import Level
 
@@ -40,10 +45,86 @@ open import Categories.Functor using (_∘F_)
 open import Categories.Diagram.Colimit using (Colimit)
 open import Categories.Diagram.Cocone
 
+
+-- Whenever a cocone in F-Coalgebras is (co)limitting on the level of the base category,
+-- it is (co)limitting in F-Coalgebras, too!
+F-Coalgebras-Limitting-Cocone : {o' ℓ' e' : Level} → {D : Category o' ℓ' e'}
+  → (J : Functor D (F-Coalgebras F))
+  → (K : Cocone J)
+  → IsLimitting (F-map-Coconeˡ forget-Coalgebra K)
+  → IsLimitting K
+F-Coalgebras-Limitting-Cocone {o'} {ℓ'} {e'} {D} J K UK-limitting =
+  record {
+    ! = λ {competing} →
+      record {
+        arr = coalg-initiality.h competing ;
+        commute = λ {X} →
+          Cocone⇒.commute (coalg-initiality.C-cocone-morph competing)
+      } ;
+    !-unique = λ {competing} other-mor →
+      IsInitial.!-unique UK-limitting (F-map-Cocone⇒ˡ U other-mor)
+      }
+  where
+    module J = Functor J
+    U = forget-Coalgebra
+    UK = F-map-Coconeˡ forget-Coalgebra K
+    module UK = Cocone UK
+    module K = Cocone K
+
+    k = F-Coalgebra.α K.N
+
+    -- the colimit in 𝒞:
+    colim : Colimit (U ∘F J)
+    colim = Colimit-from-prop UK-limitting
+    module colim = Colimit colim
+    -- we first compute the colimit in C:
+    composed-diagram = forget-Coalgebra ∘F J
+
+    module coalg-initiality (competing : Cocone J) where
+      -- for any other cocone in F-Coalgebras
+      module N = F-Coalgebra (Cocone.N competing)
+      module competing = Cocone competing
+      -- send the cocone down to C:
+      C-cocone : Cocone composed-diagram
+      C-cocone = F-map-Coconeˡ U competing
+
+      -- this induces a cocone morphism in C
+      C-cocone-morph : Cocone⇒ _ UK C-cocone
+      C-cocone-morph = IsInitial.! UK-limitting
+      -- which gives rise to the coalgebra morphism:
+      h : F-Coalgebra-Morphism K.N competing.N
+      h =
+        let
+          h = Cocone⇒.arr C-cocone-morph
+          open Category C
+          open Functor F
+          open HomReasoning
+        in
+        record {
+        f = h ;
+        commutes = colimit-is-jointly-epic colim λ X →
+            let
+              module X = F-Coalgebra (J.₀ X)
+            in
+            begin
+              (N.α ∘ h) ∘ colim.proj X     ≈⟨ assoc ⟩
+              N.α ∘ (h ∘ colim.proj X)     ≈⟨ refl⟩∘⟨ Cocone⇒.commute C-cocone-morph ⟩
+              N.α ∘ Cocone.ψ C-cocone X    ≈⟨ F-Coalgebra-Morphism.commutes (competing.ψ X) ⟩
+              F₁ (Cocone.ψ C-cocone X) ∘ X.α  ≈˘⟨ F-resp-≈ (Cocone⇒.commute C-cocone-morph) ⟩∘⟨refl ⟩
+              F₁ (h ∘ colim.proj X) ∘ X.α ≈⟨ homomorphism ⟩∘⟨refl ⟩
+              (F₁ h ∘ F₁ (colim.proj X)) ∘ X.α ≈⟨ assoc ⟩
+              F₁ h ∘ (F₁ (colim.proj X) ∘ X.α) ≈˘⟨ refl⟩∘⟨ F-Coalgebra-Morphism.commutes (K.ψ X) ⟩
+              F₁ h ∘ (k ∘ colim.proj X) ≈˘⟨ assoc ⟩
+              (F₁ h ∘ k) ∘ colim.proj X
+            ∎
+        }
+
+
 F-Coalgebras-Colimit : {o' ℓ' e' : Level} → {D : Category o' ℓ' e'} → (J : Functor D (F-Coalgebras F))
         → Colimit (forget-Coalgebra ∘F J) → Colimit J
 F-Coalgebras-Colimit {o'} {ℓ'} {e'} {D} J colim =
-  let
+  Colimit-from-prop (F-Coalgebras-Limitting-Cocone J J-cocone UJ-cocone-initial)
+  where
     module J = Functor J
     -- we first compute the colimit in C:
     composed-diagram = forget-Coalgebra ∘F J
@@ -109,100 +190,30 @@ F-Coalgebras-Colimit {o'} {ℓ'} {e'} {D} J colim =
           F₁ (colim.proj A,α) ∘ α
           ∎
       }
-  in
-  record {
-    initial = record {
-      ⊥ = record {
-        coapex = record {
-          ψ = coalg-inj ;
-          commute = λ h →
-            -- for all connecting morphisms, we inherit the triangle commutativity
-            Cocone.commute colim.initial.⊥ h
-            } } ;
-      ⊥-is-initial =
-        record {
-          ! = λ {competing} →
-            let
-              -- for any other cocone in F-Coalgebras
-              module N = F-Coalgebra (Cocone.N competing)
-              module competing = Cocone competing
-              -- send the cocone down to C:
-              C-cocone : Cocone composed-diagram
-              C-cocone = record {
-                coapex = record {
-                  ψ = λ X → F-Coalgebra-Morphism.f (competing.ψ X) ;
-                  commute = competing.commute
-                  } }
 
-              -- this induces a cocone morphism in C
-              C-cocone-morph : Cocone⇒ _ colim.colimit C-cocone
-              C-cocone-morph = colim.initial.!
-              -- which gives rise to the coalgebra morphism:
-              h : F-Coalgebra-Morphism K,k competing.N
-              h =
-                let
-                  h = Cocone⇒.arr C-cocone-morph
-                  open Category C
-                  open Functor F
-                  open HomReasoning
-                in
-                record {
-                f = h ;
-                commutes = colimit-is-jointly-epic colim λ X →
-                    let
-                      module X = F-Coalgebra (J.F₀ X)
-                    in
-                    begin
-                      (N.α ∘ h) ∘ colim.proj X     ≈⟨ assoc ⟩
-                      N.α ∘ (h ∘ colim.proj X)     ≈⟨ refl⟩∘⟨ Cocone⇒.commute C-cocone-morph ⟩
-                      N.α ∘ Cocone.ψ C-cocone X    ≈⟨ F-Coalgebra-Morphism.commutes (competing.ψ X) ⟩
-                      F₁ (Cocone.ψ C-cocone X) ∘ X.α  ≈˘⟨ F-resp-≈ (Cocone⇒.commute C-cocone-morph) ⟩∘⟨refl ⟩
-                      F₁ (h ∘ colim.proj X) ∘ X.α ≈⟨ homomorphism ⟩∘⟨refl ⟩
-                      (F₁ h ∘ F₁ (colim.proj X)) ∘ X.α ≈⟨ assoc ⟩
-                      F₁ h ∘ (F₁ (colim.proj X) ∘ X.α) ≈˘⟨ refl⟩∘⟨ F-Coalgebra-Morphism.commutes (coalg-inj X) ⟩
-                      F₁ h ∘ (k ∘ colim.proj X) ≈˘⟨ assoc ⟩
-                      (F₁ h ∘ k) ∘ colim.proj X
-                    ∎
-                }
-            in
-            record {
-              arr = h ;
-              commute = λ {X} →
-                let
-                  open Category C
-                  module h = F-Coalgebra-Morphism h
-                  open HomReasoning
-                in
-                begin
-                  h.f ∘ colim.proj X     ≈⟨ Cocone⇒.commute C-cocone-morph ⟩
-                  F-Coalgebra-Morphism.f (competing.ψ X)
-                ∎
-              } ;
-          !-unique = λ {competing} another-cocone-morph →
-            let
-              -- some redundancy:
-              module competing = Cocone competing
-              C-cocone : Cocone composed-diagram
-              C-cocone = record {
-                coapex = record {
-                  ψ = λ X → F-Coalgebra-Morphism.f (competing.ψ X) ;
-                  commute = competing.commute
-                  } }
-              -- for the actual proof:
-              module another-cocone-morph = Cocone⇒ another-cocone-morph
-              -- for any other cocone moprhism,
-              -- we directly have one between the cocones in C
-              another-C-cocone-morph : Cocone⇒ _ colim.colimit C-cocone
-              another-C-cocone-morph = record {
-                arr = F-Coalgebra-Morphism.f another-cocone-morph.arr ;
-                commute = another-cocone-morph.commute
-                }
-              -- colim.initial.⊥.!-unique another-C-cocone-morph
-            in
-            IsInitial.!-unique colim.initial.⊥-is-initial another-C-cocone-morph
+    J-cocone : Cocone J
+    J-cocone = record { coapex = record {
+      ψ = coalg-inj ;
+      commute = Cocone.commute colim.initial.⊥
+      } }
+
+    UJ-cocone-initial : IsLimitting (F-map-Coconeˡ forget-Coalgebra J-cocone)
+    UJ-cocone-initial =
+      record {
+        ! = λ {K'} →
+          record {
+            arr = colim.rep K' ;
+            commute = colim.commute } ;
+        !-unique = λ {K'} f →
+          let
+            -- we need to unfold/fold the definitions a bit:
+            f' : Cocone⇒ _ colim.colimit K'
+            f' = record { arr = Cocone⇒.arr f ; commute = Cocone⇒.commute f }
+            eq : C [ Cocone⇒.arr (colim.initial.! {K'}) ≈ Cocone⇒.arr f' ]
+            eq = colim.initial.!-unique f'
+          in
+          eq
           }
-      }
-  }
 
 F-Coalgebras-Cocomplete : (o' ℓ' e' : Level) → Cocomplete o' ℓ' e' C → Cocomplete o' ℓ' e' (F-Coalgebras F)
 F-Coalgebras-Cocomplete o' ℓ' e' C-Cocomplete {D} = λ (J : Functor D (F-Coalgebras F)) →
