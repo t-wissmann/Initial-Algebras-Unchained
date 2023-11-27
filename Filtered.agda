@@ -46,17 +46,17 @@ record has-upper-bounds : Set (o ⊔ ℓ ⊔ e) where
 
 -- the property that the diagram of every pair of parallel morphisms
 -- has a cocone. There is no name for this in nlab (https://ncatlab.org/nlab/show/filtered+category)
--- nor in the Adamek/Rosicky-book. So let us call it 'fuse'
-record FusedMorphisms {X Y : C.Obj} (g h : C [ X , Y ]) : Set (o ⊔ ℓ ⊔ e) where
+-- nor in the Adamek/Rosicky-book. So let us call it 'merge
+record MergedMorphisms {X Y : C.Obj} (g h : C [ X , Y ]) : Set (o ⊔ ℓ ⊔ e) where
   open Category C
   field
     -- for a pair of parallel morphisms g and h, we obtain:
     -- 1. an object in which the two morphisms will become equal
     tip : C.Obj
     -- 2. a morphism  to that object:
-    fuser : Y ⇒ tip
+    merge : Y ⇒ tip
     -- 3. and the property that it makes g and h equal:
-    prop : fuser ∘ g ≈ fuser ∘ h
+    prop : merge ∘ g ≈ merge ∘ h
 
 record fuse-parallel-morphisms : Set (o ⊔ ℓ ⊔ e) where
   open Category C
