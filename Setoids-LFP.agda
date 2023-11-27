@@ -14,8 +14,9 @@ open import Data.Nat using (ℕ)
 import Data.Nat
 import Data.Sum.Base as Sum
 open import Data.Fin
+open import Data.Fin.Properties using (splitAt-inject+; splitAt-raise)
 open import Data.Product
-open import Function.Equality hiding (setoid; _∘_; id)
+open import Function.Equality hiding (setoid; _∘_; id; cong)
 open import Relation.Binary.PropositionalEquality hiding ([_])
 open import Relation.Binary.PropositionalEquality.Properties
 open import Relation.Binary.PropositionalEquality using (→-to-⟶)
@@ -327,12 +328,35 @@ canonical-cat-is-filtered X =
                 slicearr {h = →-to-⟶ (inject+ n)}
                 λ {i} {i'} i≈i' → begin
                 concat-tuples (_⟨$⟩_ s) (_⟨$⟩_ t) (inject+ n i)
-                  ≈⟨ {!!} ⟩
-                s ⟨$⟩ i' -- s ⟨$⟩ i
+                  ≡⟨⟩
+                Sum.[ _⟨$⟩_ s , _⟨$⟩_ t ] (splitAt k (inject+ n i))
+                  ≡⟨ cong Sum.[ _⟨$⟩_ s , _⟨$⟩_ t ] (splitAt-inject+ k n i) ⟩
+                -- Sum.[ _⟨$⟩_ s , _⟨$⟩_ t ] (Sum.inj₁ i)
+                --  ≡⟨⟩
+                s ⟨$⟩ i
+                  ≈⟨ Π.cong s i≈i' ⟩
+                s ⟨$⟩ i'
                 ∎
                 } ;
-              is-above₂ = λ {(k , s) (n , t) → {!!} } } ;
-    fuse-parallel = {!!}
+              is-above₂ = λ {(k , s) (n , t) →
+                let
+                  open SetoidR X
+                in
+                slicearr {h = →-to-⟶ (raise {n} k)}
+                λ {i} {i'} i≈i' →
+                begin
+                concat-tuples (_⟨$⟩_ s) (_⟨$⟩_ t) (raise k i)
+                  ≡⟨⟩
+                Sum.[ _⟨$⟩_ s , _⟨$⟩_ t ] (splitAt k (raise k i))
+                  ≡⟨ cong Sum.[ _⟨$⟩_ s , _⟨$⟩_ t ] (splitAt-raise k n i) ⟩
+                -- Sum.[ _⟨$⟩_ s , _⟨$⟩_ t ] (Sum.inj₂ i)
+                --  ≡⟨⟩
+                t ⟨$⟩ i
+                  ≈⟨ Π.cong t i≈i' ⟩
+                t ⟨$⟩ i'
+                ∎
+              } } ;
+    fuse-parallel = record { fuse-obj = {!!} ; fuse-morph = {!!} ; fuse-prop = {!!} }
     }
   where
     exfalso : ∀ {a : Level} {A : Set a} → Fin 0 → A
