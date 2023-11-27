@@ -97,8 +97,31 @@ iterate-CoalgColimit coalg-colim 𝒟-filtered F-preserves-colim = goal
 
 module unique-proj (A,α : CoalgColim {ℓ} {ℓ} {ℓ}) where
   module A,α = CoalgColim A,α
+  open import Hom-Colimit-Choice
+  open Hom-Colimit-Choice.LiftHom 𝒞 ℓ ℓ ℓ
 
+  -- Given a coalgebra in the diagram of A,α , the injection/projection
+  -- is the unique coalgebra homomorphism to A,α:
   unique-proj : ∀ {i : A,α.𝒟.Obj}
     (h : F-Coalgebras F [ A,α.D.₀ i , A,α.to-Coalgebra ]) →
+    Fil (CoalgColim.𝒟 A,α) →
     F-Coalgebras F [ h ≈ A,α.colim.proj i ]
-  unique-proj = {!!}
+  unique-proj {i} h 𝒟-Fil = {!!}
+    where
+      X : 𝒞.Obj
+      X = F-Coalgebra.A (A,α.D.₀ i)
+
+      𝒟-filtered : filtered A,α.𝒟
+      𝒟-filtered = Fil-to-filtered 𝒟-Fil
+
+      module h = F-Coalgebra-Morphism h
+
+      A : 𝒞.Obj
+      A = F-Coalgebra.A A,α.to-Coalgebra
+
+      A-preserves-D : preserves-colimit (forget-Coalgebra ∘F A,α.D) LiftHom[ X ,-]
+      A-preserves-D = FinitaryRecursive.finite-carrier
+        (A,α.all-have-prop {i}) A,α.𝒟 𝒟-Fil (forget-Coalgebra ∘F A,α.D)
+
+      -- so h factors through the diagram:
+      -- j : A,α.𝒟.Obj
