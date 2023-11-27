@@ -163,6 +163,17 @@ module _
 
       module I = Setoids-Colimit.identified-in-diagram ident-f-g
 
+  -- a variant of hom-colim-unique-factor with only one
+  -- connecting morphism within the diagram:
+  hom-colim-unique-factor₁ :
+      filtered 𝒟 →
+      (P : 𝒞.Obj) →
+      IsLimitting (F-map-Coconeˡ (LiftHom[ P ,-]) (Colimit.colimit colim)) →
+      UniqueColimitFactorization₁ P
+  hom-colim-unique-factor₁ fil P is-colim =
+    coequalize-colimit-factorization P fil
+      (hom-colim-unique-factor fil P is-colim)
+
 
   -- A hom-functor 𝒞(P,-) preserves a colimit C given that
   -- 1. all morphisms P ⇒ C factor through the diagram.

@@ -45,7 +45,13 @@ record CoalgColim {o' ℓ' e'} : Set (o ⊔ ℓ ⊔ e ⊔ P-level ⊔ suc (o' �
   module 𝒟 = Category 𝒟
   module D = Functor D
 
-  carrier-colim : Colimit (forget-Coalgebra ∘F D)
+  -- composition with the forgetful functor
+  U∘D : Functor 𝒟 𝒞
+  U∘D = forget-Coalgebra ∘F D
+
+  module U∘D = Functor U∘D
+
+  carrier-colim : Colimit U∘D
   carrier-colim = Colimit-from-prop carrier-colimitting
   module carrier-colim = Colimit carrier-colim
 
