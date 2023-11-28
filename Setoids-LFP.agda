@@ -38,8 +38,11 @@ private
     -- levels for setoids themselves:
     o ℓ : Level
 
+id-filtered : ∀ {o ℓ e : Level} {𝒟} → filtered {o} {ℓ} {e} 𝒟 → filtered {o} {ℓ} {e} 𝒟
+id-filtered f = f
+
 open import LFP-slices (Setoids 0ℓ 0ℓ)
-open import LFP (Setoids 0ℓ 0ℓ)
+open import LFP (Setoids 0ℓ 0ℓ) filtered id-filtered
 open import Presented (Setoids 0ℓ 0ℓ) filtered
 open import Categories.Category.Slice (Setoids 0ℓ 0ℓ)
 
@@ -59,9 +62,6 @@ Fin≈ n = setoid (Fin n)
 
 Fin≈-zero-empty : {ℓ-a : Level} {a : Set ℓ-a} → Fin 0 → a
 Fin≈-zero-empty ()
-
-id-filtered : ∀ {𝒟} → filtered 𝒟 → filtered 𝒟
-id-filtered f = f
 
 Fin-is-presented : ∀ (n : ℕ) → presented (Fin≈ n)
 Fin-is-presented n 𝒟 𝒟-filtered J colim =
@@ -318,6 +318,12 @@ canonical-cocone-is-limitting X =
 concat-tuples : {a : Level} {n m : ℕ} {X : Set a} (s : Fin n → X) (t : Fin m → X) → (Fin (n  Data.Nat.+ m) → X)
 concat-tuples {a} {n} {m} s t n+m = Sum.[ s , t ] (splitAt n n+m)
 
+merge-parallel : (k n : ℕ) (X : Setoid 0ℓ 0ℓ)
+  (s : Fin≈ k ⟶ X)
+  (t : Fin≈ n ⟶ X)
+  (g h : Cat[ Fin≈ ↓ X ] [ (k , s) , (n , t) ]) → MergedMorphisms (Cat[ Fin≈ ↓ X ]) g h
+merge-parallel k n X s t g h = {!!}
+
 canonical-cat-is-filtered : ∀ (X : Setoid 0ℓ 0ℓ) → filtered (Cat[ Fin≈ ↓ X ])
 canonical-cat-is-filtered X =
   record {
@@ -360,13 +366,16 @@ canonical-cat-is-filtered X =
                 t ⟨$⟩ i'
                 ∎
               } } ;
-    merge-parallel = {!!}
+    merge-parallel = record { merge-all = λ { {k , s} {n , t} g h →
+          merge-parallel k  n X s t g h
+        }
+      }
     }
   where
     exfalso : ∀ {a : Level} {A : Set a} → Fin 0 → A
     exfalso ()
 
-setoids-LFP : WeaklyLFP filtered id-filtered
+setoids-LFP : WeaklyLFP
 setoids-LFP = record
                { Idx = ℕ
                ; fin = Fin≈
