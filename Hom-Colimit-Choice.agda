@@ -117,18 +117,20 @@ module _
       -- We take the factorization with the two injections:
       j , f' , (g' , binary-prop) = factor2 {i} f g eq-proj
       -- and the merge f' and g'
-      module fil = fuse-parallel-morphisms (filtered.fuse-parallel fil)
-      i' = fil.fuse-obj f' g'
-      k = fil.fuse-morph f' g'
+      M : MergedMorphisms _ f' g'
+      M = filtered.merge-all fil f' g'
+      module M = MergedMorphisms M
+      -- module fil = fuse-parallel-morphisms (filtered.fuse-parallel fil)
+      k = M.merge
       open HomReasoning
     in
-    i' , ((k 𝒟.∘ f') , (begin
+    M.tip , ((k 𝒟.∘ f') , (begin
       D.₁ (k 𝒟.∘ f') ∘ f ≈⟨ D.homomorphism ⟩∘⟨refl ⟩
       (D.₁ k ∘ D.₁ f') ∘ f ≈⟨ assoc ⟩
       D.₁ k ∘ (D.₁ f' ∘ f) ≈⟨ refl⟩∘⟨ binary-prop ⟩
       D.₁ k ∘ (D.₁ g' ∘ g) ≈⟨ sym-assoc ⟩
       (D.₁ k ∘ D.₁ g') ∘ g ≈˘⟨ D.homomorphism ⟩∘⟨refl ⟩
-      D.₁ (k 𝒟.∘ g') ∘ g ≈˘⟨ D.F-resp-≈ (fil.fuse-prop f' g') ⟩∘⟨refl ⟩
+      D.₁ (k 𝒟.∘ g') ∘ g ≈˘⟨ D.F-resp-≈ M.prop ⟩∘⟨refl ⟩
       D.₁ (k 𝒟.∘ f') ∘ g
     ∎))
 

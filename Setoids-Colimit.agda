@@ -113,22 +113,24 @@ module _ {o ℓ e c ℓ'} {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
         open filtered fil
 
         -- the new upper bound and the two injections
-        W = close-span-obj f V.inj₁
-        w₁ = close-span-morph₁ f V.inj₁
-        w₂ = close-span-morph₂ f V.inj₁
+        W : ClosedSpan _ f V.inj₁
+        W = close-span f V.inj₁
+        module W = ClosedSpan W
+        w₁ = W.close-fst
+        w₂ = W.close-snd
       in
       record {
-        B = W;
+        B = W.tip;
         inj₁ = w₁;
         inj₂ = D [ w₂ ∘ V.inj₂ ] ;
         identifies =
         let
-            open SetoidR (J.F₀ (close-span-obj f V.inj₁))
+            open SetoidR (J.F₀ W.tip)
         in
         begin
         J.F₁ w₁ ⟨$⟩ x               ≈˘⟨ cong (J.F₁ w₁) fy≈x ⟩
         J.F₁ w₁ ⟨$⟩ (J.F₁ f ⟨$⟩ y)   ≈˘⟨ J.homomorphism (refl (J.F₀ Y)) ⟩
-        J.F₁ (D [ w₁ ∘ f ]) ⟨$⟩ y   ≈⟨ J.F-resp-≈ (close-span-commutes f V.inj₁) (refl (J.F₀ Y)) ⟩
+        J.F₁ (D [ w₁ ∘ f ]) ⟨$⟩ y   ≈⟨ J.F-resp-≈ W.commutes (refl (J.F₀ Y)) ⟩
         J.F₁ (D [ w₂ ∘ V.inj₁ ]) ⟨$⟩ y   ≈⟨ J.homomorphism (refl (J.F₀ Y)) ⟩
         J.F₁ w₂ ⟨$⟩ ((J.F₁ V.inj₁) ⟨$⟩ y) ≈⟨ cong (J.F₁ w₂) V.identifies ⟩
         J.F₁ w₂ ⟨$⟩ ((J.F₁ V.inj₂) ⟨$⟩ z) ≈˘⟨ J.homomorphism (refl (J.F₀ Z)) ⟩

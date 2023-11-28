@@ -171,9 +171,11 @@ Fin-is-presented n 𝒟 𝒟-filtered J colim =
         ident-in-dia-0 : identified-in-diagram J (s ⟨$⟩ Fin.zero) (t ⟨$⟩ Fin.zero)
         ident-in-dia-0 = filtered-identification-colim J colim 𝒟-filtered proj-identifies-0
         module ident-in-dia-0 = identified-in-diagram ident-in-dia-0
-        j-0 = 𝒟-filtered.fuse-obj ident-in-dia-0.inj₁ ident-in-dia-0.inj₂
-        coeq = 𝒟-filtered.fuse-morph ident-in-dia-0.inj₁ ident-in-dia-0.inj₂
-        coeq-prop = 𝒟-filtered.fuse-prop ident-in-dia-0.inj₁ ident-in-dia-0.inj₂
+        M = 𝒟-filtered.merge-all ident-in-dia-0.inj₁ ident-in-dia-0.inj₂
+        module M = MergedMorphisms M
+        j-0 = M.tip
+        coeq = M.merge
+        coeq-prop = M.prop
         h-0 : j 𝒟.⇒ j-0
         h-0 = coeq 𝒟.∘ ident-in-dia-0.inj₁
 
@@ -188,9 +190,11 @@ Fin-is-presented n 𝒟 𝒟-filtered J colim =
         j-suc , (h-suc , ident-in-dia-suc) = induction k j s-suc t-suc eq-proj-suc
 
         -- we can combine the two morphisms for 0 and the I.H.:
-        j' = 𝒟-filtered.close-span-obj h-0 h-suc
-        h-inj₁ = 𝒟-filtered.close-span-morph₁ h-0 h-suc
-        h-inj₂ = 𝒟-filtered.close-span-morph₂ h-0 h-suc
+        closed = 𝒟-filtered.close-span h-0 h-suc
+        module closed = ClosedSpan closed
+        j' = closed.tip
+        h-inj₁ = closed.close-fst
+        h-inj₂ = closed.close-snd
         h : j 𝒟.⇒ j'
         h = h-inj₁ 𝒟.∘ h-0
 
@@ -221,11 +225,11 @@ Fin-is-presented n 𝒟 𝒟-filtered J colim =
       ; {Fin.suc m} refl →
           begin
           (J.₁ h ∘ s) ⟨$⟩ Fin.suc m ≡⟨⟩
-          (J.₁ (h-inj₁ 𝒟.∘ h-0) ∘ s) ⟨$⟩ Fin.suc m ≈⟨ J.F-resp-≈ (𝒟-filtered.close-span-commutes h-0 h-suc) refl-j ⟩
+          (J.₁ (h-inj₁ 𝒟.∘ h-0) ∘ s) ⟨$⟩ Fin.suc m ≈⟨ J.F-resp-≈ closed.commutes refl-j ⟩
           (J.₁ (h-inj₂ 𝒟.∘ h-suc) ∘ s) ⟨$⟩ Fin.suc m ≈⟨ J.homomorphism refl-j ⟩
           J.₁ h-inj₂ ⟨$⟩ (J.₁ h-suc ⟨$⟩ (s ⟨$⟩ Fin.suc m)) ≈⟨ Π.cong (J.₁ h-inj₂) (ident-in-dia-suc (Setoid.refl (Fin≈ k))) ⟩
           J.₁ h-inj₂ ⟨$⟩ (J.₁ h-suc ⟨$⟩ (t ⟨$⟩ Fin.suc m)) ≈˘⟨ J.homomorphism refl-j ⟩
-          (J.₁ (h-inj₂ 𝒟.∘ h-suc) ∘ t) ⟨$⟩ Fin.suc m ≈˘⟨ J.F-resp-≈ (𝒟-filtered.close-span-commutes h-0 h-suc) refl-j ⟩
+          (J.₁ (h-inj₂ 𝒟.∘ h-suc) ∘ t) ⟨$⟩ Fin.suc m ≈˘⟨ J.F-resp-≈ closed.commutes refl-j ⟩
           (J.₁ (h-inj₁ 𝒟.∘ h-0) ∘ t) ⟨$⟩ Fin.suc m ≡⟨⟩
           (J.₁ h ∘ t) ⟨$⟩ Fin.suc m
           ∎
@@ -356,7 +360,7 @@ canonical-cat-is-filtered X =
                 t ⟨$⟩ i'
                 ∎
               } } ;
-    fuse-parallel = record { fuse-obj = {!!} ; fuse-morph = {!!} ; fuse-prop = {!!} }
+    merge-parallel = {!!}
     }
   where
     exfalso : ∀ {a : Level} {A : Set a} → Fin 0 → A
