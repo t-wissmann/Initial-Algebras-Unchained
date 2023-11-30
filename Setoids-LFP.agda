@@ -327,9 +327,21 @@ merge-parallel ℕ.zero n X s t g h =
   record {
     tip = n , t ;
     merge = Category.id Cat[ Fin≈ ↓ X ] ;
-    prop = λ { {i} {i} refl → {!!} }
+    prop = λ { {()} {()} refl }
+      -- let
+      --   open SetoidR (Fin≈ n)
+      -- in
+      -- begin
+      -- g ⟨$⟩ i ≡⟨ {!!} ⟩
+      -- h ⟨$⟩ i
+      -- ∎
   }
-merge-parallel (ℕ.suc k) n X s t g h = {!!}
+merge-parallel (ℕ.suc k) n X s t (slicearr {g} g-prop) (slicearr {h} h-prop) =
+  record {
+    tip = {!!} ;
+    merge = {!!} ;
+    prop = {!!}
+  }
 
 canonical-cat-is-filtered : ∀ (X : Setoid 0ℓ 0ℓ) → filtered (Cat[ Fin≈ ↓ X ])
 canonical-cat-is-filtered X =
