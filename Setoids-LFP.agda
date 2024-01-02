@@ -13,6 +13,7 @@ open import Filtered
 open import Data.Nat using (ℕ)
 import Data.Nat
 import Data.Sum.Base as Sum
+open import Relation.Binary.Core using (Rel)
 open import Data.Fin
 open import Data.Fin.Properties using (splitAt-inject+; splitAt-raise)
 open import Data.Product
@@ -25,6 +26,9 @@ open import Categories.Diagram.Cocone.Properties
 open import Categories.Diagram.Colimit using (Colimit)
 open import Categories.Functor.Construction.LiftSetoids
 import Relation.Binary.Reasoning.Setoid as SetoidR
+open import Relation.Binary.Construct.Closure.Equivalence using (EqClosure)
+open import Relation.Binary.Construct.Closure.ReflexiveTransitive
+open import Relation.Binary.Bundles
 
 
 open import Setoids-Colimit
@@ -317,6 +321,8 @@ canonical-cocone-is-limitting X =
 
 concat-tuples : {a : Level} {n m : ℕ} {X : Set a} (s : Fin n → X) (t : Fin m → X) → (Fin (n  Data.Nat.+ m) → X)
 concat-tuples {a} {n} {m} s t n+m = Sum.[ s , t ] (splitAt n n+m)
+
+
 
 merge-parallel : (k n : ℕ) (X : Setoid 0ℓ 0ℓ)
   (s : Fin≈ k ⟶ X)
