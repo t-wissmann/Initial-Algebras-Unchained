@@ -8,10 +8,12 @@ open import Data.Product
 open import Relation.Binary
 open import Relation.Binary.Core using (Rel)
 open import Relation.Binary.Construct.Closure.Equivalence using (EqClosure)
+import Relation.Binary.Construct.Closure.Equivalence as EqClos
 open import Relation.Binary.PropositionalEquality.Core
 open import Data.Nat using (ℕ)
 open import Data.Fin
 open import Data.Bool.Base
+open import Function using (_∋_)
 open import Relation.Nullary
 open import Relation.Nullary.Decidable.Core using (dec-true)
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive
@@ -27,6 +29,12 @@ record EndoCoequalize {ℓ} {Y : Set} (R : Rel Y ℓ) : Set ℓ where
 SpanRel : {X : Set} {Y : Set} (g h : X → Y) → Rel Y 0ℓ
 SpanRel {X} {Y} g h = λ y-g y-h → Σ[ x ∈ X ](g x ≡ y-g   ×   h x ≡ y-h)
 
+shift : {k : ℕ} {Y : Set} → (Fin (ℕ.suc k) → Y) → (Fin k → Y)
+shift gh i = gh (Fin.suc i)
+
+shift-SpanRel : {k : ℕ} {Y : Set} (g h : Fin (ℕ.suc k) → Y) → (SpanRel (shift g) (shift h)) ⇒ (SpanRel g h)
+shift-SpanRel {k} {Y} g h {y₁} {y₂} (i , g-prop , h-prop) = Fin.suc i , g-prop , h-prop
+
 finite-coequalize : (k : ℕ) (Y : Set) → Decidable (_≡_ {_} {Y}) → (g h : Fin k → Y) → EndoCoequalize (SpanRel g h)
 finite-coequalize ℕ.zero Y Y≡-dec g h =
   record {
@@ -38,12 +46,9 @@ finite-coequalize (ℕ.suc k) Y Y≡-dec g h =
   record {
     f = f ;
     identify-R = identify-R ;
-    reflect-f = {!!}
+    reflect-f = reflect-f
   }
   where
-    shift : (Fin (ℕ.suc k) → Y) → (Fin k → Y)
-    shift gh i = gh (Fin.suc i)
-
     nested : EndoCoequalize (SpanRel (shift g) (shift h))
     nested = finite-coequalize k Y Y≡-dec (shift g) (shift h)
     module nested = EndoCoequalize nested
@@ -79,3 +84,10 @@ finite-coequalize (ℕ.suc k) Y Y≡-dec g h =
       ∎
     identify-R y₁ y₂ (Fin.suc k' , gk=y₁ , hk=y₂) =
       cong f' (nested.identify-R y₁ y₂ (k' , (gk=y₁ , hk=y₂)))
+
+    reflect-f : (y : Y) → EqClosure (SpanRel g h) y (f y)
+    reflect-f y with (nested.f y == nested.f (g Fin.zero))
+    ... | true = EqClosure (SpanRel g h) y (nested.f (h Fin.zero)) ∋
+                 {!!}
+    ... | false = EqClosure (SpanRel g h) y (nested.f y) ∋
+                  EqClos.map (shift-SpanRel g h) (nested.reflect-f y)
