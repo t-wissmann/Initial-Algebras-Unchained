@@ -2,7 +2,7 @@
 
 open import Level
 
-module FiniteCoequalizer where
+module FinCoequalizer where
 
 open import Data.Product
 open import Relation.Binary
@@ -13,6 +13,7 @@ open import Data.Nat using (ℕ)
 open import Data.Fin
 open import Data.Bool.Base
 open import Relation.Nullary
+open import Relation.Nullary.Decidable.Core using (dec-true)
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive
 open import Relation.Binary.PropositionalEquality hiding ([_])
 open import Relation.Binary.PropositionalEquality.Properties
@@ -36,7 +37,7 @@ finite-coequalize ℕ.zero Y Y≡-dec g h =
 finite-coequalize (ℕ.suc k) Y Y≡-dec g h =
   record {
     f = f ;
-    identify-R = {!!} ;
+    identify-R = identify-R ;
     reflect-f = {!!}
   }
   where
@@ -50,15 +51,20 @@ finite-coequalize (ℕ.suc k) Y Y≡-dec g h =
     _==_ : Y → Y → Bool
     _==_ x y = Dec.does (Y≡-dec x y)
 
-    f : Y → Y
-    f y with (nested.f y == nested.f (g Fin.zero))
+    f' : Y → Y
+    f' fy with (fy == nested.f (g Fin.zero))
     ...    | true = nested.f (h Fin.zero)
-    ...    | false = nested.f y
+    ...    | false = fy
     -- ^-- in the new 'f', we send all elements of the equivalence class
     --     of g0 to the equivalence class to h0
+    f : Y → Y
+    f y = f' (nested.f y)
+
+    ==-correct : {y₁ y₂ : Y} → y₁ ≡ y₂ → y₁ == y₂ ≡ true
+    ==-correct {y₁} {y₂} eq = dec-true (Y≡-dec y₁ y₂) eq
 
     g0-prop : {y : Y} → g Fin.zero ≡ y → (nested.f y == nested.f (g Fin.zero)) ≡ true
-    g0-prop {y} eq = {!!}
+    g0-prop {y} eq = ==-correct (cong nested.f (sym eq))
     h0-prop : {y : Y} → h Fin.zero ≡ y → f y ≡ nested.f (h Fin.zero)
     h0-prop {y} eq with (nested.f y == nested.f (g Fin.zero))
     ... | true = refl
@@ -71,17 +77,5 @@ finite-coequalize (ℕ.suc k) Y Y≡-dec g h =
       (nested.f (h Fin.zero)) ≡⟨ sym (h0-prop h0=y₂) ⟩
       f y₂
       ∎
-      -- with (nested.f y₁ == nested.f (g Fin.zero))
-      --... | true =
-      --  begin
-      --  (nested.f (h Fin.zero)) ≡⟨ {!!} ⟩
-      --  f y₂
-      --  ∎
-      --... | false = {!!}
-      -- let open ≡-Reasoning in
-      -- begin
-      -- f y₁ ≡⟨ {!!} ⟩
-      -- (nested.f (h Fin.zero)) ≡⟨ {!!} ⟩
-      -- f y₂
-      -- ∎
-    identify-R y₁ y₂ (Fin.suc k , gk=y₁ , hk=y₂) = {!!}
+    identify-R y₁ y₂ (Fin.suc k' , gk=y₁ , hk=y₂) =
+      cong f' (nested.identify-R y₁ y₂ (k' , (gk=y₁ , hk=y₂)))

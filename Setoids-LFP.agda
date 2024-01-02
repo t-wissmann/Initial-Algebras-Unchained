@@ -34,6 +34,7 @@ open import Relation.Binary.Bundles
 open import Setoids-Colimit
 open import Setoids-Choice
 open import Unchained-Utils
+open import FinCoequalizer
 
 module Setoids-LFP where
 
@@ -328,7 +329,7 @@ merge-parallel : (k n : ℕ) (X : Setoid 0ℓ 0ℓ)
   (s : Fin≈ k ⟶ X)
   (t : Fin≈ n ⟶ X)
   (g h : Cat[ Fin≈ ↓ X ] [ (k , s) , (n , t) ]) → MergedMorphisms (Cat[ Fin≈ ↓ X ]) g h
-merge-parallel ℕ.zero n X s t g h =
+merge-parallel k n X s t g h =
   -- the base case is easy: g and h match already by initiality of Fin 0:
   record {
     tip = n , t ;
