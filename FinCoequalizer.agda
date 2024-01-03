@@ -5,6 +5,7 @@ open import Level
 module FinCoequalizer where
 
 open import Data.Product
+open import Data.Sum.Base
 open import Relation.Binary
 open import Relation.Binary.Core using (Rel)
 open import Relation.Binary.Construct.Closure.Equivalence using (EqClosure)
@@ -15,10 +16,11 @@ open import Data.Fin
 open import Data.Bool.Base
 open import Function using (_∋_)
 open import Relation.Nullary
-open import Relation.Nullary.Decidable.Core using (dec-true)
+open import Relation.Nullary.Decidable.Core using (dec-true; from-yes)
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive
 open import Relation.Binary.PropositionalEquality hiding ([_])
 open import Relation.Binary.PropositionalEquality.Properties
+import Relation.Binary.Reasoning.Base.Single as RelationR
 
 record EndoCoequalize {ℓ} {Y : Set} (R : Rel Y ℓ) : Set ℓ where
   field
@@ -68,6 +70,9 @@ finite-coequalize (ℕ.suc k) Y Y≡-dec g h =
     ==-correct : {y₁ y₂ : Y} → y₁ ≡ y₂ → y₁ == y₂ ≡ true
     ==-correct {y₁} {y₂} eq = dec-true (Y≡-dec y₁ y₂) eq
 
+    ==-reflect : {y₁ y₂ : Y} → y₁ == y₂ ≡ true → y₁ ≡ y₂
+    ==-reflect {y₁} {y₂} eq = from-yes {!eq!} -- dec-true (Y≡-dec y₁ y₂) eq
+
     g0-prop : {y : Y} → g Fin.zero ≡ y → (nested.f y == nested.f (g Fin.zero)) ≡ true
     g0-prop {y} eq = ==-correct (cong nested.f (sym eq))
     h0-prop : {y : Y} → h Fin.zero ≡ y → f y ≡ nested.f (h Fin.zero)
@@ -75,9 +80,11 @@ finite-coequalize (ℕ.suc k) Y Y≡-dec g h =
     ... | true = refl
     ... | false rewrite eq = refl
 
-    open ≡-Reasoning
     identify-R : (y₁ y₂ : Y) → SpanRel g h y₁ y₂ → f y₁ ≡ f y₂
     identify-R y₁ y₂ (Fin.zero , g0=y₁ , h0=y₂) rewrite (g0-prop  g0=y₁) =
+      let
+        open ≡-Reasoning
+      in
       begin
       (nested.f (h Fin.zero)) ≡⟨ sym (h0-prop h0=y₂) ⟩
       f y₂
@@ -87,7 +94,23 @@ finite-coequalize (ℕ.suc k) Y Y≡-dec g h =
 
     reflect-f : (y : Y) → EqClosure (SpanRel g h) y (f y)
     reflect-f y with (nested.f y == nested.f (g Fin.zero))
-    ... | true = EqClosure (SpanRel g h) y (nested.f (h Fin.zero)) ∋
-                 {!!}
+    ... | true = (EqClosure (SpanRel g h) y (nested.f (h Fin.zero))) ∋
+                 let
+                   g↙↘h = SpanRel g h
+                   R = EqClosure g↙↘h
+                   open RelationR R (EqClos.reflexive g↙↘h) (EqClos.transitive g↙↘h)
+                   nested-f-prop : ∀ (z : Y) → EqClosure (SpanRel g h) z (nested.f z)
+                   nested-f-prop z = EqClos.map (shift-SpanRel g h) (nested.reflect-f z)
+                   fy=fg0 : nested.f y ≡ nested.f (g Fin.zero)
+                   fy=fg0 = ==-reflect {!!}
+                 in
+                 begin
+                 y                        ∼⟨ nested-f-prop y ⟩
+                 nested.f y               ≡⟨ fy=fg0 ⟩
+                 nested.f (g Fin.zero)    ∼⟨ EqClos.symmetric g↙↘h (nested-f-prop _) ⟩
+                 g Fin.zero               ∼⟨ return (inj₁ (Fin.zero , (refl , refl))) ⟩
+                 h Fin.zero               ∼⟨ nested-f-prop _ ⟩
+                 nested.f (h Fin.zero)
+                 ∎
     ... | false = EqClosure (SpanRel g h) y (nested.f y) ∋
                   EqClos.map (shift-SpanRel g h) (nested.reflect-f y)
