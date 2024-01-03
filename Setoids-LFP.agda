@@ -334,7 +334,7 @@ merge-parallel : (k n : ℕ) (X : Setoid 0ℓ 0ℓ)
 merge-parallel k n X s t (slicearr {h = g≈} g-prop) (slicearr {h = h≈} h-prop) =
   record {
     tip = n , t ;
-    merge = (slicearr {h = →-to-⟶ EndoCoeq.f } λ { {x} {x} refl → t.cong {!!}});
+    merge = (slicearr {h = →-to-⟶ EndoCoeq.f } λ { {x} {x} refl → merge-△ x });
     prop = λ { {x} {x} refl  → EndoCoeq.identify-R (g≈.app x) (h≈.app x) (x , (refl , refl)) }
   }
   where
@@ -342,6 +342,12 @@ merge-parallel k n X s t (slicearr {h = g≈} g-prop) (slicearr {h = h≈} h-pro
     module g≈ = Π g≈ renaming (_⟨$⟩_ to app)
     module h≈ = Π h≈ renaming (_⟨$⟩_ to app)
     module EndoCoeq = EndoCoequalize (finite-coequalize k (Fin n) (IsDecEquivalence._≟_ Fin-≡-isDecEquivalence) g≈.app h≈.app)
+
+    open Setoid X using (_≈_)
+    open SetoidR X
+    merge-△ : (x : Fin n) → (t ⟨$⟩ (EndoCoeq.f x)) ≈ (t ⟨$⟩ x)
+    merge-△ = {!!}
+
 
 canonical-cat-is-filtered : ∀ (X : Setoid 0ℓ 0ℓ) → filtered (Cat[ Fin≈ ↓ X ])
 canonical-cat-is-filtered X =
