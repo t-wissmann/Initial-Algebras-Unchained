@@ -334,7 +334,7 @@ merge-parallel : (k n : ℕ) (X : Setoid 0ℓ 0ℓ)
 merge-parallel k n X s t (slicearr {h = g≈} g-prop) (slicearr {h = h≈} h-prop) =
   record {
     tip = n , t ;
-    merge = (slicearr {h = →-to-⟶ EndoCoeq.f } λ { {x} {x} refl → merge-△ x });
+    merge = (slicearr {h = →-to-⟶ EndoCoeq.f } λ { {x} {x} refl → Setoid.sym X (merge-△ x) });
     prop = λ { {x} {x} refl  → EndoCoeq.identify-R (g≈.app x) (h≈.app x) (x , (refl , refl)) }
   }
   where
@@ -345,10 +345,20 @@ merge-parallel k n X s t (slicearr {h = g≈} g-prop) (slicearr {h = h≈} h-pro
 
     open Setoid X using (_≈_)
     open SetoidR X
-    merge-△ : (x : Fin n) → (t ⟨$⟩ (EndoCoeq.f x)) ≈ (t ⟨$⟩ x)
+    merge-△ : (x : Fin n) → (t ⟨$⟩ x) ≈ (t ⟨$⟩ (EndoCoeq.f x))
     merge-△ x = EqClosure-ump _
-      (λ y1 y2 → t ⟨$⟩ y2 ≈ t ⟨$⟩ y1)
-      {!!} {!!} (EndoCoeq.reflect-f x)
+      (λ y1 y2 → t ⟨$⟩ y1 ≈ t ⟨$⟩ y2) -- kernelpair
+      {!sym!}
+      (λ { {y1} {y2} (y , (gy , hy)) →
+        begin
+        t ⟨$⟩ y1    ≡˘⟨ cong t._⟨$⟩_ gy ⟩
+        t ⟨$⟩ (g≈ ⟨$⟩ y)    ≈⟨ g-prop refl ⟩
+        s ⟨$⟩ y    ≈˘⟨ h-prop refl ⟩
+        t ⟨$⟩ (h≈ ⟨$⟩ y)    ≡⟨ cong t._⟨$⟩_ hy ⟩
+        t ⟨$⟩ y2
+        ∎
+        })
+      (EndoCoeq.reflect-f x)
 
 
 canonical-cat-is-filtered : ∀ (X : Setoid 0ℓ 0ℓ) → filtered (Cat[ Fin≈ ↓ X ])
