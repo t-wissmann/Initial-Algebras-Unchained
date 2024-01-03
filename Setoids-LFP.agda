@@ -15,9 +15,11 @@ import Data.Nat
 import Data.Sum.Base as Sum
 open import Relation.Binary.Core using (Rel)
 open import Data.Fin
+open import Data.Fin.Instances using (Fin-≡-isDecEquivalence)
 open import Data.Fin.Properties using (splitAt-inject+; splitAt-raise)
 open import Data.Product
 open import Function.Equality hiding (setoid; _∘_; cong) renaming (id to ⟶id)
+open import Relation.Binary.Structures using (IsDecEquivalence)
 open import Relation.Binary.PropositionalEquality hiding ([_])
 open import Relation.Binary.PropositionalEquality.Properties
 open import Relation.Binary.PropositionalEquality using (→-to-⟶)
@@ -329,26 +331,17 @@ merge-parallel : (k n : ℕ) (X : Setoid 0ℓ 0ℓ)
   (s : Fin≈ k ⟶ X)
   (t : Fin≈ n ⟶ X)
   (g h : Cat[ Fin≈ ↓ X ] [ (k , s) , (n , t) ]) → MergedMorphisms (Cat[ Fin≈ ↓ X ]) g h
-merge-parallel k n X s t g h =
-  -- the base case is easy: g and h match already by initiality of Fin 0:
+merge-parallel k n X s t (slicearr {h = g≈} g-prop) (slicearr {h = h≈} h-prop) =
   record {
     tip = n , t ;
-    merge = Category.id Cat[ Fin≈ ↓ X ] ;
-    prop = λ { {()} {()} refl }
-      -- let
-      --   open SetoidR (Fin≈ n)
-      -- in
-      -- begin
-      -- g ⟨$⟩ i ≡⟨ {!!} ⟩
-      -- h ⟨$⟩ i
-      -- ∎
+    merge = (slicearr {h = →-to-⟶ EndoCoeq.f } λ { {x} {x} refl → t.cong {!!}});
+    prop = λ { {x} {x} refl  → EndoCoeq.identify-R (g≈.app x) (h≈.app x) (x , (refl , refl)) }
   }
-merge-parallel (ℕ.suc k) n X s t (slicearr {g} g-prop) (slicearr {h} h-prop) =
-  record {
-    tip = {!!} ;
-    merge = {!!} ;
-    prop = {!!}
-  }
+  where
+    module t = Π t
+    module g≈ = Π g≈ renaming (_⟨$⟩_ to app)
+    module h≈ = Π h≈ renaming (_⟨$⟩_ to app)
+    module EndoCoeq = EndoCoequalize (finite-coequalize k (Fin n) (IsDecEquivalence._≟_ Fin-≡-isDecEquivalence) g≈.app h≈.app)
 
 canonical-cat-is-filtered : ∀ (X : Setoid 0ℓ 0ℓ) → filtered (Cat[ Fin≈ ↓ X ])
 canonical-cat-is-filtered X =
