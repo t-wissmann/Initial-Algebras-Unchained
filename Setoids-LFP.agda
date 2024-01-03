@@ -346,7 +346,9 @@ merge-parallel k n X s t (slicearr {h = g≈} g-prop) (slicearr {h = h≈} h-pro
     open Setoid X using (_≈_)
     open SetoidR X
     merge-△ : (x : Fin n) → (t ⟨$⟩ (EndoCoeq.f x)) ≈ (t ⟨$⟩ x)
-    merge-△ = {!!}
+    merge-△ x = EqClosure-ump _
+      (λ y1 y2 → t ⟨$⟩ y2 ≈ t ⟨$⟩ y1)
+      {!!} {!!} (EndoCoeq.reflect-f x)
 
 
 canonical-cat-is-filtered : ∀ (X : Setoid 0ℓ 0ℓ) → filtered (Cat[ Fin≈ ↓ X ])

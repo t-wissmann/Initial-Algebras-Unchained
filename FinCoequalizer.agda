@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K  #-}
+{-# OPTIONS --without-K --allow-unsolved-metas #-}
 
 open import Level
 
@@ -117,3 +117,6 @@ finite-coequalize (ℕ.suc k) Y Y≡-dec g h =
     ... | no _ =
           EqClosure (SpanRel g h) y (nested.f y) ∋
           EqClos.map (shift-SpanRel g h) (nested.reflect-f y)
+
+EqClosure-ump : {ℓ ℓ' : Level}  → {Y : Set} → (R : Rel Y ℓ) → (S : Rel Y ℓ') → IsEquivalence S → (R ⇒ S) → (EqClosure R ⇒ S)
+EqClosure-ump = {!!}
