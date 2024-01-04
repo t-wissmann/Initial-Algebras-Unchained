@@ -31,6 +31,8 @@ import Relation.Binary.Reasoning.Setoid as SetoidR
 open import Relation.Binary.Construct.Closure.Equivalence using (EqClosure)
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive
 open import Relation.Binary.Bundles
+open import Categories.Category.Monoidal.Instance.Setoids using (Setoids-Cocartesian)
+open import Categories.Category.Cocartesian using (Cocartesian; BinaryCoproducts)
 
 
 open import Setoids-Colimit
@@ -419,5 +421,5 @@ setoids-LFP = record
                ; fin-presented = Fin-is-presented
                ; build-from-fin = canonical-cocone-is-limitting
                ; canonical-has-prop = canonical-cat-is-filtered
-               ; coproduct = λ A B _ _ → {!!}
+               ; coproduct = λ A B _ _ →  BinaryCoproducts.coproduct (Cocartesian.coproducts Setoids-Cocartesian) {A} {B} 
                }
