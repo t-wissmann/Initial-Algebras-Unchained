@@ -119,4 +119,11 @@ finite-coequalize (ℕ.suc k) Y Y≡-dec g h =
           EqClos.map (shift-SpanRel g h) (nested.reflect-f y)
 
 EqClosure-ump : {ℓ ℓ' : Level}  → {Y : Set} → (R : Rel Y ℓ) → (S : Rel Y ℓ') → IsEquivalence S → (R ⇒ S) → (EqClosure R ⇒ S)
-EqClosure-ump = {!!}
+EqClosure-ump {Y = Y} R S S-is-equiv R⇒S {x} {.x} ε =
+  IsEquivalence.reflexive S-is-equiv refl
+EqClosure-ump {Y = Y} R S S-is-equiv R⇒S {x} {y} (inj₁ Rxj ◅ tail) =
+  IsEquivalence.trans S-is-equiv (R⇒S Rxj) (EqClosure-ump R S S-is-equiv R⇒S tail)
+EqClosure-ump {Y = Y} R S S-is-equiv R⇒S {x} {y} (inj₂ Rjx ◅ tail) =
+  IsEquivalence.trans S-is-equiv
+    (IsEquivalence.sym S-is-equiv (R⇒S Rjx))
+    (EqClosure-ump R S S-is-equiv R⇒S tail)
