@@ -348,7 +348,7 @@ merge-parallel k n X s t (slicearr {h = g≈} g-prop) (slicearr {h = h≈} h-pro
     merge-△ : (x : Fin n) → (t ⟨$⟩ x) ≈ (t ⟨$⟩ (EndoCoeq.f x))
     merge-△ x = EqClosure-ump _
       (λ y1 y2 → t ⟨$⟩ y1 ≈ t ⟨$⟩ y2) -- kernelpair
-      {!sym!}
+      (setoid-kernel-IsEquivalence X (λ y → t ⟨$⟩ y))
       (λ { {y1} {y2} (y , (gy , hy)) →
         begin
         t ⟨$⟩ y1    ≡˘⟨ cong t._⟨$⟩_ gy ⟩

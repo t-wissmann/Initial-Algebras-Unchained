@@ -127,3 +127,30 @@ EqClosure-ump {Y = Y} R S S-is-equiv R⇒S {x} {y} (inj₂ Rjx ◅ tail) =
   IsEquivalence.trans S-is-equiv
     (IsEquivalence.sym S-is-equiv (R⇒S Rjx))
     (EqClosure-ump R S S-is-equiv R⇒S tail)
+
+module _ {c ℓ ℓ' : Level} {X : Set ℓ} {Y : Set ℓ'} (f : X → Y) (_∼_ : Rel Y c) where
+  rel-preimage : Rel X c
+  rel-preimage x₁ x₂ = (f x₁) ∼ (f x₂)
+
+  rel-preimage-reflexive : Reflexive _∼_ → Reflexive rel-preimage
+  rel-preimage-reflexive is-refl {x} = is-refl {f x}
+
+  rel-preimage-symmetric : Symmetric _∼_ → Symmetric rel-preimage
+  rel-preimage-symmetric is-sym = is-sym
+
+  rel-preimage-transitive : Transitive _∼_ → Transitive rel-preimage
+  rel-preimage-transitive is-trans = is-trans
+
+  rel-preimage-equivalence : IsEquivalence _∼_ → IsEquivalence rel-preimage
+  rel-preimage-equivalence is-equiv = record {
+    refl = rel-preimage-reflexive (IsEquivalence.refl is-equiv) ;
+    sym = rel-preimage-symmetric (IsEquivalence.sym is-equiv) ;
+    trans =  rel-preimage-transitive (IsEquivalence.trans is-equiv) }
+
+
+module _ {ℓ c ℓ' : Level} {X : Set ℓ} (Y : Setoid ℓ' c) (f : X → Setoid.Carrier Y) where
+  setoid-kernel : Rel X c
+  setoid-kernel = rel-preimage f (Setoid._≈_ Y)
+
+  setoid-kernel-IsEquivalence : IsEquivalence setoid-kernel
+  setoid-kernel-IsEquivalence = rel-preimage-equivalence f (Setoid._≈_ Y) (Setoid.isEquivalence Y)
