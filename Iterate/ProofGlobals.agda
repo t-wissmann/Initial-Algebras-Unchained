@@ -85,6 +85,6 @@ record ProofGlobals (o ℓ : Level) : Set (suc fil-level ⊔ suc (o ⊔ ℓ)) wh
   F-coalg-colim = Colimit-from-prop (F-preserves-colim coalg-colim.carrier-colim)
   module F-coalg-colim = Colimit F-coalg-colim
 
-  open import Presented 𝒞 Fil public
+  open import Presented 𝒞 ℓ ℓ ℓ Fil public
   open import recursive-coalgebra 𝒞 F public
   open import Iterate.Assumptions 𝒞 F Fil public

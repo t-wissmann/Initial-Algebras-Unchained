@@ -25,7 +25,7 @@ module Iterate.Assumptions {o ℓ fil-level}
   (Fil : ∀ {o' ℓ' e' : Level} → Category o' ℓ' e' → Set fil-level) -- some variant of 'filtered'
   where
 
-open import Presented 𝒞 Fil
+open import Presented 𝒞 ℓ ℓ ℓ Fil
 open import recursive-coalgebra 𝒞 F
 
 record FinitaryRecursive (coalg : F-Coalgebra F) : Set (o ⊔ suc ℓ ⊔ fil-level) where

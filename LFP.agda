@@ -54,7 +54,7 @@ open import Categories.Morphism.Reasoning.Core 𝒞
 open import Categories.Diagram.Coequalizer (𝒞)
 open import Categories.Diagram.Pushout (𝒞)
 open import Categories.Diagram.Pushout.Properties (𝒞)
-open import Presented 𝒞 P
+open import Presented 𝒞 ℓ ℓ ℓ P
 import Setoids-Colimit
 
 open Hom

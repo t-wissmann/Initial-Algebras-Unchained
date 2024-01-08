@@ -12,21 +12,22 @@ open import Filtered
 
 module Presented {o ℓ fil-level}
   (𝒞 : Category o ℓ ℓ)
-  (Fil : Category ℓ ℓ ℓ → Set fil-level) -- some variant of 'filtered'
+  (o' ℓ' e' : Level) -- The level for the diagram schemes of interest
+  (Fil : Category o' ℓ' e' → Set fil-level) -- some variant of 'filtered'
   where
 
 private
   module 𝒞 = Category 𝒞
 
 open import Hom-Colimit-Choice 𝒞
-open LiftHom ℓ ℓ ℓ
+open LiftHom o' ℓ' e'
 open import Categories.Object.Coproduct (𝒞)
 open import Categories.Morphism (𝒞)
 open import Categories.Morphism.Reasoning.Core 𝒞
 
 presented : 𝒞.Obj → Set _
 presented X =
-  ∀ (𝒟 : Category ℓ ℓ ℓ) →    -- forall diagram schemes
+  ∀ (𝒟 : Category o' ℓ' e') → -- forall diagram schemes
   Fil 𝒟 →                     -- satisfying some notion of filteredness
   (J : Functor 𝒟 𝒞) →         -- and all their diagrams
   preserves-colimit J LiftHom[ X ,-] -- the hom-functor preserves all (existing) colimits

@@ -55,7 +55,7 @@ open import Categories.Morphism 𝒞
 open import Categories.Object.Coproduct 𝒞
 open import Categories.Morphism.Reasoning.Core 𝒞
 open import F-Coalgebra-Colimit {_} {_} {_} {𝒞} {F}
-open import Presented 𝒞 Fil
+open import Presented 𝒞 ℓ ℓ ℓ Fil
 
 module F-Coalgebras = Category (F-Coalgebras F)
 
