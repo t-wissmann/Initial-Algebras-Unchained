@@ -38,7 +38,8 @@ open import Relation.Binary using (Poset)
 -- set of elements. The advantage is that we do not need any ordinals at all.
 --
 module LFP {o ℓ prop-level} (𝒞 : Category o ℓ ℓ)
-                 (P : Category ℓ ℓ ℓ → Set prop-level)
+                 (o' ℓ' e' : Level)    -- levels for the diagram scheme
+                 (P : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (e' ⊔ ℓ) → Set prop-level)
                  (P⇒filtered : ∀ {𝒟} → P 𝒟 → filtered 𝒟)
                  where
 
@@ -54,24 +55,22 @@ open import Categories.Morphism.Reasoning.Core 𝒞
 open import Categories.Diagram.Coequalizer (𝒞)
 open import Categories.Diagram.Pushout (𝒞)
 open import Categories.Diagram.Pushout.Properties (𝒞)
-open import Presented 𝒞 ℓ ℓ ℓ P
+open import Presented 𝒞 (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (e' ⊔ ℓ) P
+open import Unlift-Presented {o' = o' ⊔ ℓ} {ℓ' = ℓ' ⊔ ℓ} {e' = e' ⊔ ℓ} {o'' = ℓ} {ℓ'' = ℓ} {e'' = ℓ} 𝒞 P
 import Setoids-Colimit
 
 open Hom
 
 private
   variable
-    -- levels for the diagram scheme:
-    o' ℓ' e' : Level
     -- diagram scheme:
     𝒟 : Category o' ℓ' e'
 
 
 open import Hom-Colimit-Choice 𝒞
-open LiftHom ℓ ℓ ℓ
+open LiftHom o' ℓ' e'
 
-
-record WeaklyLFP : Set (o ⊔ suc (ℓ ⊔ prop-level)) where
+record WeaklyLFP : Set (suc (o' ⊔ ℓ' ⊔ e') ⊔ o ⊔ suc ℓ ⊔ prop-level) where
   field
     -- a (small)family (resp. 'set') of objects ...
     Idx : Set ℓ
@@ -81,7 +80,7 @@ record WeaklyLFP : Set (o ⊔ suc (ℓ ⊔ prop-level)) where
     -- All other objects are built from those fp objects:
     build-from-fin : ∀ (X : 𝒞.Obj) → IsLimitting (Cocone[ fin ↓ X ])
     -- and moreover every canonical diagram is filtered
-    canonical-has-prop : ∀ (X : 𝒞.Obj) → P (Cat[ fin ↓ X ])
+    canonical-has-prop : ∀ (X : 𝒞.Obj) → P (liftC (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (e' ⊔ ℓ) (Cat[ fin ↓ X ]))
 
     -- also, we need finite colimits of presented objects:
     coproduct : ∀ (A B : 𝒞.Obj) → presented A → presented B → Coproduct A B
@@ -128,10 +127,11 @@ record WeaklyLFP : Set (o ⊔ suc (ℓ ⊔ prop-level)) where
       t = hom-colim-choice
             (canonical-colimit X)
             X
-            (X-pres
+            ((unlift-presented X-pres)
               (canonical-diagram-scheme X)
               (canonical-has-prop X)
-              (canonical-diagram X)) (𝒞.id{X})
+              (canonical-diagram X))
+            (𝒞.id{X})
 
   -- the family of presented objects
   presented-obj : Σ 𝒞.Obj presented → 𝒞.Obj
