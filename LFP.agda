@@ -56,7 +56,7 @@ open import Categories.Diagram.Coequalizer (𝒞)
 open import Categories.Diagram.Pushout (𝒞)
 open import Categories.Diagram.Pushout.Properties (𝒞)
 open import Presented 𝒞 (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (e' ⊔ ℓ) P
-open import Unlift-Presented {o' = o' ⊔ ℓ} {ℓ' = ℓ' ⊔ ℓ} {e' = e' ⊔ ℓ} {o'' = ℓ} {ℓ'' = ℓ} {e'' = ℓ} 𝒞 P
+-- open import Unlift-Presented {o' = o' ⊔ ℓ} {ℓ' = ℓ' ⊔ ℓ} {e' = e' ⊔ ℓ} {o'' = ℓ} {ℓ'' = ℓ} {e'' = ℓ} 𝒞 P
 import Setoids-Colimit
 
 open Hom
@@ -70,6 +70,46 @@ private
 open import Hom-Colimit-Choice 𝒞
 open LiftHom o' ℓ' e'
 
+liftC' : Category ℓ ℓ ℓ → Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (e' ⊔ ℓ)
+liftC' = liftC (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (e' ⊔ ℓ)
+
+unliftF' : {𝒟 : Category ℓ ℓ ℓ} → Functor (liftC' 𝒟) 𝒟
+unliftF' {𝒟} = unliftF (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (e' ⊔ ℓ) 𝒟
+
+
+module Lift-Colimit {𝒟 : Category ℓ ℓ ℓ} {D : Functor 𝒟 𝒞} where
+  unlift-Cocone : Cocone (D ∘F unliftF') → Cocone D
+  unlift-Cocone cocone =
+    let module cocone = Cocone cocone in
+    record { coapex =
+      record {
+        ψ = λ x → cocone.ψ (lift x) ;
+        commute = λ f → cocone.commute (lift f) } }
+
+  unlift-Cocone⇒ : (C : Cocone D) → (C' : Cocone (D ∘F unliftF')) →
+                   Cocone⇒ (D ∘F unliftF') (F-map-Coconeʳ unliftF' C) C' →
+                   Cocone⇒ D C (unlift-Cocone C')
+  unlift-Cocone⇒ C C' morph =
+    record {
+      arr = Cocone⇒.arr morph ; commute = Cocone⇒.commute morph }
+
+
+  lift-Colimit : Colimit D → Colimit (D ∘F unliftF')
+  lift-Colimit colim-D =
+    record { initial = record {
+      ⊥ = F-map-Coconeʳ (unliftF') colim-D.colimit ;
+      ⊥-is-initial =
+        record {
+          ! = λ {other} →
+            F-map-Cocone⇒ʳ unliftF' (colim-D.rep-cocone (unlift-Cocone other)) ;
+          !-unique = λ {other} to-other →
+            colim-D.initial.!-unique (unlift-Cocone⇒ colim-D.colimit other to-other)
+        }
+    } }
+    where
+      module colim-D = Colimit colim-D
+
+
 record WeaklyLFP : Set (suc (o' ⊔ ℓ' ⊔ e') ⊔ o ⊔ suc ℓ ⊔ prop-level) where
   field
     -- a (small)family (resp. 'set') of objects ...
@@ -80,7 +120,7 @@ record WeaklyLFP : Set (suc (o' ⊔ ℓ' ⊔ e') ⊔ o ⊔ suc ℓ ⊔ prop-leve
     -- All other objects are built from those fp objects:
     build-from-fin : ∀ (X : 𝒞.Obj) → IsLimitting (Cocone[ fin ↓ X ])
     -- and moreover every canonical diagram is filtered
-    canonical-has-prop : ∀ (X : 𝒞.Obj) → P (liftC (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (e' ⊔ ℓ) (Cat[ fin ↓ X ]))
+    canonical-has-prop : ∀ (X : 𝒞.Obj) → P (liftC' (Cat[ fin ↓ X ]))
 
     -- also, we need finite colimits of presented objects:
     coproduct : ∀ (A B : 𝒞.Obj) → presented A → presented B → Coproduct A B
@@ -115,23 +155,26 @@ record WeaklyLFP : Set (suc (o' ⊔ ℓ' ⊔ e') ⊔ o ⊔ suc ℓ ⊔ prop-leve
   fin-generator X = colimit-is-jointly-epic (Colimit-from-prop (build-from-fin X))
 
   presentable-split-in-fin : ∀ (X : 𝒞.Obj) → presented X → Σ[ i ∈ Idx ] (Retract X (fin i))
-  presentable-split-in-fin X X-pres = (proj₁ (Triangle.x t)) ,
+  presentable-split-in-fin X X-pres =
+    (proj₁ (lower (Triangle.x t))) ,
     (record {
       section = Triangle.p' t ;
-      retract = (proj₂ (Triangle.x t)) ;
+      retract = (proj₂ (lower (Triangle.x t))) ;
       is-retract = 𝒞.Equiv.sym (Triangle.commutes t) })
     where
       -- we let the identity on X factor through the canonical
       -- diagram for X:
-      t : Triangle (canonical-colimit X) (𝒞.id{X})
+      t : Triangle (Lift-Colimit.lift-Colimit (canonical-colimit X)) (𝒞.id{X})
       t = hom-colim-choice
-            (canonical-colimit X)
+            (Lift-Colimit.lift-Colimit (canonical-colimit X))
             X
-            ((unlift-presented X-pres)
-              (canonical-diagram-scheme X)
+            (X-pres
+              (liftC' (canonical-diagram-scheme X))
               (canonical-has-prop X)
-              (canonical-diagram X))
+              (canonical-diagram X ∘F unliftF'))
             (𝒞.id{X})
+
+
 
   -- the family of presented objects
   presented-obj : Σ 𝒞.Obj presented → 𝒞.Obj

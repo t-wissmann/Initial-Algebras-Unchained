@@ -51,7 +51,7 @@ id-filtered : ∀ {o ℓ e : Level} {𝒟} → filtered {o} {ℓ} {e} 𝒟 → f
 id-filtered f = f
 
 open import LFP-slices (Setoids 0ℓ 0ℓ)
-open import LFP (Setoids 0ℓ 0ℓ) filtered id-filtered
+open import LFP (Setoids 0ℓ 0ℓ) 0ℓ 0ℓ 0ℓ filtered id-filtered
 open import Presented (Setoids 0ℓ 0ℓ) 0ℓ 0ℓ 0ℓ filtered
 open import Categories.Category.Slice (Setoids 0ℓ 0ℓ)
 
