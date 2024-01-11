@@ -14,11 +14,11 @@ fi
 
 css="$HTML/Agda.css"
 
-# for i in "$HTML"/*.html ; do
-#     target="$WIKI/${i##*/}.md"
-#     debug "Writing $target"
-#     cat "${i}" > "$target"
-# done
+for i in "$HTML"/*.html ; do
+    target="$WIKI/${i##*/}.md"
+    debug "Writing $target"
+    sed -f inline-agda-style.sed "${i}" > "$target"
+done
 
 sidebarmd="$WIKI/_sidebar.md"
 debug "Writing $sidebarmd"
