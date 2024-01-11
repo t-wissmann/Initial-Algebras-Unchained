@@ -1,6 +1,7 @@
 {-# OPTIONS --without-K #-}
 open import Categories.Category
 open import Categories.Functor using (Functor)
+open import Categories.Category.Lift
 
 open import Data.Fin
 open import Data.Nat.Base hiding (_⊔_)
@@ -105,3 +106,4 @@ record filtered : Set (o ⊔ ℓ ⊔ e) where
       M : MergedMorphisms (B.i₁ ∘ g) (B.i₂ ∘ h)
       M = merge-all (B.i₁ ∘ g) (B.i₂ ∘ h)
       module M = MergedMorphisms M
+

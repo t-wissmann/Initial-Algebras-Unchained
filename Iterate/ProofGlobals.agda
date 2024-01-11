@@ -33,7 +33,7 @@ record ProofGlobals (o ℓ : Level) : Set (suc fil-level ⊔ suc (o ⊔ ℓ)) wh
     F : Endofunctor 𝒞
     -- The notion 'Fil' implies filtered:
     Fil-to-filtered : ∀ {𝒟 : Category ℓ ℓ ℓ} → Fil 𝒟 → filtered 𝒟
-    𝒞-lfp : WeaklyLFP 𝒞 Fil Fil-to-filtered
+    𝒞-lfp : WeaklyLFP 𝒞 ℓ ℓ ℓ Fil Fil-to-filtered
     -- A coalgebra colimit:
     coalg-colim : CoalgColim 𝒞 F (Assumption.FinitaryRecursive 𝒞 F Fil) {ℓ} {ℓ} {ℓ}
     𝒟-filtered : Fil (CoalgColim.𝒟 coalg-colim)
@@ -42,7 +42,7 @@ record ProofGlobals (o ℓ : Level) : Set (suc fil-level ⊔ suc (o ⊔ ℓ)) wh
     -- ^- F preserves the colimit 'coalg'
 
 
-  open import LFP 𝒞 Fil Fil-to-filtered hiding (WeaklyLFP) public
+  open import LFP 𝒞 ℓ ℓ ℓ Fil Fil-to-filtered hiding (WeaklyLFP) public
 
   module 𝒞 = Category 𝒞
   open import Hom-Colimit-Choice 𝒞 public

@@ -7,6 +7,7 @@ open import Relation.Binary using (Setoid)
 open import Categories.Category.Instance.Setoids
 
 open import Categories.Category
+open import Categories.Category.Lift
 open import Categories.Functor hiding (id)
 open import Categories.Functor.Hom
 open import Filtered
@@ -414,12 +415,28 @@ canonical-cat-is-filtered X =
     exfalso : ∀ {a : Level} {A : Set a} → Fin 0 → A
     exfalso ()
 
+
+
+lift-filtered : ∀ {o ℓ e o' ℓ' e' : Level} → {𝒞 : Category o ℓ e} → filtered 𝒞 → filtered (liftC o' ℓ' e' 𝒞)
+lift-filtered fil =
+  record { bounds =
+    record {
+      non-empty = Level.lift fil.non-empty ;
+      upper-bound = λ a b → Level.lift (fil.upper-bound (lower a) (lower b)) ;
+      is-above₁ = λ a b → Level.lift (fil.is-above₁ (lower a) (lower b)) ;
+      is-above₂ = λ a b → Level.lift (fil.is-above₂ (lower a) (lower b)) } ;
+      merge-parallel = record { merge-all = λ g h →
+        let module ma = MergedMorphisms (fil.merge-all (lower g) (lower h)) in
+        record { tip = Level.lift ma.tip ; merge = Level.lift ma.merge ; prop = Level.lift ma.prop
+      } } }
+  where module fil = filtered fil
+
 setoids-LFP : WeaklyLFP
 setoids-LFP = record
                { Idx = ℕ
                ; fin = Fin≈
                ; fin-presented = Fin-is-presented
                ; build-from-fin = canonical-cocone-is-limitting
-               ; canonical-has-prop = canonical-cat-is-filtered
+               ; canonical-has-prop = λ X → lift-filtered (canonical-cat-is-filtered X)
                ; coproduct = λ A B _ _ →  BinaryCoproducts.coproduct (Cocartesian.coproducts Setoids-Cocartesian) {A} {B} 
                }

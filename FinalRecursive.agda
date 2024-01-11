@@ -40,11 +40,11 @@ module FinalRecursive {o ℓ fil-level}
   (F : Endofunctor 𝒞)
   (Fil : ∀ {o' ℓ' e' : Level} → Category o' ℓ' e' → Set fil-level) -- some variant of 'filtered'
   (Fil-to-filtered : ∀ {𝒟 : Category ℓ ℓ ℓ} → Fil 𝒟 → filtered 𝒟) -- .. which implies filtered
-  (𝒞-lfp : WeaklyLFP 𝒞 Fil Fil-to-filtered)
+  (𝒞-lfp : WeaklyLFP 𝒞 ℓ ℓ ℓ Fil Fil-to-filtered)
   where
 
 
-open import LFP 𝒞 Fil Fil-to-filtered hiding (WeaklyLFP)
+open import LFP 𝒞 ℓ ℓ ℓ Fil Fil-to-filtered hiding (WeaklyLFP)
 
 module 𝒞 = Category 𝒞
 open import recursive-coalgebra 𝒞 F
