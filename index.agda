@@ -39,5 +39,6 @@ import Setoids-Colimit -- necessary/sufficient conditions when cocones are colim
 import Setoids-LFP -- Setoids are an instance of a (weak) LFP category
 
 
-import FinalRecursive -- the main construction
+import Iterate
+import Unique-Proj
 

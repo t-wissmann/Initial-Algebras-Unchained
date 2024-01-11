@@ -20,29 +20,30 @@ open import Unchained-Utils
 -- Here, we fix some modules/helper definitions
 -- for the iteration proof.
 module Iterate.ProofGlobals {fil-level}
+  {o' ℓ' e' : Level } -- Level for diagram schemes
   (Fil : ∀ {o' ℓ' e' : Level} → Category o' ℓ' e' → Set fil-level) -- some variant of 'filtered'
   where
 
 open import CoalgColim
 import Iterate.Assumptions as Assumption
 
-record ProofGlobals (o ℓ : Level) : Set (suc fil-level ⊔ suc (o ⊔ ℓ)) where
+record ProofGlobals (o ℓ : Level) : Set (suc (o' ⊔ ℓ' ⊔ e') ⊔ suc fil-level ⊔ suc (o ⊔ ℓ)) where
   -- o' ℓ' e' are the levels of the diagram of the input coalgebra colimit
   field
     𝒞 : Category o ℓ ℓ
     F : Endofunctor 𝒞
     -- The notion 'Fil' implies filtered:
-    Fil-to-filtered : ∀ {𝒟 : Category ℓ ℓ ℓ} → Fil 𝒟 → filtered 𝒟
-    𝒞-lfp : WeaklyLFP 𝒞 ℓ ℓ ℓ Fil Fil-to-filtered
+    Fil-to-filtered : ∀ {𝒟 : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (e' ⊔ ℓ)} → Fil 𝒟 → filtered 𝒟
+    𝒞-lfp : WeaklyLFP 𝒞 o' ℓ' e' Fil Fil-to-filtered
     -- A coalgebra colimit:
-    coalg-colim : CoalgColim 𝒞 F (Assumption.FinitaryRecursive 𝒞 F Fil) {ℓ} {ℓ} {ℓ}
+    coalg-colim : CoalgColim 𝒞 F (Assumption.FinitaryRecursive {o' = o'} {ℓ' = ℓ'} {e' = e'} 𝒞 F Fil) {o' ⊔ ℓ} {ℓ' ⊔ ℓ} {e' ⊔ ℓ}
     𝒟-filtered : Fil (CoalgColim.𝒟 coalg-colim)
     -- ^- coalg is a colimit of a filtered diagram
     F-preserves-colim : preserves-colimit (CoalgColim.carrier-diagram coalg-colim) F
     -- ^- F preserves the colimit 'coalg'
 
 
-  open import LFP 𝒞 ℓ ℓ ℓ Fil Fil-to-filtered hiding (WeaklyLFP) public
+  open import LFP 𝒞 o' ℓ' e' Fil Fil-to-filtered hiding (WeaklyLFP) public
 
   module 𝒞 = Category 𝒞
   open import Hom-Colimit-Choice 𝒞 public
@@ -56,7 +57,7 @@ record ProofGlobals (o ℓ : Level) : Set (suc fil-level ⊔ suc (o ⊔ ℓ)) wh
 
   module 𝒞-lfp = WeaklyLFP 𝒞-lfp
 
-  open LiftHom ℓ ℓ ℓ public
+  open LiftHom (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (e' ⊔ ℓ) public
 
   -- in the proof, let V be the forgetful functor from coalgebras to 𝒞
   V = forget-Coalgebra
@@ -85,6 +86,6 @@ record ProofGlobals (o ℓ : Level) : Set (suc fil-level ⊔ suc (o ⊔ ℓ)) wh
   F-coalg-colim = Colimit-from-prop (F-preserves-colim coalg-colim.carrier-colim)
   module F-coalg-colim = Colimit F-coalg-colim
 
-  open import Presented 𝒞 ℓ ℓ ℓ Fil public
+  open import Presented 𝒞 (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (e' ⊔ ℓ) Fil public
   open import recursive-coalgebra 𝒞 F public
-  open import Iterate.Assumptions 𝒞 F Fil public
+  open import Iterate.Assumptions {o' = o'} {ℓ' = ℓ'} {e' = e'} 𝒞 F Fil public

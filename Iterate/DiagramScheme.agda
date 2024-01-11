@@ -25,8 +25,9 @@ open import Iterate.ProofGlobals
 -- Let (A,α) be locally finite. For every P → FA, we construct
 -- a finite subcoalgebra of (FA,Fα).
 module Iterate.DiagramScheme {o ℓ} {fil-level}
+  {o' ℓ' : Level } -- Level for diagram schemes
   (Fil : ∀ {o' ℓ' e' : Level} → Category o' ℓ' e' → Set fil-level) -- some variant of 'filtered'
-  (proof-globals : ProofGlobals Fil o ℓ)
+  (proof-globals : ProofGlobals {o' = o'} {ℓ' = ℓ'} {e' = ℓ'} Fil o ℓ)
   where
 
 open import Iterate.FiniteSubcoalgebra Fil proof-globals
