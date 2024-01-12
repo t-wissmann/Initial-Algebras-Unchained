@@ -25,13 +25,12 @@ open import Categories.Functor.Construction.SubCategory using (FullSub)
 open import Unchained-Utils
 
 module Construction {o ℓ}
-  (𝒞 : Category o ℓ ℓ)
+  (𝒞 : Category (o ⊔ ℓ) ℓ ℓ)
   (F : Endofunctor 𝒞)
-  {o' ℓ' : Level} -- level for the diagram
   {fil-level : Level}
-  (Fil : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ) → Set fil-level) -- some variant of 'filtered'
-  (Fil-to-filtered : ∀ {𝒟 : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ)} → Fil 𝒟 → filtered 𝒟) -- .. which implies filtered
-  (𝒞-lfp : WeaklyLFP 𝒞 o' ℓ' ℓ' Fil Fil-to-filtered)
+  (Fil : Category (o ⊔ ℓ) ℓ ℓ → Set fil-level) -- some variant of 'filtered'
+  (Fil-to-filtered : ∀ {𝒟 : Category (o ⊔ ℓ) ℓ ℓ} → Fil 𝒟 → filtered 𝒟) -- .. which implies filtered
+  (𝒞-lfp : WeaklyLFP 𝒞 (o ⊔ ℓ) ℓ ℓ Fil Fil-to-filtered)
   where
 
 open import recursive-coalgebra 𝒞 F
@@ -69,12 +68,13 @@ module FinProp {prop-level : Level} (P : F-Coalgebra F → Set prop-level) where
 
 module FinalRecursive
        (carrier-colimit : Colimit (FinProp.forget-FinPropCoalgebra IsRecursive))
+       (coalgebras-filtered : Fil (FinProp.FinPropCoalgebras IsRecursive))
        (F-finitary : preserves-colimit (FinProp.forget-FinPropCoalgebra IsRecursive) F)
        where
 
   open FinProp IsRecursive
-  open import Iterate.Assumptions {o' = o'} {ℓ' = ℓ'} 𝒞 F Fil
-  open import Iterate {o' = o'} {ℓ' = ℓ'} 𝒞 F Fil Fil-to-filtered 𝒞-lfp
+  open import Iterate.Assumptions {o' = o ⊔ ℓ} {ℓ' = ℓ} 𝒞 F Fil
+  open import Iterate {o' = o ⊔ ℓ} {ℓ' = ℓ} 𝒞 F Fil Fil-to-filtered 𝒞-lfp
   private
     module carrier-colimit = Colimit carrier-colimit
 
@@ -85,7 +85,7 @@ module FinalRecursive
 
   -- if the finite recursive coalgebras have a colimit on the object level,
   -- then this lifts to the category of coalgebras:
-  coalgebra-colimit : CoalgColim {o' ⊔ ℓ} {ℓ' ⊔ ℓ} {ℓ' ⊔ ℓ} 𝒞 F FinitaryRecursive
+  coalgebra-colimit : CoalgColim {o ⊔ ℓ} {ℓ} {ℓ} 𝒞 F FinitaryRecursive
   coalgebra-colimit = record
                        { 𝒟 = FinPropCoalgebras
                        ; D = forget-FinProp
@@ -96,5 +96,6 @@ module FinalRecursive
                        ; cocone = F-Coalgebras-Lift-Cocone forget-FinProp carrier-colimit
                        ; carrier-colimitting = F-Coalgebras-Colimit-Carrier-Limitting forget-FinProp carrier-colimit
                        }
+
   iterated-coalgebra : CoalgColim 𝒞 F FinitaryRecursive
-  iterated-coalgebra = iterate-CoalgColimit ? {!!} {!!}
+  iterated-coalgebra = iterate-CoalgColimit coalgebra-colimit coalgebras-filtered F-finitary
