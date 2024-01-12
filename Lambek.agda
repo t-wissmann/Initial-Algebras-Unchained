@@ -1,0 +1,51 @@
+{-# OPTIONS --without-K #-}
+open import Level
+
+open import Categories.Category
+open import Categories.Functor using (Functor; Endofunctor)
+open import Categories.Functor.Coalgebra
+open import Categories.Category.Construction.F-Coalgebras
+
+module Lambek {o ℓ e : Level} (𝒞 : Category o ℓ e) (F : Endofunctor 𝒞) (A,α : F-Coalgebra F) where
+
+open import Categories.Morphism 𝒞
+open F-Coalgebra A,α
+
+private
+  module F = Functor F
+  Coalg = (F-Coalgebras F)
+  module Coalg = Category (Coalg)
+  module 𝒞 = Category 𝒞
+
+-- This is essentially the Lambek proof from Categories.Category.Construction.F-Algebras.
+-- But, we generalize the two crucial properties of the final coalgebra to as
+-- explicit axioms:
+-- 1. 'id' is the only endomorphism on A,α
+-- 2. there is some homomorphism from F(A,α) to A,α
+
+lambek : (∀ (f : A,α Coalg.⇒ A,α) → Coalg [ f ≈ Coalg.id ]) →
+         (iterate A,α) Coalg.⇒ A,α →
+         (A ≅ F.₀ A)
+lambek id_uniq h =
+  record {from = α ; to = h.f ;
+    iso = record { isoˡ = h∘α≈id ; isoʳ = α∘h≈id } }
+  where
+    open Category 𝒞
+
+    module h = F-Coalgebra-Morphism h
+    -- every coalgebra structure is itself a coalgebra homomorphism:
+    α-hom : A,α Coalg.⇒ (iterate A,α)
+    α-hom = record { f = α ; commutes = 𝒞.Equiv.refl }
+
+    h∘α : A,α Coalg.⇒ A,α
+    h∘α = h Coalg.∘ α-hom
+
+    h∘α≈id = id_uniq h∘α
+    α∘h≈id = let open HomReasoning in
+      begin
+      α ∘ h.f            ≈⟨ h.commutes ⟩
+      F.₁ h.f ∘ F.₁ α    ≈˘⟨ F.homomorphism ⟩
+      F.₁ (h.f ∘ α)      ≈⟨ F.F-resp-≈ h∘α≈id ⟩
+      F.₁ id             ≈⟨ F.identity ⟩
+      id
+      ∎

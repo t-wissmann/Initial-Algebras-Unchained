@@ -27,6 +27,7 @@ import LFP
 
 -- some lemmas about recursive coalgebras
 import recursive-coalgebra
+import Lambek
 
 
 -- new properties of finite (recursive) coalgebras
@@ -41,4 +42,4 @@ import Setoids-LFP -- Setoids are an instance of a (weak) LFP category
 
 import Iterate
 import Unique-Proj
-
+import Construction
