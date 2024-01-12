@@ -32,6 +32,14 @@ open import Notation
 private
   module 𝒞 = Category 𝒞
 
+record Full-≈ {o' ℓ' e' : Level} {𝒟 : Category o' ℓ' e'} (F : Functor 𝒟 𝒞) : Set (o ⊔ ℓ ⊔ e ⊔ o' ⊔ ℓ' ⊔ e') where
+  private
+    module 𝒟 = Category 𝒟
+    module F = Functor F
+  field
+    preimage : ∀ (X Y : 𝒟.Obj) → 𝒞 [ F.₀ X , F.₀ Y ] → 𝒟 [ X , Y ]
+    preimage-prop : ∀ (X Y : 𝒟.Obj) → (f : 𝒞 [ F.₀ X , F.₀ Y ]) → 𝒞 [ F.₁ (preimage X Y f) ≈ f ]
+
 -- The property that a functor F preserves the colimit of diagram J:
 preserves-colimit : {o' o'' ℓ' ℓ'' e' e'' : _} →
   {𝒟 : Category o' ℓ' e'} →

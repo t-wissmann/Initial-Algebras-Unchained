@@ -162,7 +162,7 @@ hom-to-coalg-colim-triangle {B,β} B-presented F-finitary h 𝒟-Fil =
 -- if a coalgebra morphism h factors through a full diagram,
 -- then h must match the projection
 unique-proj-if-triangle : ∀ {i : A,α.𝒟.Obj} →
-  Full A,α.D →
+  Full-≈ A,α.D →
   (h : F-Coalgebras F [ A,α.D.₀ i , A,α.to-Coalgebra ]) →
   Triangle (F-Coalgebras F) A,α.colim h →
   F-Coalgebras F [ h ≈ A,α.colim.proj i ]
@@ -177,7 +177,7 @@ unique-proj-if-triangle {i} D-Full h t =
   A,α.carrier-colim.proj i
   ∎
   where
-    module D-Full = Surjective D-Full
+    module D-Full = Full-≈ D-Full
     module t = Triangle t
     B : F-Coalgebra F
     B = A,α.D.₀ i
@@ -186,13 +186,13 @@ unique-proj-if-triangle {i} D-Full h t =
     X = A,α.D.₀ t.x
     module X = F-Coalgebra X
     p : A,α.𝒟 [ i , t.x ]
-    p = D-Full.from ⟨$⟩ t.p'
+    p = D-Full.preimage i t.x t.p'
     p' : F-Coalgebra-Morphism B X
     p' = t.p'
     module p' = F-Coalgebra-Morphism p'
     module h = F-Coalgebra-Morphism h
     Dp≈p' : F-Coalgebras F [ A,α.D.₁ p ≈ p' ]
-    Dp≈p' = D-Full.right-inverse-of t.p'
+    Dp≈p' = D-Full.preimage-prop i t.x t.p'
     open Category 𝒞
     open HomReasoning
 
@@ -202,7 +202,7 @@ unique-proj-if-triangle {i} D-Full h t =
 unique-proj : ∀ {i : A,α.𝒟.Obj} →
   preserves-colimit (forget-Coalgebra ∘F A,α.D) F →
   Fil (CoalgColim.𝒟 A,α) →
-  Full A,α.D →
+  Full-≈ A,α.D →
   (h : F-Coalgebras F [ A,α.D.₀ i , A,α.to-Coalgebra ]) →
   F-Coalgebras F [ h ≈ A,α.colim.proj i ]
 unique-proj {i} F-finitary 𝒟-Fil D-Full h =

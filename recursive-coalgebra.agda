@@ -4,6 +4,9 @@ open import Categories.Functor using (Functor; Endofunctor)
 
 module recursive-coalgebra {o ℓ e} (C : Category o ℓ e) (F : Endofunctor C) where
 
+private
+  module C = Category C
+
 open import Level
 
 open import Categories.Functor.Coalgebra
@@ -11,7 +14,7 @@ open import Categories.Functor.Algebra hiding (iterate)
 open import Categories.Category using (Category)
 open import Categories.Category.Construction.F-Algebras
 open import Categories.Category.Construction.F-Coalgebras
-open import Categories.Morphism using (IsIso; Iso; module ≅)
+open import Categories.Morphism using (IsIso; Iso; module ≅; Retract)
 import Categories.Morphism
 open import Categories.Object.Initial using (IsInitial)
 open import Function.Equality using (cong)
@@ -304,7 +307,8 @@ open import Categories.Functor using (_∘F_)
 R-Coalgebras-Colimit : {o' ℓ' e' : Level} → {D : Category o' ℓ' e'} → (J : Functor D R-Coalgebras)
         → Colimit (forget-Coalgebra ∘F forget-rec ∘F  J) → Colimit J
 R-Coalgebras-Colimit J C-colim =
-  let
+  FullSub-Colimit R-Coalgebra.coalg J Coalg-colim R (≅.refl (F-Coalgebras F))
+  where
     module J = Functor J
     module C-colim = Colimit C-colim
     module F = Functor F
@@ -437,5 +441,67 @@ R-Coalgebras-Colimit J C-colim =
             in
             R.unique B (proj-sol g) (proj-sol h)
         } }
-  in
-  FullSub-Colimit R-Coalgebra.coalg J Coalg-colim R (≅.refl (F-Coalgebras F))
+
+
+retract-coalgebra : (X : F-Coalgebra F) {Y : C.Obj}
+  → Retract C (F-Coalgebra.A X) Y
+  → F-Coalgebra F
+retract-coalgebra X {Y} r = record { A = Y ; α = F₁ r.section ∘ X.α ∘ r.retract }
+  where
+    open Functor F
+    open Category C
+    module r = Retract r
+    module X = F-Coalgebra X
+
+
+retract-coalgebra-hom : (X : F-Coalgebra F) {Y : C.Obj}
+  → (r : Retract C (F-Coalgebra.A X) Y)
+  → F-Coalgebras F [ X , retract-coalgebra X r ]
+retract-coalgebra-hom X {Y} r =
+  record { f = r.section ; commutes = begin
+    (F₁ r.section ∘ X.α ∘ r.retract) ∘ r.section ≈⟨ assoc²' C ⟩
+    F₁ r.section ∘ X.α ∘ r.retract ∘ r.section ≈⟨ refl⟩∘⟨ elimʳ C r.is-retract ⟩
+    F₁ r.section ∘ X.α
+    ∎}
+  where
+    open Functor F
+    open Category C
+    open HomReasoning
+    module r = Retract r
+    module X = F-Coalgebra X
+
+retract-coalgebra-hom-back : (X : F-Coalgebra F) {Y : C.Obj}
+  → (r : Retract C (F-Coalgebra.A X) Y)
+  → F-Coalgebras F [ retract-coalgebra X r , (iterate X) ]
+retract-coalgebra-hom-back X {Y} r =
+  record { f = X.α ∘ r.retract ; commutes =
+    begin
+    F₁ X.α ∘ X.α ∘ r.retract ≈˘⟨ refl⟩∘⟨ elimˡ C identity ⟩
+    F₁ X.α ∘ F₁ id ∘ X.α ∘ r.retract ≈˘⟨ refl⟩∘⟨ F-resp-≈ r.is-retract ⟩∘⟨refl  ⟩
+    F₁ X.α ∘ F₁ (r.retract ∘ r.section) ∘ X.α ∘ r.retract ≈⟨ refl⟩∘⟨ pushˡ C homomorphism ⟩
+    F₁ X.α ∘ F₁ r.retract ∘ F₁ r.section ∘ X.α ∘ r.retract ≈˘⟨ pushˡ C homomorphism ⟩
+    F₁ (X.α ∘ r.retract) ∘ F₁ r.section ∘ X.α ∘ r.retract
+    ∎
+  }
+  where
+    open Functor F
+    open Category C
+    open HomReasoning
+    module r = Retract r
+    module X = F-Coalgebra X
+
+retract-coalgebra-recursive : (X : F-Coalgebra F) {Y : C.Obj}
+  → (r : Retract C (F-Coalgebra.A X) Y)
+  → IsRecursive X
+  → IsRecursive (retract-coalgebra X r)
+retract-coalgebra-recursive X {Y} r X-rec =
+  sandwich-recursive X (retract-coalgebra X r) X-rec
+    (retract-coalgebra-hom X r)
+    (retract-coalgebra-hom-back X r) C.Equiv.refl
+  where
+    open Functor F
+    open Category C
+    open HomReasoning
+    module r = Retract r
+    module X = F-Coalgebra X
+
