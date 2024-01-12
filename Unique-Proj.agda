@@ -28,7 +28,7 @@ module Unique-Proj {o ℓ fil-level}
   (Fil : ∀ {o' ℓ' e' : Level} → Category o' ℓ' e' → Set fil-level) -- some variant of 'filtered'
   (Fil-to-filtered : ∀ {𝒟 : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ)} → Fil 𝒟 → filtered 𝒟) -- .. which implies filtered
   (𝒞-lfp : WeaklyLFP 𝒞 o' ℓ' ℓ' Fil Fil-to-filtered)
-  (A,α : CoalgColim 𝒞 F (FinitaryRecursive {o' = o'} {ℓ' = ℓ'} {e' = ℓ'} 𝒞 F Fil) {o' ⊔ ℓ} {ℓ' ⊔ ℓ} {ℓ' ⊔ ℓ})
+  (A,α : CoalgColim 𝒞 F (FinitaryRecursive {o' = o'} {ℓ' = ℓ'} 𝒞 F Fil) {o' ⊔ ℓ} {ℓ' ⊔ ℓ} {ℓ' ⊔ ℓ})
   where
 
 open import Categories.Morphism.Reasoning.Core 𝒞

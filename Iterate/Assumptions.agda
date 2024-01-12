@@ -20,16 +20,16 @@ open import Unchained-Utils
 -- Here, we fix some modules/helper definitions
 -- for the iteration proof.
 module Iterate.Assumptions {o ℓ fil-level}
-  {o' ℓ' e' : Level } -- Level for diagram schemes
+  {o' ℓ' : Level } -- Level for diagram schemes
   (𝒞 : Category o ℓ ℓ)
   (F : Endofunctor 𝒞)
-  (Fil : ∀ {o' ℓ' e' : Level} → Category o' ℓ' e' → Set fil-level) -- some variant of 'filtered'
+  (Fil : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ) → Set fil-level) -- some variant of 'filtered'
   where
 
 open import Presented 𝒞 (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ) Fil
 open import recursive-coalgebra 𝒞 F
 
-record FinitaryRecursive (coalg : F-Coalgebra F) : Set (suc (o' ⊔ ℓ' ⊔ e') ⊔ o ⊔ suc ℓ ⊔ fil-level) where
+record FinitaryRecursive (coalg : F-Coalgebra F) : Set (suc (o' ⊔ ℓ') ⊔ o ⊔ suc ℓ ⊔ fil-level) where
   -- the property that a coalgebra
   field
     -- 1. has finite carrier

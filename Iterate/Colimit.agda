@@ -25,7 +25,7 @@ open import Iterate.ProofGlobals
 module Iterate.Colimit {o ℓ} {fil-level}
   {o' ℓ' : Level } -- Level for diagram schemes
   (Fil : ∀ {o' ℓ' e' : Level} → Category o' ℓ' e' → Set fil-level) -- some variant of 'filtered'
-  (proof-globals : ProofGlobals {o' = o'} {ℓ' = ℓ'} {e' = ℓ'} Fil o ℓ)
+  (proof-globals : ProofGlobals {o' = o'} {ℓ' = ℓ'} o ℓ Fil)
   where
 
 open import Iterate.FiniteSubcoalgebra Fil proof-globals

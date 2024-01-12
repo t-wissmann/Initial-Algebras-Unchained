@@ -59,7 +59,7 @@ open import Presented 𝒞 (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ) Fil
 
 module F-Coalgebras = Category (F-Coalgebras F)
 
-open import Iterate.Assumptions {o' = o'} {ℓ' = ℓ'} {e' = ℓ'} 𝒞 F Fil
+open import Iterate.Assumptions {o' = o'} {ℓ' = ℓ'} 𝒞 F Fil
 
 module 𝒞-lfp = WeaklyLFP 𝒞-lfp
 open import CoalgColim 𝒞 F FinitaryRecursive
