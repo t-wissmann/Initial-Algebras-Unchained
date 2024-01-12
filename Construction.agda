@@ -71,10 +71,11 @@ module FinalRecursive (carrier-colimit : Colimit (FinProp.forget-FinPropCoalgebr
   private
     module carrier-colimit = Colimit carrier-colimit
 
-  colimit-in-Coalgebras : Colimit forget-FinProp
-  colimit-in-Coalgebras = F-Coalgebras-Colimit forget-FinProp carrier-colimit
-  private
-    module colimit-in-Coalgebras = Colimit colimit-in-Coalgebras
+  -- colimit-in-Coalgebras : Colimit forget-FinProp
+  -- colimit-in-Coalgebras = F-Coalgebras-Colimit forget-FinProp carrier-colimit
+  -- private
+  --   module colimit-in-Coalgebras = Colimit colimit-in-Coalgebras
+
   -- if the finite recursive coalgebras have a colimit on the object level,
   -- then this lifts to the category of coalgebras:
   coalgebra-colimit : CoalgColim 𝒞 F FinitaryRecursive
@@ -85,6 +86,6 @@ module FinalRecursive (carrier-colimit : Colimit (FinProp.forget-FinPropCoalgebr
                          λ {i} → record {
                            finite-carrier = 𝒞-lfp.fin-presented (FinPropCoalgebra.carrier i) ;
                            is-recursive = FinPropCoalgebra.has-prop i }
-                       ; cocone = {!!} -- colimit-in-Coalgebras.colimit
-                       ; carrier-colimitting = {!.initial.⊥-is-initial!}
+                       ; cocone = F-Coalgebras-Lift-Cocone forget-FinProp carrier-colimit
+                       ; carrier-colimitting = F-Coalgebras-Colimit-Carrier-Limitting forget-FinProp carrier-colimit
                        }

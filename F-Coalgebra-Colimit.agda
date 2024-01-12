@@ -193,18 +193,10 @@ F-Coalgebras-Lift-Cocone J colim = J-cocone
       commute = Cocone.commute colim.initial.⊥
       } }
 
-F-Coalgebras-Colimit : {o' ℓ' e' : Level} → {D : Category o' ℓ' e'} → (J : Functor D (F-Coalgebras F))
-        → Colimit (forget-Coalgebra ∘F J) → Colimit J
-F-Coalgebras-Colimit {o'} {ℓ'} {e'} {D} J colim =
-  Colimit-from-prop (F-Coalgebras-Limitting-Cocone J J-cocone UJ-cocone-initial)
-  where
-    module J = Functor J
-    module colim = Colimit colim
-    J-cocone : Cocone J
-    J-cocone = F-Coalgebras-Lift-Cocone J colim
-
-    UJ-cocone-initial : IsLimitting (F-map-Coconeˡ forget-Coalgebra J-cocone)
-    UJ-cocone-initial =
+F-Coalgebras-Colimit-Carrier-Limitting : {o' ℓ' e' : Level} → {D : Category o' ℓ' e'} → (J : Functor D (F-Coalgebras F))
+        → (colim : Colimit (forget-Coalgebra ∘F J))
+        → IsLimitting (F-map-Coconeˡ forget-Coalgebra (F-Coalgebras-Lift-Cocone J colim))
+F-Coalgebras-Colimit-Carrier-Limitting J colim =
       record {
         ! = λ {K'} →
           record {
@@ -220,6 +212,22 @@ F-Coalgebras-Colimit {o'} {ℓ'} {e'} {D} J colim =
           in
           eq
           }
+      where
+        module J = Functor J
+        module colim = Colimit colim
+        J-cocone : Cocone J
+        J-cocone = F-Coalgebras-Lift-Cocone J colim
+
+
+F-Coalgebras-Colimit : {o' ℓ' e' : Level} → {D : Category o' ℓ' e'} → (J : Functor D (F-Coalgebras F))
+        → Colimit (forget-Coalgebra ∘F J) → Colimit J
+F-Coalgebras-Colimit {o'} {ℓ'} {e'} {D} J colim =
+  Colimit-from-prop
+    (F-Coalgebras-Limitting-Cocone J J-cocone
+      (F-Coalgebras-Colimit-Carrier-Limitting J colim))
+  where
+        J-cocone : Cocone J
+        J-cocone = F-Coalgebras-Lift-Cocone J colim
 
 F-Coalgebras-Cocomplete : (o' ℓ' e' : Level) → Cocomplete o' ℓ' e' C → Cocomplete o' ℓ' e' (F-Coalgebras F)
 F-Coalgebras-Cocomplete o' ℓ' e' C-Cocomplete {D} = λ (J : Functor D (F-Coalgebras F)) →
