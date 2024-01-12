@@ -13,6 +13,8 @@ open import Categories.Diagram.Cocone
 open import Categories.Diagram.Cocone.Properties using (F-map-Coconeˡ)
 
 open import F-Coalgebra-Colimit
+open import Unchained-Utils
+open import Notation
 
 module CoalgColim {o ℓ e}
   {P-level : Level}
@@ -24,8 +26,6 @@ module CoalgColim {o ℓ e}
 private
   module 𝒞 = Category 𝒞
   module F = Functor F
-
-open import Unchained-Utils
 
 record CoalgColim {o' ℓ' e'} : Set (o ⊔ ℓ ⊔ e ⊔ P-level ⊔ suc (o' ⊔ ℓ' ⊔ e')) where
   -- A Coalg(ebra)Colim(it) is a colimit of coalgebras whose carriers
@@ -66,3 +66,8 @@ record CoalgColim {o' ℓ' e'} : Set (o ⊔ ℓ ⊔ e ⊔ P-level ⊔ suc (o' �
   -- the diagram 'D' restricted to the carriers / 𝒞-objects
   carrier-diagram : Functor 𝒟 𝒞
   carrier-diagram = forget-Coalgebra ∘F D
+
+  unique-homomorphism : ∀ (B : F-Coalgebra F) →
+    (∀ (i : 𝒟.Obj) → (F-Coalgebras F) [ D.₀ i =∃!=> B ]) →
+    (F-Coalgebras F) [ colim.coapex =∃!=> B ]
+  unique-homomorphism B uniq = colimit-unique-rep 𝒟 D colim B uniq

@@ -13,7 +13,7 @@ open import Categories.Functor.Coalgebra
 open import Categories.Morphism 𝒞 -- open the module with the category 𝒞 fixed.
 open import Categories.Object.Initial using (IsInitial)
 
-open import Categories.Category.Core
+open import Categories.Category
 open import Categories.Object.Coproduct using (Coproduct)
 
 open import Categories.Diagram.Colimit using (Colimit; transport-by-iso)
@@ -27,6 +27,7 @@ open import Categories.Morphism.Reasoning.Core
 
 open import Categories.Category.SubCategory
 open import Categories.Functor.Construction.SubCategory using (FullSub)
+open import Notation
 
 private
   module 𝒞 = Category 𝒞
@@ -80,6 +81,47 @@ colimit-is-jointly-epic {G = G} colim {Z} {g} {h} equalize-g-h =
     g-morph = record
       { arr = g ;
       commute = λ {X} → equalize-g-h X }
+
+module _ {o' ℓ' e' : Level} (𝒟 : Category o' ℓ' e') (D : Functor 𝒟 𝒞) (colim : Colimit D) where
+  private
+    module 𝒟 = Category 𝒟
+    module D = Functor D
+    module colim = Colimit colim
+
+  colimit-unique-rep : (B : 𝒞.Obj) →
+      -- if everything in the diagram has a unique morphism to B
+      (∀ (i : 𝒟.Obj) → 𝒞 [ D.₀ i =∃!=> B ]) →
+      -- then the colimit does so as well
+      𝒞 [ colim.coapex =∃!=> B ]
+  colimit-unique-rep B uniq =
+    record {
+      arr = cocone-mor.arr ;
+      unique = λ other →
+        colimit-is-jointly-epic colim λ i →
+          begin
+          cocone-mor.arr ∘ colim.proj i ≈⟨ cocone-mor.commute ⟩
+          B-cocone.ψ i ≡⟨⟩
+          singleton-hom.arr (uniq i) ≈⟨ singleton-hom.unique (uniq i) _ ⟩
+          other ∘ colim.proj i
+          ∎
+    }
+    where
+      open Category 𝒞
+      open HomReasoning
+      -- we first need to prove existence:
+      B-cocone : Cocone D
+      B-cocone = record {coapex = record
+        { ψ = λ i → singleton-hom.arr (uniq i)
+        ; commute = λ {i} {j} f → Equiv.sym
+                    (singleton-hom.unique
+                      (uniq i)
+                      (𝒞 [ singleton-hom.arr (uniq j) ∘ D.₁ f ])) }
+        }
+      module B-cocone = Cocone B-cocone
+      cocone-mor : Cocone⇒ D colim.colimit B-cocone
+      cocone-mor = colim.rep-cocone B-cocone
+      module cocone-mor = Cocone⇒ cocone-mor
+
 
 -- Lemma:
 -- Consider a diagram J in a full subcategory of 𝒞 with a colimit in 𝒞.
