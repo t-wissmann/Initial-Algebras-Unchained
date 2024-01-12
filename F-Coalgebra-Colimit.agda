@@ -119,19 +119,16 @@ F-Coalgebras-Limitting-Cocone {o'} {ℓ'} {e'} {D} J K UK-limitting =
             ∎
         }
 
-F-Coalgebras-Colimit : {o' ℓ' e' : Level} → {D : Category o' ℓ' e'} → (J : Functor D (F-Coalgebras F))
-        → Colimit (forget-Coalgebra ∘F J) → Colimit J
-F-Coalgebras-Colimit {o'} {ℓ'} {e'} {D} J colim =
-  Colimit-from-prop (F-Coalgebras-Limitting-Cocone J J-cocone UJ-cocone-initial)
+F-Coalgebras-Lift-Cocone : {o' ℓ' e' : Level} → {D : Category o' ℓ' e'} → (J : Functor D (F-Coalgebras F))
+  → Colimit (forget-Coalgebra ∘F J) → Cocone J
+F-Coalgebras-Lift-Cocone J colim = J-cocone
   where
     module J = Functor J
-    -- we first compute the colimit in C:
-    composed-diagram = forget-Coalgebra ∘F J
     module colim = Colimit colim
     -- Question: why does the following line work but not `K = colim.initial.⊥.N`?
     K = Cocone.N colim.initial.⊥
     -- for the coalgebra on K, we define a cocone with tip 'FK:'
-    FK-cocone : Cocone composed-diagram
+    FK-cocone : Cocone (forget-Coalgebra ∘F J)
     FK-cocone =
       let
         open Functor F
@@ -195,6 +192,16 @@ F-Coalgebras-Colimit {o'} {ℓ'} {e'} {D} J colim =
       ψ = coalg-inj ;
       commute = Cocone.commute colim.initial.⊥
       } }
+
+F-Coalgebras-Colimit : {o' ℓ' e' : Level} → {D : Category o' ℓ' e'} → (J : Functor D (F-Coalgebras F))
+        → Colimit (forget-Coalgebra ∘F J) → Colimit J
+F-Coalgebras-Colimit {o'} {ℓ'} {e'} {D} J colim =
+  Colimit-from-prop (F-Coalgebras-Limitting-Cocone J J-cocone UJ-cocone-initial)
+  where
+    module J = Functor J
+    module colim = Colimit colim
+    J-cocone : Cocone J
+    J-cocone = F-Coalgebras-Lift-Cocone J colim
 
     UJ-cocone-initial : IsLimitting (F-map-Coconeˡ forget-Coalgebra J-cocone)
     UJ-cocone-initial =

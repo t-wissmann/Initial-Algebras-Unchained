@@ -85,6 +85,6 @@ module FinalRecursive (carrier-colimit : Colimit (FinProp.forget-FinPropCoalgebr
                          λ {i} → record {
                            finite-carrier = 𝒞-lfp.fin-presented (FinPropCoalgebra.carrier i) ;
                            is-recursive = FinPropCoalgebra.has-prop i }
-                       ; cocone = ? -- colimit-in-Coalgebras.colimit
+                       ; cocone = {!!} -- colimit-in-Coalgebras.colimit
                        ; carrier-colimitting = {!.initial.⊥-is-initial!}
                        }
