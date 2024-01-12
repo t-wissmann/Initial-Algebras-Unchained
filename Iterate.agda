@@ -39,7 +39,7 @@ module Iterate {o ℓ fil-level}
   {o' ℓ' : Level } -- Level for diagram schemes
   (𝒞 : Category o ℓ ℓ)
   (F : Endofunctor 𝒞)
-  (Fil : ∀ {o'' ℓ'' e'' : Level} → Category o'' ℓ'' e'' → Set fil-level) -- some variant of 'filtered'
+  (Fil : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ)  → Set fil-level) -- some variant of 'filtered'
   (Fil-to-filtered : ∀ {𝒟 : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ)} → Fil 𝒟 → filtered 𝒟) -- .. which implies filtered
   (𝒞-lfp : WeaklyLFP 𝒞 o' ℓ' ℓ' Fil Fil-to-filtered)
   where
@@ -61,7 +61,8 @@ module F-Coalgebras = Category (F-Coalgebras F)
 
 open import Iterate.Assumptions {o' = o'} {ℓ' = ℓ'} 𝒞 F Fil
 
-module 𝒞-lfp = WeaklyLFP 𝒞-lfp
+private
+  module 𝒞-lfp = WeaklyLFP 𝒞-lfp
 open import CoalgColim 𝒞 F FinitaryRecursive
 
 import Iterate.Colimit as I-C

@@ -22,6 +22,8 @@ open import Function.Surjection using (Surjective)
 open import Function.Equality hiding (_∘_)
 open import Categories.Functor.Construction.SubCategory using (FullSub)
 
+open import Unchained-Utils
+
 module Construction {o ℓ}
   (𝒞 : Category o ℓ ℓ)
   (F : Endofunctor 𝒞)
@@ -65,9 +67,14 @@ module FinProp {prop-level : Level} (P : F-Coalgebra F → Set prop-level) where
   forget-FinPropCoalgebra = forget-Coalgebra ∘F FullSub (F-Coalgebras F)
 
 
-module FinalRecursive (carrier-colimit : Colimit (FinProp.forget-FinPropCoalgebra IsRecursive)) where
+module FinalRecursive
+       (carrier-colimit : Colimit (FinProp.forget-FinPropCoalgebra IsRecursive))
+       (F-finitary : preserves-colimit (FinProp.forget-FinPropCoalgebra IsRecursive) F)
+       where
+
   open FinProp IsRecursive
-  open import Iterate.Assumptions {o' = o'} {ℓ' = ℓ'} 𝒞 F Fil -- TODO: clean up levels in Assumptions!
+  open import Iterate.Assumptions {o' = o'} {ℓ' = ℓ'} 𝒞 F Fil
+  open import Iterate {o' = o'} {ℓ' = ℓ'} 𝒞 F Fil Fil-to-filtered 𝒞-lfp
   private
     module carrier-colimit = Colimit carrier-colimit
 
@@ -78,7 +85,7 @@ module FinalRecursive (carrier-colimit : Colimit (FinProp.forget-FinPropCoalgebr
 
   -- if the finite recursive coalgebras have a colimit on the object level,
   -- then this lifts to the category of coalgebras:
-  coalgebra-colimit : CoalgColim 𝒞 F FinitaryRecursive
+  coalgebra-colimit : CoalgColim {o' ⊔ ℓ} {ℓ' ⊔ ℓ} {ℓ' ⊔ ℓ} 𝒞 F FinitaryRecursive
   coalgebra-colimit = record
                        { 𝒟 = FinPropCoalgebras
                        ; D = forget-FinProp
@@ -89,3 +96,5 @@ module FinalRecursive (carrier-colimit : Colimit (FinProp.forget-FinPropCoalgebr
                        ; cocone = F-Coalgebras-Lift-Cocone forget-FinProp carrier-colimit
                        ; carrier-colimitting = F-Coalgebras-Colimit-Carrier-Limitting forget-FinProp carrier-colimit
                        }
+  iterated-coalgebra : CoalgColim 𝒞 F FinitaryRecursive
+  iterated-coalgebra = iterate-CoalgColimit ? {!!} {!!}

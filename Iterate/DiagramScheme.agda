@@ -26,7 +26,7 @@ open import Iterate.ProofGlobals
 -- a finite subcoalgebra of (FA,Fα).
 module Iterate.DiagramScheme {o ℓ} {fil-level}
   {o' ℓ' : Level } -- Level for diagram schemes
-  (Fil : ∀ {o' ℓ' e' : Level} → Category o' ℓ' e' → Set fil-level) -- some variant of 'filtered'
+  (Fil : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ)  → Set fil-level) -- some variant of 'filtered'
   (proof-globals : ProofGlobals {o' = o'} {ℓ' = ℓ'} o ℓ Fil)
   where
 
