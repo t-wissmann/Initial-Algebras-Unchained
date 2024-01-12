@@ -22,6 +22,7 @@ open import Function.Surjection using (Surjective)
 open import Function.Equality hiding (_∘_)
 open import Categories.Functor.Construction.SubCategory using (FullSub)
 
+open import Notation
 open import Unchained-Utils
 
 module Construction {o ℓ}
@@ -34,6 +35,7 @@ module Construction {o ℓ}
   where
 
 open import recursive-coalgebra 𝒞 F
+open import Unique-Proj 𝒞 F Fil Fil-to-filtered 𝒞-lfp
 
 private
     module 𝒞 = Category 𝒞
@@ -97,5 +99,11 @@ module FinalRecursive
                        ; carrier-colimitting = F-Coalgebras-Colimit-Carrier-Limitting forget-FinProp carrier-colimit
                        }
 
+  module coalgebra-colimit = CoalgColim.CoalgColim coalgebra-colimit
+
   iterated-coalgebra : CoalgColim 𝒞 F FinitaryRecursive
   iterated-coalgebra = iterate-CoalgColimit coalgebra-colimit coalgebras-filtered F-finitary
+
+  -- universal-property : ∀ (E : F-Coalgebra F) → FinitaryRecursive E →
+  --   (F-Coalgebras F) [ E =∃!=> coalgebra-colimit.to-Coalgebra ]
+  -- universal-property E E-fin-rec = {!!}

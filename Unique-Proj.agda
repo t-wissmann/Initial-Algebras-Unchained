@@ -22,17 +22,16 @@ open import Function.Surjection using (Surjective)
 open import Function.Equality hiding (_∘_)
 
 module Unique-Proj {o ℓ fil-level}
-  {o' ℓ' : Level} -- level for the diagram
   (𝒞 : Category o ℓ ℓ)
   (F : Endofunctor 𝒞)
-  (Fil : ∀ {o' ℓ' e' : Level} → Category o' ℓ' e' → Set fil-level) -- some variant of 'filtered'
-  (Fil-to-filtered : ∀ {𝒟 : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ)} → Fil 𝒟 → filtered 𝒟) -- .. which implies filtered
-  (𝒞-lfp : WeaklyLFP 𝒞 o' ℓ' ℓ' Fil Fil-to-filtered)
-  (A,α : CoalgColim 𝒞 F (FinitaryRecursive {o' = o'} {ℓ' = ℓ'} 𝒞 F Fil) {o' ⊔ ℓ} {ℓ' ⊔ ℓ} {ℓ' ⊔ ℓ})
+  (Fil : Category (o ⊔ ℓ) ℓ ℓ → Set fil-level) -- some variant of 'filtered'
+  (Fil-to-filtered : ∀ {𝒟 : Category (o ⊔ ℓ) ℓ ℓ} → Fil 𝒟 → filtered 𝒟) -- .. which implies filtered
+  (𝒞-lfp : WeaklyLFP 𝒞 (o ⊔ ℓ) ℓ ℓ Fil Fil-to-filtered)
+  (A,α : CoalgColim 𝒞 F (FinitaryRecursive {o' = o ⊔ ℓ} {ℓ' = ℓ} 𝒞 F Fil) {o ⊔ ℓ} {ℓ} {ℓ})
   where
 
 open import Categories.Morphism.Reasoning.Core 𝒞
-open import Presented 𝒞 (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ) Fil
+open import Presented 𝒞 (o ⊔ ℓ) ℓ ℓ Fil
 open import Unchained-Utils
 
 -- given a coalgebra colimit A,α, its projection homomorphisms
