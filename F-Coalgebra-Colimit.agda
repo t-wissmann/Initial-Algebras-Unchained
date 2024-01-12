@@ -119,7 +119,6 @@ F-Coalgebras-Limitting-Cocone {o'} {ℓ'} {e'} {D} J K UK-limitting =
             ∎
         }
 
-
 F-Coalgebras-Colimit : {o' ℓ' e' : Level} → {D : Category o' ℓ' e'} → (J : Functor D (F-Coalgebras F))
         → Colimit (forget-Coalgebra ∘F J) → Colimit J
 F-Coalgebras-Colimit {o'} {ℓ'} {e'} {D} J colim =
