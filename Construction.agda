@@ -194,8 +194,7 @@ module FinalRecursive
     inverse.arr
 
   B,β-recursive : IsRecursive B,β.to-Coalgebra
-  B,β-recursive = {!!} -- Colimit-IsRecursive B,β.D FinPropCoalgebra.has-prop {!B,β.carrier-colim!}
-    -- (Colimit-IsRecursive B,β.D FinPropCoalgebra.has-prop {!!})
+  B,β-recursive = Limitting-Cocone-IsRecursive B,β.D FinPropCoalgebra.has-prop B,β.cocone B,β.carrier-colimitting
 
   initial-algebra : Initial (F-Algebras F)
   initial-algebra = record {
