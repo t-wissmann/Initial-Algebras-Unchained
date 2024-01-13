@@ -193,11 +193,15 @@ module FinalRecursive
     (λ endo → unique-endo.unique₂ endo (Category.id (F-Coalgebras F) {B,β.to-Coalgebra}))
     inverse.arr
 
+  B,β-recursive : IsRecursive B,β.to-Coalgebra
+  B,β-recursive = {!!} -- Colimit-IsRecursive B,β.D FinPropCoalgebra.has-prop {!B,β.carrier-colim!}
+    -- (Colimit-IsRecursive B,β.D FinPropCoalgebra.has-prop {!!})
+
   initial-algebra : Initial (F-Algebras F)
   initial-algebra = record {
     ⊥ = record { A = B,β.carrier ; α = U.₁ inverse.arr } ;
     ⊥-is-initial =
       iso-recursive⇒initial
         B,β.to-Coalgebra
-        (Colimit-IsRecursive B,β.D FinPropCoalgebra.has-prop {!!})
+        B,β-recursive
         (record { inv = U.₁ inverse.arr ; iso = fixpoint }) }
