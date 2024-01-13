@@ -175,9 +175,8 @@ module FinalRecursive
       Dj→X = retract-coalgebra-hom⁻¹ X r
 
 
-  inverse : F-Coalgebras F [ FB,Fβ.to-Coalgebra , B,β.to-Coalgebra ]
-  inverse = singleton-hom.arr
-      (FB,Fβ.unique-homomorphism
+  inverse : F-Coalgebras F [ FB,Fβ.to-Coalgebra =∃!=> B,β.to-Coalgebra ]
+  inverse = (FB,Fβ.unique-homomorphism
         B,β.to-Coalgebra
         λ i → universal-property (FB,Fβ.D.₀ i) (FB,Fβ.all-have-prop {i}))
 
