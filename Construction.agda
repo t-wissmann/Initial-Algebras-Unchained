@@ -199,5 +199,5 @@ module FinalRecursive
     ⊥-is-initial =
       iso-recursive⇒initial
         B,β.to-Coalgebra
-        {!!}
-        {!!} } -- iso-recursive⇒initial
+        (Colimit-IsRecursive B,β.D FinPropCoalgebra.has-prop {!!})
+        (record { inv = U.₁ inverse.arr ; iso = fixpoint }) }
