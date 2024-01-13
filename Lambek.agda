@@ -24,11 +24,9 @@ private
 -- 2. there is some homomorphism from F(A,α) to A,α
 
 lambek : (∀ (f : A,α Coalg.⇒ A,α) → Coalg [ f ≈ Coalg.id ]) →
-         (iterate A,α) Coalg.⇒ A,α →
-         (A ≅ F.₀ A)
-lambek id_uniq h =
-  record {from = α ; to = h.f ;
-    iso = record { isoˡ = h∘α≈id ; isoʳ = α∘h≈id } }
+         (inv : (iterate A,α) Coalg.⇒ A,α) →
+         Iso α (F-Coalgebra-Morphism.f inv)
+lambek id_uniq h = record { isoˡ = h∘α≈id ; isoʳ = α∘h≈id }
   where
     open Category 𝒞
 
@@ -49,3 +47,11 @@ lambek id_uniq h =
       F.₁ id             ≈⟨ F.identity ⟩
       id
       ∎
+
+lambek' : (∀ (f : A,α Coalg.⇒ A,α) → Coalg [ f ≈ Coalg.id ]) →
+         (inv : (iterate A,α) Coalg.⇒ A,α) →
+         (A ≅ F.₀ A)
+lambek' id_uniq inv = record {
+  from = α ;
+  to = F-Coalgebra-Morphism.f inv ;
+  iso = lambek id_uniq inv }

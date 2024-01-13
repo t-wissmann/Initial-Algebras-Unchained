@@ -40,11 +40,13 @@ module Construction {o ℓ}
 open import recursive-coalgebra 𝒞 F
 open import Unique-Proj 𝒞 F Fil Fil-to-filtered 𝒞-lfp
 open import Categories.Morphism.Reasoning 𝒞
+open import Lambek 𝒞 F
 
 private
     module 𝒞 = Category 𝒞
     module 𝒞-lfp = WeaklyLFP 𝒞-lfp
     module F = Functor F
+    module U = Functor (forget-Coalgebra {C = 𝒞} {F = F})
 
 module FinProp {prop-level : Level} (P : F-Coalgebra F → Set prop-level) where
   record FinPropCoalgebra : Set (ℓ ⊔ prop-level) where
@@ -135,6 +137,7 @@ module FinalRecursive
 
   unique-endo : F-Coalgebras F [ B,β.to-Coalgebra =∃!=> B,β.to-Coalgebra ]
   unique-endo = B,β.unique-homomorphism B,β.to-Coalgebra B,β-proj-uniq
+  module unique-endo = singleton-hom unique-endo
 
   universal-property : ∀ (X : F-Coalgebra F) → FinitaryRecursive X →
                          F-Coalgebras F [ X =∃!=> B,β.to-Coalgebra ]
@@ -181,9 +184,10 @@ module FinalRecursive
   inverse = (FB,Fβ.unique-homomorphism
         B,β.to-Coalgebra
         λ i → universal-property (FB,Fβ.D.₀ i) (FB,Fβ.all-have-prop {i}))
+  module inverse = singleton-hom inverse
 
-  -- fixpoint : 𝒞 [ B,β.carrier ≅ F.₀ B,β.carrier ]
+  fixpoint : Iso 𝒞 B,β.structure (U.₁ inverse.arr)
+  fixpoint = lambek B,β.to-Coalgebra
+    (λ endo → unique-endo.unique₂ endo (Category.id (F-Coalgebras F) {B,β.to-Coalgebra}))
+    inverse.arr
 
-  -- universal-property : ∀ (E : F-Coalgebra F) → FinitaryRecursive E →
-  --   (F-Coalgebras F) [ E =∃!=> coalgebra-colimit.to-Coalgebra ]
-  -- universal-property E E-fin-rec = {!!}
