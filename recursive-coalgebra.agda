@@ -343,23 +343,20 @@ module _ {o' ℓ' e' : Level} {𝒟 : Category o' ℓ' e'} (J : Functor 𝒟 (F-
       cocone⇒-to-sol B mor = let
           module B = F-Algebra B
           module mor = Cocone⇒ mor
-          obj-colim : Colimit (forget-Coalgebra ∘F J)
-          obj-colim = Colimit-from-prop limitting
-          module obj-colim = Colimit obj-colim
         in
-        record { f = mor.arr ; commutes = colimit-is-jointly-epic obj-colim (λ i →
+        record { f = mor.arr ; commutes = limitting-cocone-is-jointly-epic obj-cocone limitting (λ i →
           let
             sol = IsRecursive.recur (all-recursive i) B
             module sol = Solution sol
           in
           begin
-          mor.arr ∘ obj-colim.proj i ≈⟨ mor.commute {i} ⟩
+          mor.arr ∘ obj-cocone.ψ i ≈⟨ mor.commute {i} ⟩
           sol.f  ≈⟨ sol.commutes ⟩
           B.α ∘ F.F₁ sol.f ∘ F-Coalgebra.α (J.₀ i)  ≈˘⟨ refl⟩∘⟨ F.F-resp-≈ mor.commute ⟩∘⟨refl ⟩
-          B.α ∘ F.F₁ (mor.arr ∘ obj-colim.proj i) ∘ F-Coalgebra.α (J.₀ i)  ≈⟨ refl⟩∘⟨ pushˡ C F.homomorphism ⟩
-          B.α ∘ F.F₁ mor.arr ∘ F.₁ (obj-colim.proj i) ∘ F-Coalgebra.α (J.₀ i)  ≈˘⟨ refl⟩∘⟨ refl⟩∘⟨ F-Coalgebra-Morphism.commutes (cocone.ψ i) ⟩
-          B.α ∘ F.F₁ mor.arr ∘ F-Coalgebra.α cocone.N ∘ obj-colim.proj i  ≈˘⟨ (assoc ○ (refl⟩∘⟨ assoc)) ⟩
-          (B.α ∘ F.F₁ mor.arr ∘ F-Coalgebra.α cocone.N) ∘ obj-colim.proj i
+          B.α ∘ F.F₁ (mor.arr ∘ obj-cocone.ψ i) ∘ F-Coalgebra.α (J.₀ i)  ≈⟨ refl⟩∘⟨ pushˡ C F.homomorphism ⟩
+          B.α ∘ F.F₁ mor.arr ∘ F.₁ (obj-cocone.ψ i) ∘ F-Coalgebra.α (J.₀ i)  ≈˘⟨ refl⟩∘⟨ refl⟩∘⟨ F-Coalgebra-Morphism.commutes (cocone.ψ i) ⟩
+          B.α ∘ F.F₁ mor.arr ∘ F-Coalgebra.α cocone.N ∘ obj-cocone.ψ i  ≈˘⟨ (assoc ○ (refl⟩∘⟨ assoc)) ⟩
+          (B.α ∘ F.F₁ mor.arr ∘ F-Coalgebra.α cocone.N) ∘ obj-cocone.ψ i
           ∎) }
 
       sol-to-cocone⇒ : (B : F-Algebra F) → Solution cocone.N B

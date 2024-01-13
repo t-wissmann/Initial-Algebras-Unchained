@@ -40,6 +40,10 @@ record Full-≈ {o' ℓ' e' : Level} {𝒟 : Category o' ℓ' e'} (F : Functor �
     preimage : ∀ (X Y : 𝒟.Obj) → 𝒞 [ F.₀ X , F.₀ Y ] → 𝒟 [ X , Y ]
     preimage-prop : ∀ (X Y : 𝒟.Obj) → (f : 𝒞 [ F.₀ X , F.₀ Y ]) → 𝒞 [ F.₁ (preimage X Y f) ≈ f ]
 
+-- The property that a cocone is Colimitting/Limitting:
+IsLimitting : {o' ℓ' e' : Level} {D : Category o' ℓ' e'} {J : Functor D 𝒞} → Cocone J → Set _
+IsLimitting {J = J} cocone = IsInitial (Cocones J) cocone
+
 -- The property that a functor F preserves the colimit of diagram J:
 preserves-colimit : {o' o'' ℓ' ℓ'' e' e'' : _} →
   {𝒟 : Category o' ℓ' e'} →
@@ -47,6 +51,7 @@ preserves-colimit : {o' o'' ℓ' ℓ'' e' e'' : _} →
   (J : Functor 𝒟 𝒞) → (F : Functor 𝒞 ℰ) → Set _
 preserves-colimit J F =
   ∀ (colim : Colimit J) → IsInitial (Cocones (F ∘F J)) (F-map-Coconeˡ F (Colimit.colimit colim))
+
 
 -- the property whether a Sink is jointly epic:
 jointly-epic : ∀ {i : Level} {I : Set i} {dom : I → Category.Obj 𝒞} {codom : Category.Obj 𝒞}
@@ -56,39 +61,47 @@ jointly-epic {i} {I} {dom} {codom} sink =
     (∀ (x : I) → 𝒞 [ 𝒞 [ g ∘ sink x ] ≈ 𝒞 [ h ∘ sink x ] ]) →
     𝒞 [ g ≈ h ]
 
-colimit-is-jointly-epic : ∀ {o′ ℓ′ e′} {J : Category o′ ℓ′ e′} {G : Functor J 𝒞} →
-                          (colim : Colimit G) → jointly-epic (Colimit.proj colim)
-colimit-is-jointly-epic {G = G} colim {Z} {g} {h} equalize-g-h =
-  IsInitial.!-unique₂ colim.initial.⊥-is-initial g-morph h-morph
+limitting-cocone-is-jointly-epic : ∀ {o′ ℓ′ e′} {J : Category o′ ℓ′ e′} {G : Functor J 𝒞}
+                                 → (cocone : Cocone G)
+                                 → IsLimitting cocone
+                                 → jointly-epic (Cocone.ψ cocone)
+limitting-cocone-is-jointly-epic {G = G} cocone limitting {Z} {g} {h} equalize-g-h =
+  IsInitial.!-unique₂ limitting g-morph h-morph -- g-morph h-morph
   where
     open Category 𝒞
     open HomReasoning
-    module colim = Colimit colim
+    module cocone = Cocone cocone
     -- first, define a cocone on Z via h:
     Z-cocone : Cocone G
     Z-cocone = record {
       N = Z ;
         coapex = record {
-        ψ = λ X → h ∘ Colimit.proj colim X;
+        ψ = λ X → h ∘ cocone.ψ X;
         commute = λ {X} {X'} f →
           begin
-          (h ∘ colim.proj X') ∘ Functor.F₁ G f ≈⟨ assoc ⟩
-          h ∘ (colim.proj X' ∘ Functor.F₁ G f) ≈⟨ refl⟩∘⟨ Colimit.colimit-commute colim f ⟩
-          h ∘ colim.proj X
+          (h ∘ cocone.ψ X') ∘ Functor.F₁ G f ≈⟨ assoc ⟩
+          h ∘ (cocone.ψ X' ∘ Functor.F₁ G f) ≈⟨ refl⟩∘⟨ cocone.commute f ⟩
+          h ∘ cocone.ψ X
           ∎
           } }
     -- -- TODO: why doesn't the proof work with the following definition of h-morph?
     -- h-morph : Cocone⇒ _ colim.colimit Z-cocone
     -- h-morph = IsInitial.! colim.initial.⊥-is-initial
     -- g and h induce cocone morphisms:
-    h-morph : Cocone⇒ _ colim.colimit Z-cocone
+    h-morph : Cocone⇒ _ cocone Z-cocone
     h-morph = record
       { arr = h ;
       commute = λ {X} → Equiv.refl }
-    g-morph : Cocone⇒ _ colim.colimit Z-cocone
+    g-morph : Cocone⇒ _ cocone Z-cocone
     g-morph = record
       { arr = g ;
       commute = λ {X} → equalize-g-h X }
+
+colimit-is-jointly-epic : ∀ {o′ ℓ′ e′} {J : Category o′ ℓ′ e′} {G : Functor J 𝒞} →
+                          (colim : Colimit G) → jointly-epic (Colimit.proj colim)
+colimit-is-jointly-epic {G = G} colim {Z} =
+  limitting-cocone-is-jointly-epic
+    (Colimit.colimit colim) (Colimit.initial.⊥-is-initial colim)
 
 module _ {o' ℓ' e' : Level} (𝒟 : Category o' ℓ' e') (D : Functor 𝒟 𝒞) (colim : Colimit D) where
   private
@@ -196,10 +209,6 @@ FullSub-Colimit {D = D} {I = I} U J plain-C-colim lifted-colim-obj iso =
         in
         IsInitial.!-unique C-colim.initial.⊥-is-initial C-cocone-morph
       }
-
--- The property that a cocone is Colimitting/Limitting:
-IsLimitting : {o' ℓ' e' : Level} {D : Category o' ℓ' e'} {J : Functor D 𝒞} → Cocone J → Set _
-IsLimitting cocone = IsInitial (Cocones _) cocone
 
 Colimit-from-prop : {o' ℓ' e' : Level} {D : Category o' ℓ' e'} {J : Functor D 𝒞}
                       → {cocone : Cocone J} → IsLimitting cocone → Colimit J
