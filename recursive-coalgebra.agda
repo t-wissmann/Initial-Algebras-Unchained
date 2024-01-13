@@ -470,10 +470,26 @@ retract-coalgebra-hom X {Y} r =
     module r = Retract r
     module X = F-Coalgebra X
 
-retract-coalgebra-hom-back : (X : F-Coalgebra F) {Y : C.Obj}
+retract-coalgebra-hom⁻¹ : (X : F-Coalgebra F) {Y : C.Obj}
+  → (r : Retract C (F-Coalgebra.A X) Y)
+  → F-Coalgebras F [ retract-coalgebra X r , X ]
+retract-coalgebra-hom⁻¹ X {Y} r =
+  record { f = r.retract ; commutes = begin
+    X.α ∘ r.retract ≈˘⟨ pullˡ C (elimˡ C (F-resp-≈ r.is-retract ○ identity)) ⟩
+    F₁ (r.retract ∘ r.section) ∘ X.α ∘ r.retract ≈⟨ pushˡ C homomorphism ⟩
+    F₁ r.retract ∘ F₁ r.section ∘ X.α ∘ r.retract
+    ∎}
+  where
+    open Functor F
+    open Category C
+    open HomReasoning
+    module r = Retract r
+    module X = F-Coalgebra X
+
+retract-coalgebra-hom-to-iterate : (X : F-Coalgebra F) {Y : C.Obj}
   → (r : Retract C (F-Coalgebra.A X) Y)
   → F-Coalgebras F [ retract-coalgebra X r , (iterate X) ]
-retract-coalgebra-hom-back X {Y} r =
+retract-coalgebra-hom-to-iterate X {Y} r =
   record { f = X.α ∘ r.retract ; commutes =
     begin
     F₁ X.α ∘ X.α ∘ r.retract ≈˘⟨ refl⟩∘⟨ elimˡ C identity ⟩
@@ -497,11 +513,10 @@ retract-coalgebra-recursive : (X : F-Coalgebra F) {Y : C.Obj}
 retract-coalgebra-recursive X {Y} r X-rec =
   sandwich-recursive X (retract-coalgebra X r) X-rec
     (retract-coalgebra-hom X r)
-    (retract-coalgebra-hom-back X r) C.Equiv.refl
+    (retract-coalgebra-hom-to-iterate X r) C.Equiv.refl
   where
     open Functor F
     open Category C
     open HomReasoning
     module r = Retract r
     module X = F-Coalgebra X
-

@@ -26,6 +26,7 @@ open import Categories.Functor.Construction.SubCategory using (FullSub)
 open import Categories.Functor.Construction.SubCategory.Properties using (FullSubFull)
 
 open import Notation
+import Categories.Morphism.Reasoning
 open import Unchained-Utils
 
 module Construction {o ℓ}
@@ -127,31 +128,58 @@ module FinalRecursive
         open HomReasoning
       in begin
         B,β.colim.proj i
-          ≈˘⟨ unique-proj B,β F-finitary coalgebras-filtered (B,β-scheme-Full) h ⟩ -- unique-proj B,β F-finitary coalgebras-filtered B,β-scheme-Full h ⟩
+          ≈˘⟨ unique-proj B,β F-finitary coalgebras-filtered (B,β-scheme-Full) h ⟩
         h
         ∎
       }
 
-  -- -- TODO: next step:
-  -- inverse : F-Coalgebras F [ FB,Fβ.to-Coalgebra , B,β.to-Coalgebra ]
-  -- inverse = singleton-hom.arr (FB,Fβ.unique-homomorphism B,β.to-Coalgebra uniq)
-  --   where
-  --     open Category 𝒞
-  --     quot : (i : FB,Fβ.𝒟.Obj) → Σ[ j ∈ 𝒞-lfp.Idx ] (Retract 𝒞 (FB,Fβ.U∘D.₀ i) (𝒞-lfp.fin j))
-  --     quot i = 𝒞-lfp.presentable-split-in-fin
-  --       (FB,Fβ.U∘D.₀ i)
-  --       (FinitaryRecursive.finite-carrier (FB,Fβ.all-have-prop {i}))
-  --     quot-hom : (i : FB,Fβ.𝒟.Obj) → Σ[ j ∈ B,β.𝒟.Obj ] (F-Coalgebras F [ FB,Fβ.D.₀ i , B,β.D.₀ j ])
-  --     quot-hom i = let j' , r = quot i in
-  --       (record {
-  --       carrier = j' ;
-  --       structure = F-Coalgebra.α (retract-coalgebra (FB,Fβ.D.₀ i) r) ;
-  --       has-prop = retract-coalgebra-recursive (FB,Fβ.D.₀ i) r (FinitaryRecursive.is-recursive (FB,Fβ.all-have-prop {i})) })
-  --       , retract-coalgebra-hom (FB,Fβ.D.₀ i) r
-  --     uniq : (i : FB,Fβ.𝒟.Obj) → F-Coalgebras F [ FB,Fβ.D.₀ i =∃!=> B,β.to-Coalgebra ]
-  --     uniq i =
-  --       let j , hom = quot-hom i in
-  --       record { arr = F-Coalgebras F [ B,β.colim.proj j ∘ hom ] ; unique = {!!} }
+  universal-property : ∀ (X : F-Coalgebra F) → FinitaryRecursive X →
+                         F-Coalgebras F [ X =∃!=> B,β.to-Coalgebra ]
+  universal-property X X-finrec = record
+    { arr = proj-j.arr ∘ X→Dj
+    ; unique = λ h →
+      let open HomReasoning in
+      begin
+      proj-j.arr ∘ X→Dj ≈⟨ pushˡ (proj-j.unique (h ∘ Dj→X)) ⟩
+      h ∘ Dj→X ∘ X→Dj ≈⟨ elimʳ r.is-retract ⟩
+      h
+      ∎
+    }
+    where
+      -- all compositions are on the level of coalgebra homomorphisms
+      open Category (F-Coalgebras F)
+      open Categories.Morphism.Reasoning (𝒞) -- I don't know why we need reasoning in 𝒞
+      module X = F-Coalgebra X
+      -- there is a split-quotient to one of the lfp generators:
+      quot : Σ[ idx ∈ 𝒞-lfp.Idx ] (Retract 𝒞 X.A (𝒞-lfp.fin idx))
+      quot = 𝒞-lfp.presentable-split-in-fin X.A
+        (FinitaryRecursive.finite-carrier X-finrec)
+      j' = proj₁ quot
+      r = proj₂ quot
+      module r = Retract r
+      -- and thus this gives us a coalgebra in the diagram of B,β:
+      j : B,β.𝒟.Obj
+      j = record {
+        carrier = j' ;
+        structure = F-Coalgebra.α (retract-coalgebra X r) ;
+        has-prop = retract-coalgebra-recursive X r (FinitaryRecursive.is-recursive X-finrec) }
+
+      proj-j : F-Coalgebras F [ B,β.D.₀ j =∃!=> B,β.to-Coalgebra ]
+      proj-j = B,β-proj-uniq j
+      module proj-j = singleton-hom proj-j
+
+      X→Dj : F-Coalgebras F [ X , B,β.D.₀ j ]
+      X→Dj = retract-coalgebra-hom X r
+
+      Dj→X : F-Coalgebras F [ B,β.D.₀ j , X ]
+      Dj→X = retract-coalgebra-hom⁻¹ X r
+
+
+  inverse : F-Coalgebras F [ FB,Fβ.to-Coalgebra , B,β.to-Coalgebra ]
+  inverse = singleton-hom.arr
+      (FB,Fβ.unique-homomorphism
+        B,β.to-Coalgebra
+        λ i → universal-property (FB,Fβ.D.₀ i) (FB,Fβ.all-have-prop {i}))
 
   -- universal-property : ∀ (E : F-Coalgebra F) → FinitaryRecursive E →
   --   (F-Coalgebras F) [ E =∃!=> coalgebra-colimit.to-Coalgebra ]
