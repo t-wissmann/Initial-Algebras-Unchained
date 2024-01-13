@@ -304,6 +304,16 @@ open import Categories.Diagram.Colimit using (Colimit)
 open import Categories.Diagram.Cocone
 open import Categories.Functor using (_∘F_)
 
+-- module _ {o' ℓ' e' : Level} {𝒟 : Category o' ℓ' e'} (J : Functor 𝒟 (F-Coalgebras F)) where
+--   private
+--     module 𝒟 = Category 𝒟
+--     module J = Functor J
+--     module F = Functor F
+--
+--   Colimit-IsRecursive : (∀ (i : 𝒟.Obj) → IsRecursive (J.₀ i)) → (colim : Colimit J)
+--     → IsRecursive (Colimit.coapex colim)
+--   Colimit-IsRecursive all-recursive colim = {!!}
+
 R-Coalgebras-Colimit : {o' ℓ' e' : Level} → {D : Category o' ℓ' e'} → (J : Functor D R-Coalgebras)
         → Colimit (forget-Coalgebra ∘F forget-rec ∘F  J) → Colimit J
 R-Coalgebras-Colimit J C-colim =

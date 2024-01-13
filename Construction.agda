@@ -10,6 +10,7 @@ open import Categories.Functor.Coalgebra
 open import Categories.Diagram.Cocone
 open import Categories.Diagram.Colimit
 open import Categories.Category.SubCategory
+open import Categories.Object.Initial
 open import Categories.Morphism
 
 open import Filtered
@@ -18,6 +19,7 @@ open import CoalgColim
 open import F-Coalgebra-Colimit
 open import Data.Product
 open import Categories.Category.Construction.F-Coalgebras
+open import Categories.Category.Construction.F-Algebras
 open import Categories.Functor.Coalgebra
 open import Categories.Functor.Properties using (Full)
 open import Function.Surjection using (Surjective)
@@ -191,3 +193,11 @@ module FinalRecursive
     (λ endo → unique-endo.unique₂ endo (Category.id (F-Coalgebras F) {B,β.to-Coalgebra}))
     inverse.arr
 
+  initial-algebra : Initial (F-Algebras F)
+  initial-algebra = record {
+    ⊥ = record { A = B,β.carrier ; α = U.₁ inverse.arr } ;
+    ⊥-is-initial =
+      iso-recursive⇒initial
+        B,β.to-Coalgebra
+        {!!}
+        {!!} } -- iso-recursive⇒initial
