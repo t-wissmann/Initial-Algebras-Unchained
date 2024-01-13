@@ -66,7 +66,7 @@ record CoalgColim {o' ℓ' e'} : Set (o ⊔ ℓ ⊔ e ⊔ P-level ⊔ suc (o' �
   carrier : 𝒞.Obj
   carrier = F-Coalgebra.A to-Coalgebra
 
-  structure : 𝒞.Obj
+  structure : 𝒞 [ carrier , F.₀ carrier ]
   structure = F-Coalgebra.α to-Coalgebra
 
   -- the diagram 'D' restricted to the carriers / 𝒞-objects
