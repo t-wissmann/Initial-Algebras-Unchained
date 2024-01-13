@@ -26,7 +26,6 @@ open import Categories.Functor.Construction.SubCategory using (FullSub)
 open import Categories.Functor.Construction.SubCategory.Properties using (FullSubFull)
 
 open import Notation
-import Categories.Morphism.Reasoning
 open import Unchained-Utils
 
 module Construction {o ℓ}
@@ -40,6 +39,7 @@ module Construction {o ℓ}
 
 open import recursive-coalgebra 𝒞 F
 open import Unique-Proj 𝒞 F Fil Fil-to-filtered 𝒞-lfp
+open import Categories.Morphism.Reasoning 𝒞
 
 private
     module 𝒞 = Category 𝒞
@@ -133,6 +133,9 @@ module FinalRecursive
         ∎
       }
 
+  unique-endo : F-Coalgebras F [ B,β.to-Coalgebra =∃!=> B,β.to-Coalgebra ]
+  unique-endo = B,β.unique-homomorphism B,β.to-Coalgebra B,β-proj-uniq
+
   universal-property : ∀ (X : F-Coalgebra F) → FinitaryRecursive X →
                          F-Coalgebras F [ X =∃!=> B,β.to-Coalgebra ]
   universal-property X X-finrec = record
@@ -148,7 +151,6 @@ module FinalRecursive
     where
       -- all compositions are on the level of coalgebra homomorphisms
       open Category (F-Coalgebras F)
-      open Categories.Morphism.Reasoning (𝒞) -- I don't know why we need reasoning in 𝒞
       module X = F-Coalgebra X
       -- there is a split-quotient to one of the lfp generators:
       quot : Σ[ idx ∈ 𝒞-lfp.Idx ] (Retract 𝒞 X.A (𝒞-lfp.fin idx))
@@ -179,6 +181,8 @@ module FinalRecursive
   inverse = (FB,Fβ.unique-homomorphism
         B,β.to-Coalgebra
         λ i → universal-property (FB,Fβ.D.₀ i) (FB,Fβ.all-have-prop {i}))
+
+  -- fixpoint : 𝒞 [ B,β.carrier ≅ F.₀ B,β.carrier ]
 
   -- universal-property : ∀ (E : F-Coalgebra F) → FinitaryRecursive E →
   --   (F-Coalgebras F) [ E =∃!=> coalgebra-colimit.to-Coalgebra ]

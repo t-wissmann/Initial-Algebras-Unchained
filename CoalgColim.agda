@@ -63,6 +63,12 @@ record CoalgColim {o' ℓ' e'} : Set (o ⊔ ℓ ⊔ e ⊔ P-level ⊔ suc (o' �
   to-Coalgebra : F-Coalgebra F
   to-Coalgebra = colim.coapex
 
+  carrier : 𝒞.Obj
+  carrier = F-Coalgebra.A to-Coalgebra
+
+  structure : 𝒞.Obj
+  structure = F-Coalgebra.α to-Coalgebra
+
   -- the diagram 'D' restricted to the carriers / 𝒞-objects
   carrier-diagram : Functor 𝒟 𝒞
   carrier-diagram = forget-Coalgebra ∘F D
