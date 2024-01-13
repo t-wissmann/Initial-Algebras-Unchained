@@ -304,15 +304,71 @@ open import Categories.Diagram.Colimit using (Colimit)
 open import Categories.Diagram.Cocone
 open import Categories.Functor using (_∘F_)
 
--- module _ {o' ℓ' e' : Level} {𝒟 : Category o' ℓ' e'} (J : Functor 𝒟 (F-Coalgebras F)) where
---   private
---     module 𝒟 = Category 𝒟
---     module J = Functor J
---     module F = Functor F
---
---   Colimit-IsRecursive : (∀ (i : 𝒟.Obj) → IsRecursive (J.₀ i)) → (colim : Colimit J)
---     → IsRecursive (Colimit.coapex colim)
---   Colimit-IsRecursive all-recursive colim = {!!}
+module _ {o' ℓ' e' : Level} {𝒟 : Category o' ℓ' e'} (J : Functor 𝒟 (F-Coalgebras F)) where
+  private
+    module 𝒟 = Category 𝒟
+    module J = Functor J
+    module F = Functor F
+
+  Colimit-IsRecursive : (∀ (i : 𝒟.Obj) → IsRecursive (J.₀ i))
+      → (colim : Colimit (forget-Coalgebra ∘F J))
+      → IsRecursive (Colimit.coapex (F-Coalgebras-Colimit J colim))
+  Colimit-IsRecursive all-recursive obj-colim =
+    record { recur = λ B → cocone⇒-to-sol B (obj-colim.rep-cocone (alg2cocone B))
+           ; unique = λ B g h → obj-colim.initial.!-unique₂ (sol-to-cocone⇒ B g) (sol-to-cocone⇒ B h)
+           }
+    where
+      open Category C
+      open HomReasoning
+      colim : Colimit J
+      colim = F-Coalgebras-Colimit J obj-colim
+      module colim = Colimit colim
+      module obj-colim = Colimit obj-colim
+      alg2cocone : F-Algebra F → Cocone (forget-Coalgebra ∘F J)
+      alg2cocone B =
+        let module B = F-Algebra B in
+        record { coapex = record {
+          ψ = λ i → Solution.f (IsRecursive.recur (all-recursive i) B) ;
+          commute = λ {i} {i'} h →
+            let
+              sol1 = IsRecursive.recur (all-recursive i) B
+              sol2 = solution-precompose (IsRecursive.recur (all-recursive i') B) (J.₁ h)
+            in
+            IsRecursive.unique (all-recursive i) B sol2 sol1 } }
+      cocone⇒-to-sol : (B : F-Algebra F)
+                  → Cocone⇒ (forget-Coalgebra ∘F J) obj-colim.colimit (alg2cocone B)
+                  → Solution colim.coapex B
+      cocone⇒-to-sol B mor = let
+          module B = F-Algebra B
+          module mor = Cocone⇒ mor
+        in
+        record { f = mor.arr ; commutes = colimit-is-jointly-epic obj-colim (λ i →
+          let
+            sol = IsRecursive.recur (all-recursive i) B
+            module sol = Solution sol
+          in
+          begin
+          mor.arr ∘ obj-colim.proj i ≈⟨ mor.commute {i} ⟩
+          sol.f  ≈⟨ sol.commutes ⟩
+          B.α ∘ F.F₁ sol.f ∘ F-Coalgebra.α (J.₀ i)  ≈˘⟨ refl⟩∘⟨ F.F-resp-≈ mor.commute ⟩∘⟨refl ⟩
+          B.α ∘ F.F₁ (mor.arr ∘ obj-colim.proj i) ∘ F-Coalgebra.α (J.₀ i)  ≈⟨ refl⟩∘⟨ pushˡ C F.homomorphism ⟩
+          B.α ∘ F.F₁ mor.arr ∘ F.₁ (obj-colim.proj i) ∘ F-Coalgebra.α (J.₀ i)  ≈˘⟨ refl⟩∘⟨ refl⟩∘⟨ F-Coalgebra-Morphism.commutes (colim.proj i) ⟩
+          B.α ∘ F.F₁ mor.arr ∘ F-Coalgebra.α colim.coapex ∘ obj-colim.proj i  ≈˘⟨ (assoc ○ (refl⟩∘⟨ assoc)) ⟩
+          (B.α ∘ F.F₁ mor.arr ∘ F-Coalgebra.α colim.coapex) ∘ obj-colim.proj i
+          ∎) }
+      sol-to-cocone⇒ : (B : F-Algebra F) → Solution colim.coapex B
+                  → Cocone⇒ (forget-Coalgebra ∘F J) obj-colim.colimit (alg2cocone B)
+      sol-to-cocone⇒ B sol = let
+          module B = F-Algebra B
+          module sol = Solution sol
+        in record
+        { arr = sol.f
+        ; commute = λ {i} →
+            IsRecursive.unique (all-recursive i) B
+            (solution-precompose sol (colim.proj i))
+            (IsRecursive.recur (all-recursive i) B)
+        }
+
 
 R-Coalgebras-Colimit : {o' ℓ' e' : Level} → {D : Category o' ℓ' e'} → (J : Functor D R-Coalgebras)
         → Colimit (forget-Coalgebra ∘F forget-rec ∘F  J) → Colimit J
