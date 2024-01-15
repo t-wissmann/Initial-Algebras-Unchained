@@ -76,6 +76,12 @@ module FinProp {prop-level : Level} (P : F-Coalgebra F → Set prop-level) where
   forget-FinPropCoalgebra : Functor FinPropCoalgebras 𝒞
   forget-FinPropCoalgebra = forget-Coalgebra ∘F FullSub (F-Coalgebras F)
 
+FinProp-fmap : {p p' : Level} {P : F-Coalgebra F → Set p} {P' : F-Coalgebra F → Set p'}
+              → (∀ (c : _) → P c → P' c)
+              → FinProp.FinPropCoalgebra P → FinProp.FinPropCoalgebra P'
+FinProp-fmap f coalg =
+  let open FinProp.FinPropCoalgebra coalg in
+  record { carrier = carrier ; structure = structure ; has-prop = f A,α has-prop }
 
 module FinalRecursive
        (carrier-colimit : Colimit (FinProp.forget-FinPropCoalgebra IsRecursive))

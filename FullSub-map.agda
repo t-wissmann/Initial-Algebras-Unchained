@@ -11,18 +11,45 @@ open import Categories.Functor hiding (id)
 open import Categories.Functor.Construction.SubCategory
 
 open import Unchained-Utils
+open import Categories.NaturalTransformation.NaturalIsomorphism
 
 module FullSub-map {o ℓ e} (𝒞 : Category o ℓ e)
                    where
 
-open import Categories.Category.SubCategory 𝒞
+open import Categories.Category.SubCategory
 open import Categories.Morphism 𝒞
 open import Categories.Morphism.Reasoning 𝒞
 
-𝒞|_ = FullSubCategory
+𝒞|_ = FullSubCategory 𝒞
 
 private
   module 𝒞 = Category 𝒞
+
+FullSubSubCategory : {i : Level} {I : Set i} (U : I → 𝒞.Obj)
+         {i' : Level} {I' : Set i'} (f : I' → I)
+         → (𝒞| λ x → U (f x)) ≡ FullSubCategory (𝒞| U) f
+FullSubSubCategory U f = ≡-refl
+
+FullSubSubCat : {i : Level} {I : Set i} (U : I → 𝒞.Obj)
+         {i' : Level} {I' : Set i'} (f : I' → I)
+         → NaturalIsomorphism
+            (FullSub 𝒞 {U = λ x → U (f x)})
+            (FullSub 𝒞 {U = U} ∘F FullSub (𝒞| U) {U = f})
+FullSubSubCat U f =
+  let
+    open Category 𝒞
+    open HomReasoning
+  in
+  niHelper (record {
+    η = λ X → 𝒞.id {U (f X)} ;
+    η⁻¹ = λ X → 𝒞.id {U (f X)} ;
+    commute = λ h → begin
+      id ∘ Functor.F₁ (FullSub 𝒞 {U = λ x → U (f x)}) h ≈⟨ identityˡ ⟩
+      Functor.F₁ (FullSub 𝒞 {U = λ x → U (f x)}) h ≡⟨⟩
+      Functor.F₁ (FullSub 𝒞 {U = U} ∘F FullSub (𝒞| U) {U = f}) h ≈˘⟨ identityʳ ⟩
+      Functor.F₁ (FullSub 𝒞 {U = U} ∘F FullSub (𝒞| U) {U = f}) h ∘ id
+      ∎;
+    iso = λ X → record { isoˡ = identityˡ ; isoʳ = identityˡ } })
 
 module _ {i : Level} {I : Set i} (U : I → Category.Obj 𝒞)
          {i' : Level} {I' : Set i'} (U' : I' → Category.Obj 𝒞)
@@ -63,16 +90,16 @@ module _ {i : Level} {I : Set i} (U : I → Category.Obj 𝒞)
   _~~>_ = Reindexing
 
 
-translate-colimit : {i i' : Level} {I : Set i} {I' : Set i'}
-                    → (U : I → 𝒞.Obj) → (U' : I' → 𝒞.Obj)
-                    → (f : U ~~> U') → (f⁻¹ : U' ~~> U)
-                    → {o' ℓ' e' : Level}
-                    → {𝒟 : Category o' ℓ' e'}
-                    → {J : Functor (𝒞| U) 𝒟}
-                    → (cocone : Cocone J)
-                    → IsLimitting (F-map-Coconeʳ (Reindexing.to-Functor f⁻¹) cocone)
-                    → IsLimitting cocone
-translate-colimit U U' f f⁻¹ {J = J} cocone limitting = record
-    { ! = λ {K} → {!!}
-    ; !-unique = λ f₁ → {!!}
-    }
+-- translate-colimit : {i i' : Level} {I : Set i} {I' : Set i'}
+--                     → (U : I → 𝒞.Obj) → (U' : I' → 𝒞.Obj)
+--                     → (f : U ~~> U') → (f⁻¹ : U' ~~> U)
+--                     → {o' ℓ' e' : Level}
+--                     → {𝒟 : Category o' ℓ' e'}
+--                     → {J : Functor (𝒞| U) 𝒟}
+--                     → (cocone : Cocone J)
+--                     → IsLimitting (F-map-Coconeʳ (Reindexing.to-Functor f⁻¹) cocone)
+--                     → IsLimitting cocone
+-- translate-colimit U U' f f⁻¹ {J = J} cocone limitting = record
+--     { ! = λ {K} → {!limitting.! {F-map-Coconeʳ (Reindexing.to-Functor f⁻¹) K}!}
+--     ; !-unique = λ f₁ → {!!}
+--     }
