@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --safe #-}
 open import Level
 
 -- Aim of this file: sufficient conditions such that

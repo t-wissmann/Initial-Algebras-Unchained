@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --safe #-}
 open import Level
 open import Categories.Category
 open import Categories.Functor using (Functor; _∘F_; Endofunctor)

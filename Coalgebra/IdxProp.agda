@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --safe #-}
 -- Coalgebras:
 -- 1. whose carrier comes from an indexed family
 -- 2. satisfy a given property

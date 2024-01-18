@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --safe #-}
 -- Some results about full subcategories when changing the index set
 open import Level
 open import Agda.Builtin.Equality renaming (refl to ≡-refl)

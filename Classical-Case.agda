@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --safe #-}
 open import Level
 open import Agda.Builtin.Equality renaming (refl to ≡-refl)
 open import LFP using (WeaklyLFP)

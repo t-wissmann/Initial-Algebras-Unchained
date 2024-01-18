@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --safe #-}
 --      ======================================================
 --
 --                Initial Algebras Unchained:
