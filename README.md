@@ -1,8 +1,6 @@
-# Agda Formalization of the Chainless Initial Algebra Construction
+# Agda Formalization of 'Initial Algebras Unchained'
 
 Dependencies:
 
-  - agda-categories
-  - agda-stdlib (v1.7.2 -- implicitly required by agda-categories)
-
-For an example installation, see the `before_script` steps in the [gitlab CI](/.gitlab-ci.yml).
+  - agda-categories (v0.1.7.2)
+  - agda-stdlib (v1.7.2, implicitly required by agda-categories)
