@@ -1,4 +1,5 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K --lossy-unification --safe #-}
+--    ^- the --lossy-unification flag speeds up compilation significantly
 open import Level
 
 open import Categories.Category
