@@ -23,7 +23,7 @@ open import Categories.Category.Construction.Cocones using (Cocones)
 open import Categories.Category.Instance.Properties.Setoids.Cocomplete
 open import Filtered
 
-open import Unchained-Utils using (IsLimitting)
+open import Colimit-Lemmas using (IsLimitting)
 import Categories.Category.Construction.Cocones as Coc
 import Relation.Binary.Reasoning.Setoid as RS
 

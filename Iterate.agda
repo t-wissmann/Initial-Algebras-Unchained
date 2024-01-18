@@ -30,7 +30,7 @@ open import LFP using (WeaklyLFP)
 open import Filtered
 open import Cofinal
 open import Setoids-Choice
-open import Unchained-Utils
+open import Colimit-Lemmas
 
 -- intuitively:
 -- o : level of 'classes'

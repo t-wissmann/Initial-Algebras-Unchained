@@ -10,7 +10,7 @@ open import Categories.Functor hiding (id)
 
 open import Categories.Functor.Construction.SubCategory
 
-open import Unchained-Utils
+open import Colimit-Lemmas
 open import Categories.NaturalTransformation.NaturalIsomorphism
 
 module FullSub-map {o ℓ e} (𝒞 : Category o ℓ e)

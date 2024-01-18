@@ -15,7 +15,7 @@ open import Categories.Category.Construction.F-Coalgebras
 open import Categories.Functor.Coalgebra
 open import Categories.Object.Initial using (IsInitial)
 
-open import Unchained-Utils
+open import Colimit-Lemmas
 
 open import Categories.Diagram.Colimit
 open import Categories.Diagram.Cocone

@@ -32,7 +32,8 @@ module Unique-Proj {o ℓ fil-level}
 
 open import Categories.Morphism.Reasoning.Core 𝒞
 open import Presented 𝒞 (o ⊔ ℓ) ℓ ℓ Fil
-open import Unchained-Utils
+open import Colimit-Lemmas
+open import Helper-Definitions
 
 -- given a coalgebra colimit A,α, its projection homomorphisms
 -- are the unique homomorphisms from the diagram elements to the colimit.

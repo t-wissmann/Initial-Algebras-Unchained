@@ -16,7 +16,7 @@ open import Categories.Functor.Coalgebra
 
 open import LFP using (WeaklyLFP)
 open import Filtered
-open import Unchained-Utils
+open import Colimit-Lemmas
 open import Iterate.ProofGlobals
 
 -- Let (A,α) be locally finite. For every P → FA, we construct

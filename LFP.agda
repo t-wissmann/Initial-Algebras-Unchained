@@ -17,7 +17,7 @@ open import Categories.Category.Instance.Setoids
 open import Categories.Functor.Construction.LiftSetoids
 open import Data.Product
 
-open import Unchained-Utils
+open import Colimit-Lemmas
 open import Filtered
 
 open import Categories.Functor using (_∘F_)

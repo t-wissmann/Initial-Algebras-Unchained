@@ -13,8 +13,8 @@ open import Categories.Functor.Coalgebra
 open import Relation.Nullary
 open import Relation.Nullary.Decidable.Core
 
-open import Notation
-open import Unchained-Utils
+open import Helper-Definitions
+open import Colimit-Lemmas
 open import Filtered
 open import Cofinal
 

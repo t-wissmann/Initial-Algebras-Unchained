@@ -19,7 +19,7 @@ open import Categories.Functor.Construction.LiftSetoids using (LiftSetoids)
 import Setoids-Choice as Setoids
 import Setoids-Colimit
 open import Setoids-Colimit using (KernelPairs)
-open import Unchained-Utils
+open import Colimit-Lemmas
 open import Filtered
 
 module Hom-Colimit-Choice

@@ -22,7 +22,7 @@ open import Function.Equality using (cong)
 open import Categories.Morphism.Reasoning
 
 open import F-Coalgebra-Colimit
-open import Unchained-Utils
+open import Colimit-Lemmas
 
 
 -- We first recap some lemmas from:

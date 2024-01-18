@@ -7,7 +7,7 @@ open import Categories.Diagram.Colimit
 
 open import Data.Product
 
-open import Unchained-Utils
+open import Colimit-Lemmas
 open import Filtered
 
 module Presented {o ℓ fil-level}

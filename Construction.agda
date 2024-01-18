@@ -27,8 +27,9 @@ open import Function.Equality hiding (_∘_)
 open import Categories.Functor.Construction.SubCategory using (FullSub)
 open import Categories.Functor.Construction.SubCategory.Properties using (FullSubFull)
 
-open import Notation
-open import Unchained-Utils
+open import Helper-Definitions
+open import Colimit-Lemmas
+open import Helper-Definitions
 
 module Construction {o ℓ}
   (𝒞 : Category (o ⊔ ℓ) ℓ ℓ)

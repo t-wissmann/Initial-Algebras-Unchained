@@ -11,7 +11,7 @@ open import Categories.Diagram.Cocone.Properties
 
 module Cofinal where
 
-open import Unchained-Utils
+open import Colimit-Lemmas
 
 private
   variable

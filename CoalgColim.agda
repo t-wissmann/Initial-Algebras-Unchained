@@ -13,8 +13,8 @@ open import Categories.Diagram.Cocone
 open import Categories.Diagram.Cocone.Properties using (F-map-Coconeˡ)
 
 open import F-Coalgebra-Colimit
-open import Unchained-Utils
-open import Notation
+open import Colimit-Lemmas
+open import Helper-Definitions
 
 module CoalgColim {o ℓ e}
   {P-level : Level}

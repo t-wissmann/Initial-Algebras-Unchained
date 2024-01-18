@@ -38,7 +38,7 @@ open import Categories.Category.Cocartesian using (Cocartesian; BinaryCoproducts
 
 open import Setoids-Colimit
 open import Setoids-Choice
-open import Unchained-Utils
+open import Colimit-Lemmas
 open import FinCoequalizer
 
 module Setoids-LFP where

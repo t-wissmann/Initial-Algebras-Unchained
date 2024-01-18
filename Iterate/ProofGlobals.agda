@@ -15,7 +15,7 @@ open import Categories.Functor.Coalgebra
 
 open import LFP using (WeaklyLFP)
 open import Filtered
-open import Unchained-Utils
+open import Colimit-Lemmas
 
 -- Here, we fix some modules/helper definitions
 -- for the iteration proof.
