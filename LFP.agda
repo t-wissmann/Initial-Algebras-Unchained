@@ -249,10 +249,3 @@ record WeaklyLFP : Set (suc (o' ⊔ ℓ' ⊔ e') ⊔ o ⊔ suc ℓ ⊔ prop-leve
           commute = λ { {(k , f)} → Cocone⇒.commute mor }
         }
 
--- is-presented : { o' e' ℓ₁ ℓ₂ : Level } → 𝒞.Obj → Set _
--- is-presented {o'} {e'} {ℓ₁} {ℓ₂} X =
---   ∀ (P : Poset o' ℓ₁ ℓ₂) →    -- forall diagram schemes
---   non-empty P →               -- which are non-empty
---   directed P →                -- and are directed
---   (J : Functor (Thin e' P) 𝒞) →  -- and all their diagrams
---   preserves-colimit J (Hom[ 𝒞 ][ X ,-]) -- the hom-functor preserves all (existing) colimits
