@@ -95,11 +95,6 @@ module FinalRecursive
   private
     module carrier-colimit = Colimit carrier-colimit
 
-  -- colimit-in-Coalgebras : Colimit forget-FinProp
-  -- colimit-in-Coalgebras = F-Coalgebras-Colimit forget-FinProp carrier-colimit
-  -- private
-  --   module colimit-in-Coalgebras = Colimit colimit-in-Coalgebras
-
   -- if the finite recursive coalgebras have a colimit on the object level,
   -- then this lifts to the category of coalgebras:
   B,β : CoalgColim {o ⊔ ℓ} {ℓ} {ℓ} 𝒞 F FinitaryRecursive
