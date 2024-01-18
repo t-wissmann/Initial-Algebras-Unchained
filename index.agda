@@ -31,8 +31,8 @@ import Lambek
 
 
 -- new properties of finite (recursive) coalgebras
-import Idx-Coalgebra
-import CoalgColim
+import Coalgebra.IdxProp
+import Coalgebra.IdxProp-fmap
 
 -- Some properties of Setoids:
 import Setoids-Choice -- a weak choice principle for preimages of elements of colimits
@@ -43,3 +43,4 @@ import Setoids-LFP -- Setoids are an instance of a (weak) LFP category
 import Iterate
 import Unique-Proj
 import Construction
+import Classical-Case

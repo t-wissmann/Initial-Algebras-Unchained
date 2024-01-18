@@ -7,15 +7,11 @@ open import Categories.Category
 open import Categories.Functor
 open import Categories.Category.Construction.F-Coalgebras
 open import Categories.Category.Construction.F-Algebras
-open import Categories.Category.Construction.Comma
-open import Categories.Diagram.Colimit
-open import Categories.Diagram.Colimit.DualProperties using (≃-resp-colim)
-open import Categories.Diagram.Cocone.Properties
 open import Categories.Object.Initial
+open import Categories.Diagram.Colimit
 open import Categories.Functor.Coalgebra
 open import Relation.Nullary
 open import Relation.Nullary.Decidable.Core
-open import Categories.NaturalTransformation.NaturalIsomorphism
 
 open import Notation
 open import Unchained-Utils
@@ -36,11 +32,11 @@ module Classical-Case {o ℓ}
 
 private
   module 𝒞 = Category 𝒞
+  module 𝒞-lfp = WeaklyLFP 𝒞-lfp
 
-open import Categories.Category.SubCategory
-open import Categories.Functor.Construction.SubCategory
-open import FullSub-map (F-Coalgebras F)
 open import recursive-coalgebra 𝒞 F
+open import Coalgebra.IdxProp 𝒞 F 𝒞-lfp.fin
+open import Coalgebra.IdxProp-fmap 𝒞 F 𝒞-lfp.fin
 open import Construction {o = o} 𝒞 F Fil Fil-to-filtered 𝒞-lfp
 
 record IsRecursive-via-LEM (R : F-Coalgebra F): Set 0ℓ where
@@ -56,70 +52,18 @@ build-IsRecursive-via-LEM : ∀ (R : F-Coalgebra F) → IsRecursive R → IsRecu
 build-IsRecursive-via-LEM R rec = record { is-recursive-dec = fromWitness rec }
 
 -- the diagram of the coalgebras satisfying IsRecursive-via-LEM is small but has
--- the same colimit as the 'big' diagram from the construction (using IsRecursive)
-build-big-colimit : Colimit (FinProp.forget-FinPropCoalgebra IsRecursive-via-LEM)
-                  → Colimit (FinProp.forget-FinPropCoalgebra IsRecursive)
-build-big-colimit small = expanded
-  where
-    open FinProp
-    module small = Colimit small
-    coalgs = F-Coalgebras F
-    module coalgs = Category coalgs
-    f : FinPropCoalgebra IsRecursive → FinPropCoalgebra IsRecursive-via-LEM
-    f = FinProp-fmap build-IsRecursive-via-LEM
-    rec-to-lemrec : Functor (FinPropCoalgebras IsRecursive) (FinPropCoalgebras IsRecursive-via-LEM)
-    rec-to-lemrec = FullSub (FinPropCoalgebras IsRecursive-via-LEM) {U = f}
-
-    final-rec-to-lemrec : Final rec-to-lemrec
-    final-rec-to-lemrec =
-      let
-        f⁻¹ : FinPropCoalgebra IsRecursive-via-LEM → FinPropCoalgebra IsRecursive
-        f⁻¹ d = FinProp-fmap (λ c → IsRecursive-via-LEM.is-recursive {c}) d
-        η : (d : FinPropCoalgebra IsRecursive-via-LEM) → Category.Obj (d ↙ rec-to-lemrec)
-        η d = record { β = f⁻¹ d ; f = coalgs.id {FinPropCoalgebra.A,α d} }
-      in
-      record
-      { non-empty = η
-      ; every-slice-connected = λ (d : FinPropCoalgebra IsRecursive-via-LEM) →
-                  record { connect = λ A B → let
-                    module d = FinPropCoalgebra d
-                    open Category 𝒞
-                    open HomReasoning
-                    h : ∀ (AB : _) → (d ↙ rec-to-lemrec) [ η d , AB ]
-                    h AB = record { g = lift _ ; h = CommaObj.f AB ;
-                      commute = begin
-                        F-Coalgebra-Morphism.f (CommaObj.f AB) ∘ 𝒞.id ≡⟨⟩
-                        F-Coalgebra-Morphism.f (coalgs [ (CommaObj.f AB) ∘ coalgs.id ])
-                        ∎
-                        }
-                  in
-                  backward _ _ _ (h A) (forward _ _ _ (h B) (nil _))
-                  }
-      }
-    nested-colimit : Colimit ((forget-Coalgebra ∘F FullSub coalgs) ∘F rec-to-lemrec)
-    nested-colimit = final-pulls-colimit
-      (forget-Coalgebra ∘F FullSub coalgs)
-      rec-to-lemrec final-rec-to-lemrec small
-
-    fun-iso :
-      NaturalIsomorphism
-        (FullSub coalgs {U = FinPropCoalgebra.A,α {P = IsRecursive}})
-        (FullSub coalgs {U = FinPropCoalgebra.A,α}
-          ∘F FullSub (FinPropCoalgebras IsRecursive-via-LEM) {U = f})
-    fun-iso = FullSubSubCat (FinPropCoalgebra.A,α {P = λ x → IsRecursive-via-LEM x}) f
-    nested-colimit' : Colimit (forget-Coalgebra ∘F FullSub coalgs ∘F rec-to-lemrec)
-    nested-colimit' = ≃-resp-colim
-                      (associator rec-to-lemrec (FullSub coalgs) forget-Coalgebra)
-                      nested-colimit
-    expanded : Colimit (forget-Coalgebra ∘F
-                           FullSub coalgs {U = FinPropCoalgebra.A,α {P = IsRecursive}})
-    expanded = ≃-resp-colim (sym (forget-Coalgebra ⓘˡ fun-iso)) nested-colimit'
+-- the same colimit as the 'big' diagram from the construction (using IsRecursive),
+-- because IsRecursive-via-LEM and IsRecursive are equivalent
+build-big-colimit : Colimit (forget-IdxPropCoalgebra IsRecursive-via-LEM)
+                  → Colimit (forget-IdxPropCoalgebra IsRecursive)
+build-big-colimit = fmap-colimit build-IsRecursive-via-LEM
+                                 (λ c → IsRecursive-via-LEM.is-recursive {c})
 
 
 initial-algebra-from-colimit :
-       (carrier-colimit : Colimit (FinProp.forget-FinPropCoalgebra IsRecursive-via-LEM))
-       (coalgebras-filtered : Fil (FinProp.FinPropCoalgebras IsRecursive))
-       (F-finitary : preserves-colimit (FinProp.forget-FinPropCoalgebra IsRecursive) F)
+       (carrier-colimit : Colimit (forget-IdxPropCoalgebra IsRecursive-via-LEM))
+       (coalgebras-filtered : Fil (IdxPropCoalgebras IsRecursive))
+       (F-finitary : preserves-colimit (forget-IdxPropCoalgebra IsRecursive) F)
        → Initial (F-Algebras F)
 initial-algebra-from-colimit small-colimit coalg-filtered F-finitary =
   FinalRecursive.initial-algebra (build-big-colimit small-colimit) coalg-filtered F-finitary

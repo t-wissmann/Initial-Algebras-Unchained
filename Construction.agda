@@ -50,46 +50,15 @@ private
     module F = Functor F
     module U = Functor (forget-Coalgebra {C = 𝒞} {F = F})
 
-module FinProp {prop-level : Level} (P : F-Coalgebra F → Set prop-level) where
-  record FinPropCoalgebra : Set (ℓ ⊔ prop-level) where
-    -- a 'fin' coalgebra consists of one of the generators for 𝒞-lfp
-    -- together with a coalgebra structure on it
-    field
-        carrier : 𝒞-lfp.Idx
-        structure : F-Coalgebra-on F (𝒞-lfp.fin carrier)
 
-    A,α : F-Coalgebra F
-    A,α = to-Coalgebra structure
-    open F-Coalgebra (A,α) public
-
-    -- and moreover we require it to satisfy the property P:
-    field
-        has-prop : P A,α
-
-    -- such coalgebras define a full subcategory of all coalgebras:
-  FinPropCoalgebras : Category (ℓ ⊔ prop-level) ℓ ℓ
-  FinPropCoalgebras = FullSubCategory (F-Coalgebras F) FinPropCoalgebra.A,α
-
-  forget-FinProp : Functor FinPropCoalgebras (F-Coalgebras F)
-  forget-FinProp = FullSub (F-Coalgebras F) {U = FinPropCoalgebra.A,α}
-
-  forget-FinPropCoalgebra : Functor FinPropCoalgebras 𝒞
-  forget-FinPropCoalgebra = forget-Coalgebra ∘F FullSub (F-Coalgebras F)
-
-FinProp-fmap : {p p' : Level} {P : F-Coalgebra F → Set p} {P' : F-Coalgebra F → Set p'}
-              → (∀ (c : _) → P c → P' c)
-              → FinProp.FinPropCoalgebra P → FinProp.FinPropCoalgebra P'
-FinProp-fmap f coalg =
-  let open FinProp.FinPropCoalgebra coalg in
-  record { carrier = carrier ; structure = structure ; has-prop = f A,α has-prop }
+open import Coalgebra.IdxProp 𝒞 F 𝒞-lfp.fin IsRecursive
 
 module FinalRecursive
-       (carrier-colimit : Colimit (FinProp.forget-FinPropCoalgebra IsRecursive))
-       (coalgebras-filtered : Fil (FinProp.FinPropCoalgebras IsRecursive))
-       (F-finitary : preserves-colimit (FinProp.forget-FinPropCoalgebra IsRecursive) F)
+       (carrier-colimit : Colimit forget-IdxPropCoalgebra)
+       (coalgebras-filtered : Fil IdxPropCoalgebras)
+       (F-finitary : preserves-colimit forget-IdxPropCoalgebra F)
        where
 
-  open FinProp IsRecursive
   open import Iterate.Assumptions {o' = o ⊔ ℓ} {ℓ' = ℓ} 𝒞 F Fil
   open import Iterate {o' = o ⊔ ℓ} {ℓ' = ℓ} 𝒞 F Fil Fil-to-filtered 𝒞-lfp
   private
@@ -99,18 +68,18 @@ module FinalRecursive
   -- then this lifts to the category of coalgebras:
   B,β : CoalgColim {o ⊔ ℓ} {ℓ} {ℓ} 𝒞 F FinitaryRecursive
   B,β = record
-        { 𝒟 = FinPropCoalgebras
-        ; D = forget-FinProp
+        { 𝒟 = IdxPropCoalgebras
+        ; D = forget-IdxProp
         ; all-have-prop =
           λ {i} → record {
-            finite-carrier = 𝒞-lfp.fin-presented (FinPropCoalgebra.carrier i) ;
-            is-recursive = FinPropCoalgebra.has-prop i }
-        ; cocone = F-Coalgebras-Lift-Cocone forget-FinProp carrier-colimit
-        ; carrier-colimitting = F-Coalgebras-Colimit-Carrier-Limitting forget-FinProp carrier-colimit
+            finite-carrier = 𝒞-lfp.fin-presented (IdxPropCoalgebra.carrier i) ;
+            is-recursive = IdxPropCoalgebra.has-prop i }
+        ; cocone = F-Coalgebras-Lift-Cocone forget-IdxProp carrier-colimit
+        ; carrier-colimitting = F-Coalgebras-Colimit-Carrier-Limitting forget-IdxProp carrier-colimit
         }
   module B,β = CoalgColim.CoalgColim B,β
 
-  B,β-scheme-Full : Full-≈ forget-FinProp
+  B,β-scheme-Full : Full-≈ forget-IdxProp
   B,β-scheme-Full = record {
     preimage = λ X Y f → f ;
     preimage-prop = λ X Y f →
@@ -195,7 +164,7 @@ module FinalRecursive
     inverse.arr
 
   B,β-recursive : IsRecursive B,β.to-Coalgebra
-  B,β-recursive = Limitting-Cocone-IsRecursive B,β.D FinPropCoalgebra.has-prop B,β.cocone B,β.carrier-colimitting
+  B,β-recursive = Limitting-Cocone-IsRecursive B,β.D IdxPropCoalgebra.has-prop B,β.cocone B,β.carrier-colimitting
 
   initial-algebra : Initial (F-Algebras F)
   initial-algebra = record {
