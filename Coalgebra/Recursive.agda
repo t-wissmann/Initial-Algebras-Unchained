@@ -2,10 +2,10 @@
 open import Categories.Category
 open import Categories.Functor using (Functor; Endofunctor)
 
-module recursive-coalgebra {o ℓ e} (C : Category o ℓ e) (F : Endofunctor C) where
+module Coalgebra.Recursive {o ℓ e} (𝒞 : Category o ℓ e) (F : Endofunctor 𝒞) where
 
 private
-  module C = Category C
+  module 𝒞 = Category 𝒞
 
 open import Level
 
@@ -30,10 +30,10 @@ open import Unchained-Utils
 --           Recursive coalgebras from comonads.
 --           Inf. Comput., 204(4):437–468, 2006.
 
-record Solution {o ℓ e} {C : Category o ℓ e} {F : Endofunctor C}
+record Solution {o ℓ e} {𝒞 : Category o ℓ e} {F : Endofunctor 𝒞}
   (X : F-Coalgebra F)
   (Y : F-Algebra F) : Set (ℓ ⊔ e) where
-  open Category C
+  open Category 𝒞
   module X = F-Coalgebra X
   module Y = F-Algebra Y
   open Functor F
@@ -46,7 +46,7 @@ solution-precompose : {B D : F-Coalgebra F} → {A : F-Algebra F} →
   Solution D A → F-Coalgebra-Morphism B D → Solution B A
 solution-precompose {B} {D} {A} sol mor =
   let
-    open Category C
+    open Category 𝒞
     module sol = Solution sol
     module mor = F-Coalgebra-Morphism mor
     module B = F-Coalgebra B
@@ -75,7 +75,7 @@ record IsRecursive (X : F-Coalgebra F) : Set (o ⊔ ℓ ⊔ e) where
     recur : (B : F-Algebra F) → Solution X B
     -- there is at most one solution:
     unique : (B : F-Algebra F) → (g h : Solution X B) →
-      C [ morph g ≈ morph h ]
+      𝒞 [ morph g ≈ morph h ]
 
 
 -- whenever a recursive coalgebra is an iso, it is the initial algebra:
@@ -83,11 +83,11 @@ record IsRecursive (X : F-Coalgebra F) : Set (o ⊔ ℓ ⊔ e) where
 iso-recursive⇒initial :
   (R : F-Coalgebra F)
   → IsRecursive R
-  → (r-iso : IsIso C (F-Coalgebra.α R))
+  → (r-iso : IsIso 𝒞 (F-Coalgebra.α R))
   → IsInitial (F-Algebras F) (to-Algebra (IsIso.inv r-iso))
 iso-recursive⇒initial R is-rec r-iso =
   let
-    open Category C
+    open Category 𝒞
     open HomReasoning
     r⁻¹ = IsIso.inv r-iso
     r = F-Coalgebra.α R
@@ -146,7 +146,7 @@ iso-recursive⇒initial R is-rec r-iso =
 
 module _ (R : F-Coalgebra F) (B : F-Coalgebra F) where
   -- ([CUV06, Prop. 5])
-  open Category C
+  open Category 𝒞
   private
     module R = F-Coalgebra R
     module B = F-Coalgebra B
@@ -239,7 +239,7 @@ iterate-recursive R is-rec =
     g : F-Coalgebra-Morphism R (iterate R)
     g =
       let
-        open Category C
+        open Category 𝒞
         open Equiv
       in
       record { f = R.α ; commutes = refl }
@@ -248,7 +248,7 @@ iterate-recursive R is-rec =
       let
         module FR = F-Coalgebra (iterate R)
         open Functor F
-        open Category C
+        open Category 𝒞
         open HomReasoning
       in
       begin
@@ -277,7 +277,7 @@ iterate-F-Coalgebra-Morphism {A} {B} h =
     open F-Coalgebra A
     open F-Coalgebra B renaming (A to B; α to β)
     module F = Functor F
-    open Category C
+    open Category 𝒞
     open HomReasoning
 
 
@@ -320,7 +320,7 @@ module _ {o' ℓ' e' : Level} {𝒟 : Category o' ℓ' e'} (J : Functor 𝒟 (F-
            ; unique = λ B g h → limitting.!-unique₂ (sol-to-cocone⇒ B g) (sol-to-cocone⇒ B h)
            }
     where
-      open Category C
+      open Category 𝒞
       open HomReasoning
       module cocone = Cocone cocone
       module limitting = IsInitial limitting
@@ -353,7 +353,7 @@ module _ {o' ℓ' e' : Level} {𝒟 : Category o' ℓ' e'} (J : Functor 𝒟 (F-
           mor.arr ∘ obj-cocone.ψ i ≈⟨ mor.commute {i} ⟩
           sol.f  ≈⟨ sol.commutes ⟩
           B.α ∘ F.F₁ sol.f ∘ F-Coalgebra.α (J.₀ i)  ≈˘⟨ refl⟩∘⟨ F.F-resp-≈ mor.commute ⟩∘⟨refl ⟩
-          B.α ∘ F.F₁ (mor.arr ∘ obj-cocone.ψ i) ∘ F-Coalgebra.α (J.₀ i)  ≈⟨ refl⟩∘⟨ pushˡ C F.homomorphism ⟩
+          B.α ∘ F.F₁ (mor.arr ∘ obj-cocone.ψ i) ∘ F-Coalgebra.α (J.₀ i)  ≈⟨ refl⟩∘⟨ pushˡ 𝒞 F.homomorphism ⟩
           B.α ∘ F.F₁ mor.arr ∘ F.₁ (obj-cocone.ψ i) ∘ F-Coalgebra.α (J.₀ i)  ≈˘⟨ refl⟩∘⟨ refl⟩∘⟨ F-Coalgebra-Morphism.commutes (cocone.ψ i) ⟩
           B.α ∘ F.F₁ mor.arr ∘ F-Coalgebra.α cocone.N ∘ obj-cocone.ψ i  ≈˘⟨ (assoc ○ (refl⟩∘⟨ assoc)) ⟩
           (B.α ∘ F.F₁ mor.arr ∘ F-Coalgebra.α cocone.N) ∘ obj-cocone.ψ i
@@ -375,14 +375,14 @@ module _ {o' ℓ' e' : Level} {𝒟 : Category o' ℓ' e'} (J : Functor 𝒟 (F-
 
 R-Coalgebras-Colimit : {o' ℓ' e' : Level} → {D : Category o' ℓ' e'} → (J : Functor D R-Coalgebras)
         → Colimit (forget-Coalgebra ∘F forget-rec ∘F  J) → Colimit J
-R-Coalgebras-Colimit J C-colim =
+R-Coalgebras-Colimit J 𝒞-colim =
   FullSub-Colimit R-Coalgebra.coalg J Coalg-colim R (≅.refl (F-Coalgebras F))
   where
     module J = Functor J
-    module C-colim = Colimit C-colim
+    module 𝒞-colim = Colimit 𝒞-colim
     module F = Functor F
     Coalg-colim : Colimit (forget-rec ∘F J)
-    Coalg-colim = F-Coalgebras-Colimit _ C-colim
+    Coalg-colim = F-Coalgebras-Colimit _ 𝒞-colim
     module Coalg-colim = Colimit Coalg-colim
 
     -- every F-Algebra induces a competing cocone for the above colimit:
@@ -404,7 +404,7 @@ R-Coalgebras-Colimit J C-colim =
               -- h is a coalg-hom from R to R':
               module R = R-Coalgebra (J.F₀ R)
               module R' = R-Coalgebra (J.F₀ R')
-              open Category C
+              open Category 𝒞
               open HomReasoning
               open Equiv
               module h = F-Coalgebra-Morphism (J.F₁ h)
@@ -438,36 +438,36 @@ R-Coalgebras-Colimit J C-colim =
     alg2solution B =
       let
         module B = F-Algebra B
-        open Category C
+        open Category 𝒞
         open HomReasoning
 
-        sol : C [ F-Coalgebra.A Coalg-colim.coapex , B.A ]
-        sol = C-colim.rep (alg2cocone B)
+        sol : 𝒞 [ F-Coalgebra.A Coalg-colim.coapex , B.A ]
+        sol = 𝒞-colim.rep (alg2cocone B)
       in
       record { f = sol ;
-        commutes = colimit-is-jointly-epic C-colim λ R →
+        commutes = colimit-is-jointly-epic 𝒞-colim λ R →
             let
               module R = R-Coalgebra (J.F₀ R)
               module R-sol = Solution (R.recur B)
             in
             begin
-            sol ∘ C-colim.proj R
-              ≈⟨ C-colim.commute ⟩
+            sol ∘ 𝒞-colim.proj R
+              ≈⟨ 𝒞-colim.commute ⟩
             R-sol.f
               ≈⟨ R-sol.commutes ⟩
             B.α ∘ F.F₁ R-sol.f ∘ R.α
-              ≈˘⟨ refl⟩∘⟨ F.F-resp-≈ C-colim.commute ⟩∘⟨refl ⟩
-            B.α ∘ F.F₁ (sol ∘ C-colim.proj R) ∘ R.α
+              ≈˘⟨ refl⟩∘⟨ F.F-resp-≈ 𝒞-colim.commute ⟩∘⟨refl ⟩
+            B.α ∘ F.F₁ (sol ∘ 𝒞-colim.proj R) ∘ R.α
               ≈⟨ refl⟩∘⟨ F.homomorphism ⟩∘⟨refl ⟩
-            B.α ∘ (F.F₁ sol ∘ F.F₁ (C-colim.proj R)) ∘ R.α
+            B.α ∘ (F.F₁ sol ∘ F.F₁ (𝒞-colim.proj R)) ∘ R.α
               ≈⟨ refl⟩∘⟨ assoc ⟩
-            B.α ∘ F.F₁ sol ∘ (F.F₁ (C-colim.proj R) ∘ R.α)
+            B.α ∘ F.F₁ sol ∘ (F.F₁ (𝒞-colim.proj R) ∘ R.α)
               ≈˘⟨ refl⟩∘⟨ refl⟩∘⟨ F-Coalgebra-Morphism.commutes (Coalg-colim.proj R) ⟩
-            B.α ∘ F.F₁ sol ∘ F-Coalgebra.α Coalg-colim.coapex ∘ C-colim.proj R
+            B.α ∘ F.F₁ sol ∘ F-Coalgebra.α Coalg-colim.coapex ∘ 𝒞-colim.proj R
               ≈˘⟨ refl⟩∘⟨  assoc ⟩
-            B.α ∘ (F.F₁ sol ∘ F-Coalgebra.α Coalg-colim.coapex) ∘ C-colim.proj R
+            B.α ∘ (F.F₁ sol ∘ F-Coalgebra.α Coalg-colim.coapex) ∘ 𝒞-colim.proj R
               ≈˘⟨  assoc ⟩
-            (B.α ∘ F.F₁ sol ∘ F-Coalgebra.α Coalg-colim.coapex) ∘ C-colim.proj R
+            (B.α ∘ F.F₁ sol ∘ F-Coalgebra.α Coalg-colim.coapex) ∘ 𝒞-colim.proj R
             ∎
           }
 
@@ -478,9 +478,9 @@ R-Coalgebras-Colimit J C-colim =
       ump = record {
         recur = alg2solution;
         unique = λ B g h →
-          colimit-is-jointly-epic C-colim λ R →
+          colimit-is-jointly-epic 𝒞-colim λ R →
             let
-              open Category C
+              open Category 𝒞
               open HomReasoning
               module B = F-Algebra B
               module R = R-Coalgebra (J.F₀ R)
@@ -489,22 +489,22 @@ R-Coalgebras-Colimit J C-colim =
               proj-sol s =
                 let module s = Solution s in
                 record {
-                f = s.f ∘ C-colim.proj R ;
+                f = s.f ∘ 𝒞-colim.proj R ;
                 commutes =
                   begin
-                  s.f ∘ C-colim.proj R
+                  s.f ∘ 𝒞-colim.proj R
                     ≈⟨ s.commutes ⟩∘⟨refl ⟩
-                  (B.α ∘ F.F₁ s.f ∘ F-Coalgebra.α Coalg-colim.coapex) ∘ C-colim.proj R
+                  (B.α ∘ F.F₁ s.f ∘ F-Coalgebra.α Coalg-colim.coapex) ∘ 𝒞-colim.proj R
                     ≈⟨ assoc ⟩
-                  B.α ∘ ((F.F₁ s.f ∘ F-Coalgebra.α Coalg-colim.coapex) ∘ C-colim.proj R)
+                  B.α ∘ ((F.F₁ s.f ∘ F-Coalgebra.α Coalg-colim.coapex) ∘ 𝒞-colim.proj R)
                     ≈⟨ refl⟩∘⟨ assoc ⟩
-                  B.α ∘ F.F₁ s.f ∘ F-Coalgebra.α Coalg-colim.coapex ∘ C-colim.proj R
+                  B.α ∘ F.F₁ s.f ∘ F-Coalgebra.α Coalg-colim.coapex ∘ 𝒞-colim.proj R
                     ≈⟨ refl⟩∘⟨ refl⟩∘⟨ F-Coalgebra-Morphism.commutes (Coalg-colim.proj R) ⟩
-                  B.α ∘ F.F₁ s.f ∘ F.F₁ (C-colim.proj R) ∘ R.α
+                  B.α ∘ F.F₁ s.f ∘ F.F₁ (𝒞-colim.proj R) ∘ R.α
                     ≈˘⟨ refl⟩∘⟨ assoc ⟩
-                  B.α ∘ (F.F₁ s.f ∘ F.F₁ (C-colim.proj R)) ∘ R.α
+                  B.α ∘ (F.F₁ s.f ∘ F.F₁ (𝒞-colim.proj R)) ∘ R.α
                     ≈˘⟨ refl⟩∘⟨ F.homomorphism ⟩∘⟨refl ⟩
-                  B.α ∘ F.F₁ (s.f ∘ C-colim.proj R) ∘ R.α
+                  B.α ∘ F.F₁ (s.f ∘ 𝒞-colim.proj R) ∘ R.α
                   ∎
                 }
             in
@@ -512,80 +512,80 @@ R-Coalgebras-Colimit J C-colim =
         } }
 
 
-retract-coalgebra : (X : F-Coalgebra F) {Y : C.Obj}
-  → Retract C (F-Coalgebra.A X) Y
+retract-coalgebra : (X : F-Coalgebra F) {Y : 𝒞.Obj}
+  → Retract 𝒞 (F-Coalgebra.A X) Y
   → F-Coalgebra F
 retract-coalgebra X {Y} r = record { A = Y ; α = F₁ r.section ∘ X.α ∘ r.retract }
   where
     open Functor F
-    open Category C
+    open Category 𝒞
     module r = Retract r
     module X = F-Coalgebra X
 
 
-retract-coalgebra-hom : (X : F-Coalgebra F) {Y : C.Obj}
-  → (r : Retract C (F-Coalgebra.A X) Y)
+retract-coalgebra-hom : (X : F-Coalgebra F) {Y : 𝒞.Obj}
+  → (r : Retract 𝒞 (F-Coalgebra.A X) Y)
   → F-Coalgebras F [ X , retract-coalgebra X r ]
 retract-coalgebra-hom X {Y} r =
   record { f = r.section ; commutes = begin
-    (F₁ r.section ∘ X.α ∘ r.retract) ∘ r.section ≈⟨ assoc²' C ⟩
-    F₁ r.section ∘ X.α ∘ r.retract ∘ r.section ≈⟨ refl⟩∘⟨ elimʳ C r.is-retract ⟩
+    (F₁ r.section ∘ X.α ∘ r.retract) ∘ r.section ≈⟨ assoc²' 𝒞 ⟩
+    F₁ r.section ∘ X.α ∘ r.retract ∘ r.section ≈⟨ refl⟩∘⟨ elimʳ 𝒞 r.is-retract ⟩
     F₁ r.section ∘ X.α
     ∎}
   where
     open Functor F
-    open Category C
+    open Category 𝒞
     open HomReasoning
     module r = Retract r
     module X = F-Coalgebra X
 
-retract-coalgebra-hom⁻¹ : (X : F-Coalgebra F) {Y : C.Obj}
-  → (r : Retract C (F-Coalgebra.A X) Y)
+retract-coalgebra-hom⁻¹ : (X : F-Coalgebra F) {Y : 𝒞.Obj}
+  → (r : Retract 𝒞 (F-Coalgebra.A X) Y)
   → F-Coalgebras F [ retract-coalgebra X r , X ]
 retract-coalgebra-hom⁻¹ X {Y} r =
   record { f = r.retract ; commutes = begin
-    X.α ∘ r.retract ≈˘⟨ pullˡ C (elimˡ C (F-resp-≈ r.is-retract ○ identity)) ⟩
-    F₁ (r.retract ∘ r.section) ∘ X.α ∘ r.retract ≈⟨ pushˡ C homomorphism ⟩
+    X.α ∘ r.retract ≈˘⟨ pullˡ 𝒞 (elimˡ 𝒞 (F-resp-≈ r.is-retract ○ identity)) ⟩
+    F₁ (r.retract ∘ r.section) ∘ X.α ∘ r.retract ≈⟨ pushˡ 𝒞 homomorphism ⟩
     F₁ r.retract ∘ F₁ r.section ∘ X.α ∘ r.retract
     ∎}
   where
     open Functor F
-    open Category C
+    open Category 𝒞
     open HomReasoning
     module r = Retract r
     module X = F-Coalgebra X
 
-retract-coalgebra-hom-to-iterate : (X : F-Coalgebra F) {Y : C.Obj}
-  → (r : Retract C (F-Coalgebra.A X) Y)
+retract-coalgebra-hom-to-iterate : (X : F-Coalgebra F) {Y : 𝒞.Obj}
+  → (r : Retract 𝒞 (F-Coalgebra.A X) Y)
   → F-Coalgebras F [ retract-coalgebra X r , (iterate X) ]
 retract-coalgebra-hom-to-iterate X {Y} r =
   record { f = X.α ∘ r.retract ; commutes =
     begin
-    F₁ X.α ∘ X.α ∘ r.retract ≈˘⟨ refl⟩∘⟨ elimˡ C identity ⟩
+    F₁ X.α ∘ X.α ∘ r.retract ≈˘⟨ refl⟩∘⟨ elimˡ 𝒞 identity ⟩
     F₁ X.α ∘ F₁ id ∘ X.α ∘ r.retract ≈˘⟨ refl⟩∘⟨ F-resp-≈ r.is-retract ⟩∘⟨refl  ⟩
-    F₁ X.α ∘ F₁ (r.retract ∘ r.section) ∘ X.α ∘ r.retract ≈⟨ refl⟩∘⟨ pushˡ C homomorphism ⟩
-    F₁ X.α ∘ F₁ r.retract ∘ F₁ r.section ∘ X.α ∘ r.retract ≈˘⟨ pushˡ C homomorphism ⟩
+    F₁ X.α ∘ F₁ (r.retract ∘ r.section) ∘ X.α ∘ r.retract ≈⟨ refl⟩∘⟨ pushˡ 𝒞 homomorphism ⟩
+    F₁ X.α ∘ F₁ r.retract ∘ F₁ r.section ∘ X.α ∘ r.retract ≈˘⟨ pushˡ 𝒞 homomorphism ⟩
     F₁ (X.α ∘ r.retract) ∘ F₁ r.section ∘ X.α ∘ r.retract
     ∎
   }
   where
     open Functor F
-    open Category C
+    open Category 𝒞
     open HomReasoning
     module r = Retract r
     module X = F-Coalgebra X
 
-retract-coalgebra-recursive : (X : F-Coalgebra F) {Y : C.Obj}
-  → (r : Retract C (F-Coalgebra.A X) Y)
+retract-coalgebra-recursive : (X : F-Coalgebra F) {Y : 𝒞.Obj}
+  → (r : Retract 𝒞 (F-Coalgebra.A X) Y)
   → IsRecursive X
   → IsRecursive (retract-coalgebra X r)
 retract-coalgebra-recursive X {Y} r X-rec =
   sandwich-recursive X (retract-coalgebra X r) X-rec
     (retract-coalgebra-hom X r)
-    (retract-coalgebra-hom-to-iterate X r) C.Equiv.refl
+    (retract-coalgebra-hom-to-iterate X r) 𝒞.Equiv.refl
   where
     open Functor F
-    open Category C
+    open Category 𝒞
     open HomReasoning
     module r = Retract r
     module X = F-Coalgebra X

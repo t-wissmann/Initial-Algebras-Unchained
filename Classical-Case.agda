@@ -34,7 +34,7 @@ private
   module 𝒞 = Category 𝒞
   module 𝒞-lfp = WeaklyLFP 𝒞-lfp
 
-open import recursive-coalgebra 𝒞 F
+open import Coalgebra.Recursive 𝒞 F
 open import Coalgebra.IdxProp 𝒞 F 𝒞-lfp.fin
 open import Coalgebra.IdxProp-fmap 𝒞 F 𝒞-lfp.fin
 open import Construction {o = o} 𝒞 F Fil Fil-to-filtered 𝒞-lfp

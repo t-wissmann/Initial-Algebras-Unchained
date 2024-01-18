@@ -25,14 +25,15 @@ import Cofinal
 import LFP-slices
 import LFP
 
+-- Properties about coalgebras:
+import Coalgebra.Recursive
+import Coalgebra.IdxProp
+import Coalgebra.IdxProp-fmap
+
 -- some lemmas about recursive coalgebras
-import recursive-coalgebra
 import Lambek
 
 
--- new properties of finite (recursive) coalgebras
-import Coalgebra.IdxProp
-import Coalgebra.IdxProp-fmap
 
 -- Some properties of Setoids:
 import Setoids-Choice -- a weak choice principle for preimages of elements of colimits

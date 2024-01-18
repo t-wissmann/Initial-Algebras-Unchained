@@ -27,7 +27,7 @@ module Iterate.Assumptions {o ℓ fil-level}
   where
 
 open import Presented 𝒞 (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ) Fil
-open import recursive-coalgebra 𝒞 F
+open import Coalgebra.Recursive 𝒞 F
 
 record FinitaryRecursive (coalg : F-Coalgebra F) : Set (suc (o' ⊔ ℓ') ⊔ o ⊔ suc ℓ ⊔ fil-level) where
   -- the property that a coalgebra

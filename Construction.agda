@@ -39,7 +39,7 @@ module Construction {o ℓ}
   (𝒞-lfp : WeaklyLFP 𝒞 (o ⊔ ℓ) ℓ ℓ Fil Fil-to-filtered)
   where
 
-open import recursive-coalgebra 𝒞 F
+open import Coalgebra.Recursive 𝒞 F
 open import Unique-Proj 𝒞 F Fil Fil-to-filtered 𝒞-lfp
 open import Categories.Morphism.Reasoning 𝒞
 open import Lambek 𝒞 F

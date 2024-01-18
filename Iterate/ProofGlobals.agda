@@ -88,5 +88,5 @@ record ProofGlobals : Set (suc (o' ⊔ ℓ') ⊔ suc fil-level ⊔ suc (o ⊔ �
   module F-coalg-colim = Colimit F-coalg-colim
 
   open import Presented 𝒞 (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ) Fil public
-  open import recursive-coalgebra 𝒞 F public
+  open import Coalgebra.Recursive 𝒞 F public
   open import Iterate.Assumptions {o' = o'} {ℓ' = ℓ'} 𝒞 F Fil public
