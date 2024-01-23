@@ -30,7 +30,7 @@ open import Colimit-Lemmas
 --           Recursive coalgebras from comonads.
 --           Inf. Comput., 204(4):437–468, 2006.
 
-record Solution {o ℓ e} {𝒞 : Category o ℓ e} {F : Endofunctor 𝒞}
+record C2A-morphism {o ℓ e} {𝒞 : Category o ℓ e} {F : Endofunctor 𝒞}
   (X : F-Coalgebra F)
   (Y : F-Algebra F) : Set (ℓ ⊔ e) where
   open Category 𝒞
@@ -42,12 +42,12 @@ record Solution {o ℓ e} {𝒞 : Category o ℓ e} {F : Endofunctor 𝒞}
     commutes : f ≈ Y.α ∘ F₁ f ∘ X.α
 
 -- we can precompose solutions with coalgebra morphisms:
-solution-precompose : {B D : F-Coalgebra F} → {A : F-Algebra F} →
-  Solution D A → F-Coalgebra-Morphism B D → Solution B A
-solution-precompose {B} {D} {A} sol mor =
+C2A-precompose : {B D : F-Coalgebra F} → {A : F-Algebra F} →
+  C2A-morphism D A → F-Coalgebra-Morphism B D → C2A-morphism B A
+C2A-precompose {B} {D} {A} eval mor =
   let
     open Category 𝒞
-    module sol = Solution sol
+    module eval = C2A-morphism eval
     module mor = F-Coalgebra-Morphism mor
     module B = F-Coalgebra B
     module D = F-Coalgebra D
@@ -56,25 +56,25 @@ solution-precompose {B} {D} {A} sol mor =
     open Functor F
   in
   record
-  { f = sol.f ∘ mor.f ;
+  { f = eval.f ∘ mor.f ;
   commutes = begin
-    sol.f ∘ mor.f                     ≈⟨ sol.commutes ⟩∘⟨refl  ⟩
-    (A.α ∘ F₁ sol.f ∘ D.α) ∘ mor.f     ≈⟨ assoc ⟩
-    A.α ∘ (F₁ sol.f ∘ D.α) ∘ mor.f     ≈⟨ refl⟩∘⟨ assoc ⟩
-    A.α ∘ F₁ sol.f ∘ D.α ∘ mor.f       ≈⟨ refl⟩∘⟨ refl⟩∘⟨ mor.commutes ⟩
-    A.α ∘ F₁ sol.f ∘ F₁ mor.f ∘ B.α    ≈⟨ refl⟩∘⟨ sym-assoc ⟩
-    A.α ∘ (F₁ sol.f ∘ F₁ mor.f) ∘ B.α  ≈˘⟨ refl⟩∘⟨ homomorphism ⟩∘⟨refl ⟩
-    A.α ∘ F₁ (sol.f ∘ mor.f) ∘ B.α
+    eval.f ∘ mor.f                     ≈⟨ eval.commutes ⟩∘⟨refl  ⟩
+    (A.α ∘ F₁ eval.f ∘ D.α) ∘ mor.f    ≈⟨ assoc ⟩
+    A.α ∘ (F₁ eval.f ∘ D.α) ∘ mor.f    ≈⟨ refl⟩∘⟨ assoc ⟩
+    A.α ∘ F₁ eval.f ∘ D.α ∘ mor.f      ≈⟨ refl⟩∘⟨ refl⟩∘⟨ mor.commutes ⟩
+    A.α ∘ F₁ eval.f ∘ F₁ mor.f ∘ B.α   ≈⟨ refl⟩∘⟨ sym-assoc ⟩
+    A.α ∘ (F₁ eval.f ∘ F₁ mor.f) ∘ B.α ≈˘⟨ refl⟩∘⟨ homomorphism ⟩∘⟨refl ⟩
+    A.α ∘ F₁ (eval.f ∘ mor.f) ∘ B.α
           ∎
   }
 
 record IsRecursive (X : F-Coalgebra F) : Set (o ⊔ ℓ ⊔ e) where
-  morph = Solution.f
+  morph = C2A-morphism.f
   field
     -- there is at least one solution:
-    recur : (B : F-Algebra F) → Solution X B
+    recur : (B : F-Algebra F) → C2A-morphism X B
     -- there is at most one solution:
-    unique : (B : F-Algebra F) → (g h : Solution X B) →
+    unique : (B : F-Algebra F) → (g h : C2A-morphism X B) →
       𝒞 [ morph g ≈ morph h ]
 
 
@@ -98,14 +98,14 @@ iso-recursive⇒initial R is-rec r-iso =
         coalg2alg = IsRecursive.recur is-rec A
         a = F-Algebra.α A
         h : (F-Coalgebra.A R) ⇒ (F-Algebra.A A)
-        h = Solution.f coalg2alg
+        h = C2A-morphism.f coalg2alg
         Fh = Functor.F₁ F h
       in
       record
         { f = h
         ; commutes = begin
           h ∘ r⁻¹
-            ≈⟨  Solution.commutes coalg2alg ⟩∘⟨refl ⟩
+            ≈⟨  C2A-morphism.commutes coalg2alg ⟩∘⟨refl ⟩
           (a ∘ Fh ∘ r) ∘ r⁻¹   ≈⟨ assoc ⟩
           a ∘ ((Fh ∘ r) ∘ r⁻¹) ≈⟨ refl⟩∘⟨ assoc ⟩
           a ∘ Fh ∘ (r ∘ r⁻¹)
@@ -123,7 +123,7 @@ iso-recursive⇒initial R is-rec r-iso =
       Fg = Functor.F₁ F g
       a = F-Algebra.α A
       -- we first show that 'g' is a coalg2algebra homomorphism
-      g-coalg2alg : Solution R A
+      g-coalg2alg : C2A-morphism R A
       g-coalg2alg = record {
         f = g ;
         commutes =
@@ -170,7 +170,7 @@ module _ (R : F-Coalgebra F) (B : F-Coalgebra F) where
         -- for an F-algebra D, consider the induced solution by R:
         module D = F-Algebra D
         R2D = recur D
-        module R2D = Solution R2D
+        module R2D = C2A-morphism R2D
         -- use this under the functor to get a solution from B to D:
         sol = D.α ∘ F.F₁ R2D.f ∘ g.f
         open HomReasoning
@@ -196,21 +196,21 @@ module _ (R : F-Coalgebra F) (B : F-Coalgebra F) where
     unique = λ D sol1 sol2 →
       let
         module D = F-Algebra D
-        module sol1 = Solution sol1
-        module sol2 = Solution sol2
+        module sol1 = C2A-morphism sol1
+        module sol2 = C2A-morphism sol2
         open HomReasoning
         -- first of all, the solutions are equal when precomposed with 'h: R -> B':
         sol1-h-is-sol2-h : sol1.f ∘ h.f ≈ sol2.f ∘ h.f
         sol1-h-is-sol2-h =
           IsRecursive.unique R-is-rec D
-             (solution-precompose sol1 h)
-             (solution-precompose sol2 h)
+             (C2A-precompose sol1 h)
+             (C2A-precompose sol2 h)
 
         -- this is essentially the reasoning: we do it forward for sol1 and
         -- backwards for sol2.
         sol-transformation sol =
           let
-            module sol = Solution sol
+            module sol = C2A-morphism sol
           in
           begin
           sol.f            ≈⟨ sol.commutes ⟩
@@ -330,16 +330,16 @@ module _ {o' ℓ' e' : Level} {𝒟 : Category o' ℓ' e'} (J : Functor 𝒟 (F-
       alg2cocone B =
         let module B = F-Algebra B in
         record { coapex = record {
-          ψ = λ i → Solution.f (IsRecursive.recur (all-recursive i) B) ;
+          ψ = λ i → C2A-morphism.f (IsRecursive.recur (all-recursive i) B) ;
           commute = λ {i} {i'} h →
             let
               sol1 = IsRecursive.recur (all-recursive i) B
-              sol2 = solution-precompose (IsRecursive.recur (all-recursive i') B) (J.₁ h)
+              sol2 = C2A-precompose (IsRecursive.recur (all-recursive i') B) (J.₁ h)
             in
             IsRecursive.unique (all-recursive i) B sol2 sol1 } }
       cocone⇒-to-sol : (B : F-Algebra F)
                   → Cocone⇒ (forget-Coalgebra ∘F J) obj-cocone (alg2cocone B)
-                  → Solution cocone.N B
+                  → C2A-morphism cocone.N B
       cocone⇒-to-sol B mor = let
           module B = F-Algebra B
           module mor = Cocone⇒ mor
@@ -347,7 +347,7 @@ module _ {o' ℓ' e' : Level} {𝒟 : Category o' ℓ' e'} (J : Functor 𝒟 (F-
         record { f = mor.arr ; commutes = limitting-cocone-is-jointly-epic obj-cocone limitting (λ i →
           let
             sol = IsRecursive.recur (all-recursive i) B
-            module sol = Solution sol
+            module sol = C2A-morphism sol
           in
           begin
           mor.arr ∘ obj-cocone.ψ i ≈⟨ mor.commute {i} ⟩
@@ -359,16 +359,16 @@ module _ {o' ℓ' e' : Level} {𝒟 : Category o' ℓ' e'} (J : Functor 𝒟 (F-
           (B.α ∘ F.F₁ mor.arr ∘ F-Coalgebra.α cocone.N) ∘ obj-cocone.ψ i
           ∎) }
 
-      sol-to-cocone⇒ : (B : F-Algebra F) → Solution cocone.N B
+      sol-to-cocone⇒ : (B : F-Algebra F) → C2A-morphism cocone.N B
                   → Cocone⇒ (forget-Coalgebra ∘F J) obj-cocone (alg2cocone B)
       sol-to-cocone⇒ B sol = let
           module B = F-Algebra B
-          module sol = Solution sol
+          module sol = C2A-morphism sol
         in record
         { arr = sol.f
         ; commute = λ {i} →
             IsRecursive.unique (all-recursive i) B
-            (solution-precompose sol (cocone.ψ i))
+            (C2A-precompose sol (cocone.ψ i))
             (IsRecursive.recur (all-recursive i) B)
         }
 
@@ -398,7 +398,7 @@ R-Coalgebras-Colimit J 𝒞-colim =
             let
               module R = R-Coalgebra (J.F₀ R)
             in
-            Solution.f (R.recur B) ;
+            C2A-morphism.f (R.recur B) ;
           commute = λ {R} {R'} h →
             let
               -- h is a coalg-hom from R to R':
@@ -411,10 +411,10 @@ R-Coalgebras-Colimit J 𝒞-colim =
               module U = Functor (forget-Coalgebra ∘F forget-rec ∘F J)
               module U' = Functor (forget-rec ∘F J)
               -- we can use it to construct another solution from R to B:
-              sol : Solution R.coalg B
+              sol : C2A-morphism R.coalg B
               sol =
                 let
-                  module r' = Solution (R'.recur B)
+                  module r' = C2A-morphism (R'.recur B)
                 in
                 record {
                 f = r'.f ∘ U.F₁ h;
@@ -434,7 +434,7 @@ R-Coalgebras-Colimit J 𝒞-colim =
         } }
     --
     -- the induced solution for an algebra
-    alg2solution : (B : F-Algebra F) → Solution Coalg-colim.coapex B
+    alg2solution : (B : F-Algebra F) → C2A-morphism Coalg-colim.coapex B
     alg2solution B =
       let
         module B = F-Algebra B
@@ -448,7 +448,7 @@ R-Coalgebras-Colimit J 𝒞-colim =
         commutes = colimit-is-jointly-epic 𝒞-colim λ R →
             let
               module R = R-Coalgebra (J.F₀ R)
-              module R-sol = Solution (R.recur B)
+              module R-sol = C2A-morphism (R.recur B)
             in
             begin
             sol ∘ 𝒞-colim.proj R
@@ -485,9 +485,9 @@ R-Coalgebras-Colimit J 𝒞-colim =
               module B = F-Algebra B
               module R = R-Coalgebra (J.F₀ R)
               -- we need to show that every solution in the colim induces a solution of R
-              proj-sol : Solution Coalg-colim.coapex B → Solution R.coalg B
+              proj-sol : C2A-morphism Coalg-colim.coapex B → C2A-morphism R.coalg B
               proj-sol s =
-                let module s = Solution s in
+                let module s = C2A-morphism s in
                 record {
                 f = s.f ∘ 𝒞-colim.proj R ;
                 commutes =
