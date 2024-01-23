@@ -4,10 +4,10 @@ open import Categories.Functor using (Functor; Endofunctor)
 open import Agda.Builtin.Equality renaming (refl to ≡-refl)
 open import Categories.Diagram.Cocone.Properties using (F-map-Coconeˡ; F-map-Cocone⇒ˡ)
 
-module F-Coalgebra-Colimit {o ℓ e} {C : Category o ℓ e} {F : Endofunctor C} where
+module F-Coalgebra-Colimit {o ℓ e} {𝒞 : Category o ℓ e} {F : Endofunctor 𝒞} where
 
 private
-  module C = Category C
+  module 𝒞 = Category 𝒞
 
 open import Level
 
@@ -23,11 +23,11 @@ open import Categories.Diagram.Cocone
 -- TODO: how can I make G an implicit parameter in the following theorem/proof?
 -- TODO2: why does 'C' have to be an explicit parameter to jointly-epic?
 
-forget-Coalgebra : Functor (F-Coalgebras F) C
+forget-Coalgebra : Functor (F-Coalgebras F) 𝒞
 forget-Coalgebra =
     let
       -- open Category (F-Coalgebras F)
-      open Category C
+      open Category 𝒞
       open HomReasoning
       open Equiv
     in
@@ -88,7 +88,7 @@ F-Coalgebras-Limitting-Cocone {o'} {ℓ'} {e'} {D} J K UK-limitting =
       C-cocone : Cocone composed-diagram
       C-cocone = F-map-Coconeˡ U competing
 
-      -- this induces a cocone morphism in C
+      -- this induces a cocone morphism in 𝒞
       C-cocone-morph : Cocone⇒ _ UK C-cocone
       C-cocone-morph = IsInitial.! UK-limitting
       -- which gives rise to the coalgebra morphism:
@@ -96,7 +96,7 @@ F-Coalgebras-Limitting-Cocone {o'} {ℓ'} {e'} {D} J K UK-limitting =
       h =
         let
           h = Cocone⇒.arr C-cocone-morph
-          open Category C
+          open Category 𝒞
           open Functor F
           open HomReasoning
         in
@@ -132,7 +132,7 @@ F-Coalgebras-Lift-Cocone J colim = J-cocone
     FK-cocone =
       let
         open Functor F
-        open Category C
+        open Category 𝒞
         open HomReasoning
       in
       record { coapex = record {
@@ -173,7 +173,7 @@ F-Coalgebras-Lift-Cocone J colim = J-cocone
     coalg-inj = λ A,α →
       let
         open Functor F
-        open Category C
+        open Category 𝒞
         open F-Coalgebra (J.F₀ A,α)
         open HomReasoning
       in
@@ -207,7 +207,7 @@ F-Coalgebras-Colimit-Carrier-Limitting J colim =
             -- we need to unfold/fold the definitions a bit:
             f' : Cocone⇒ _ colim.colimit K'
             f' = record { arr = Cocone⇒.arr f ; commute = Cocone⇒.commute f }
-            eq : C [ Cocone⇒.arr (colim.initial.! {K'}) ≈ Cocone⇒.arr f' ]
+            eq : 𝒞 [ Cocone⇒.arr (colim.initial.! {K'}) ≈ Cocone⇒.arr f' ]
             eq = colim.initial.!-unique f'
           in
           eq
@@ -229,6 +229,6 @@ F-Coalgebras-Colimit {o'} {ℓ'} {e'} {D} J colim =
         J-cocone : Cocone J
         J-cocone = F-Coalgebras-Lift-Cocone J colim
 
-F-Coalgebras-Cocomplete : (o' ℓ' e' : Level) → Cocomplete o' ℓ' e' C → Cocomplete o' ℓ' e' (F-Coalgebras F)
+F-Coalgebras-Cocomplete : (o' ℓ' e' : Level) → Cocomplete o' ℓ' e' 𝒞 → Cocomplete o' ℓ' e' (F-Coalgebras F)
 F-Coalgebras-Cocomplete o' ℓ' e' C-Cocomplete {D} = λ (J : Functor D (F-Coalgebras F)) →
   F-Coalgebras-Colimit J (C-Cocomplete (forget-Coalgebra ∘F J))
