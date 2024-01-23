@@ -49,7 +49,7 @@ private
     module 𝒞 = Category 𝒞
     module 𝒞-lfp = WeaklyLFP 𝒞-lfp
     module F = Functor F
-    module U = Functor (forget-Coalgebra {C = 𝒞} {F = F})
+    module U = Functor (forget-Coalgebra {𝒞 = 𝒞} {F = F})
 
 
 open import Coalgebra.IdxProp 𝒞 F 𝒞-lfp.fin IsRecursive
