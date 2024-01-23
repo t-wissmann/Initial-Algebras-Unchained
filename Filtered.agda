@@ -6,22 +6,22 @@ open import Categories.Category.Lift
 open import Data.Fin
 open import Data.Nat.Base hiding (_⊔_)
 
-module Filtered {o ℓ e} (C : Category o ℓ e) where
+module Filtered {o ℓ e} (𝒞 : Category o ℓ e) where
 
 open import Level
 private
-  module C = Category C
+  module 𝒞 = Category 𝒞
 
-record UpperBound (X Y : C.Obj) : Set (o ⊔ ℓ) where
-  open Category C
+record UpperBound (X Y : 𝒞.Obj) : Set (o ⊔ ℓ) where
+  open Category 𝒞
   field
-    obj : C.Obj
+    obj : 𝒞.Obj
     i₁ : X ⇒ obj
     i₂ : Y ⇒ obj
 
 -- the property of having upper bounds
 record has-upper-bounds : Set (o ⊔ ℓ ⊔ e) where
-  open Category C
+  open Category 𝒞
   field
     non-empty : Obj
     upper-bound : Obj → Obj → Obj
@@ -48,27 +48,27 @@ record has-upper-bounds : Set (o ⊔ ℓ ⊔ e) where
 -- the property that the diagram of every pair of parallel morphisms
 -- has a cocone. There is no name for this in nlab (https://ncatlab.org/nlab/show/filtered+category)
 -- nor in the Adamek/Rosicky-book. So let us call it 'merge
-record MergedMorphisms {X Y : C.Obj} (g h : C [ X , Y ]) : Set (o ⊔ ℓ ⊔ e) where
-  open Category C
+record MergedMorphisms {X Y : 𝒞.Obj} (g h : 𝒞 [ X , Y ]) : Set (o ⊔ ℓ ⊔ e) where
+  open Category 𝒞
   field
     -- for a pair of parallel morphisms g and h, we obtain:
     -- 1. an object in which the two morphisms will become equal
-    tip : C.Obj
+    tip : 𝒞.Obj
     -- 2. a morphism  to that object:
     merge : Y ⇒ tip
     -- 3. and the property that it makes g and h equal:
     prop : merge ∘ g ≈ merge ∘ h
 
 record MergeAllParallelMorphisms : Set (o ⊔ ℓ ⊔ e) where
-  open Category C
+  open Category 𝒞
   field
-    merge-all : ∀ {X Y : C.Obj} (g h : C [ X , Y ]) → MergedMorphisms g h
+    merge-all : ∀ {X Y : 𝒞.Obj} (g h : 𝒞 [ X , Y ]) → MergedMorphisms g h
 
 -- the completion of a span to a commuting square
-record ClosedSpan {X Y Z : C.Obj} (g : C [ X , Y ]) (h : C [ X , Z ]) : Set (o ⊔ ℓ ⊔ e) where
-  open Category C
+record ClosedSpan {X Y Z : 𝒞.Obj} (g : 𝒞 [ X , Y ]) (h : 𝒞 [ X , Z ]) : Set (o ⊔ ℓ ⊔ e) where
+  open Category 𝒞
   field
-    tip : C.Obj
+    tip : 𝒞.Obj
     close-fst : Y ⇒ tip
     close-snd : Z ⇒ tip
     commutes : close-fst ∘ g ≈ close-snd ∘ h
@@ -87,7 +87,7 @@ record filtered : Set (o ⊔ ℓ ⊔ e) where
   module merge-parallel = MergeAllParallelMorphisms merge-parallel
   open merge-parallel public
 
-  open Category C
+  open Category 𝒞
 
   -- we can combine the above two fields to close any span of morphisms
   -- to a commuting square
