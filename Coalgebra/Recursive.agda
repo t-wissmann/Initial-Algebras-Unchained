@@ -311,11 +311,19 @@ module _ {o' ℓ' e' : Level} {𝒟 : Category o' ℓ' e'} (J : Functor 𝒟 (F-
     module J = Functor J
     module F = Functor F
 
-  Limitting-Cocone-IsRecursive : (∀ (i : 𝒟.Obj) → IsRecursive (J.₀ i))
+
+  Limitting-Cocone-IsRecursive :
+        (∀ (i : 𝒟.Obj) → IsRecursive (J.₀ i))
+        -- ^- if all coalgebras in the diagram are recursive
       → (cocone : Cocone J)
+        -- ^- if we have a cocone in coalgebras
       → IsLimitting (F-map-Coconeˡ forget-Coalgebra cocone)
+        -- ^- which is limitting in the base category
       → IsRecursive (Cocone.N cocone)
+        -- ^- then the tip of the cocone is also recursive
   Limitting-Cocone-IsRecursive all-recursive cocone limitting =
+    -- we convert Cocone-Morphisms and C2A-morphisms back and forth:
+    -- we write 'sol' (short for 'solution') for the unique C2A-morphisms.
     record { recur = λ B → cocone⇒-to-sol B (limitting.! {alg2cocone B})
            ; unique = λ B g h → limitting.!-unique₂ (sol-to-cocone⇒ B g) (sol-to-cocone⇒ B h)
            }
@@ -326,6 +334,8 @@ module _ {o' ℓ' e' : Level} {𝒟 : Category o' ℓ' e'} (J : Functor 𝒟 (F-
       module limitting = IsInitial limitting
       obj-cocone = (F-map-Coconeˡ forget-Coalgebra cocone)
       module obj-cocone = Cocone obj-cocone
+
+      -- every algebra induces a cocone of the unique C2A-morphisms:
       alg2cocone : F-Algebra F → Cocone (forget-Coalgebra ∘F J)
       alg2cocone B =
         let module B = F-Algebra B in
@@ -336,7 +346,10 @@ module _ {o' ℓ' e' : Level} {𝒟 : Category o' ℓ' e'} (J : Functor 𝒟 (F-
               sol1 = IsRecursive.recur (all-recursive i) B
               sol2 = C2A-precompose (IsRecursive.recur (all-recursive i') B) (J.₁ h)
             in
+            -- the triangles of the cocone commute because of uniqueness of C2A-morphisms:
             IsRecursive.unique (all-recursive i) B sol2 sol1 } }
+
+      -- every Cocone-Morphism induces a C2A-morphism
       cocone⇒-to-sol : (B : F-Algebra F)
                   → Cocone⇒ (forget-Coalgebra ∘F J) obj-cocone (alg2cocone B)
                   → C2A-morphism cocone.N B
@@ -359,6 +372,7 @@ module _ {o' ℓ' e' : Level} {𝒟 : Category o' ℓ' e'} (J : Functor 𝒟 (F-
           (B.α ∘ F.F₁ mor.arr ∘ F-Coalgebra.α cocone.N) ∘ obj-cocone.ψ i
           ∎) }
 
+      -- And conversely, every C2A-Morphism induces a every Cocone-Morphism
       sol-to-cocone⇒ : (B : F-Algebra F) → C2A-morphism cocone.N B
                   → Cocone⇒ (forget-Coalgebra ∘F J) obj-cocone (alg2cocone B)
       sol-to-cocone⇒ B sol = let
