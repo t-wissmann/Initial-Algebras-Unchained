@@ -26,13 +26,13 @@ module Iterate.Assumptions {o ℓ fil-level}
   (Fil : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ) → Set fil-level) -- some variant of 'filtered'
   where
 
-open import Presented 𝒞 (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ) Fil
+open import Presentable 𝒞 (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ) Fil
 open import Coalgebra.Recursive 𝒞 F
 
 record FinitaryRecursive (coalg : F-Coalgebra F) : Set (suc (o' ⊔ ℓ') ⊔ o ⊔ suc ℓ ⊔ fil-level) where
   -- the property that a coalgebra
   field
     -- 1. has finite carrier
-    finite-carrier : presented (F-Coalgebra.A coalg)
+    finite-carrier : presentable (F-Coalgebra.A coalg)
     -- 2. is recursive
     is-recursive : IsRecursive coalg

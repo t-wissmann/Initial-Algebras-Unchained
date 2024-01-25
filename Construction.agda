@@ -73,7 +73,7 @@ module FinalRecursive
         ; D = forget-IdxProp
         ; all-have-prop =
           λ {i} → record {
-            finite-carrier = 𝒞-lfp.fin-presented (IdxPropCoalgebra.carrier i) ;
+            finite-carrier = 𝒞-lfp.fin-presentable (IdxPropCoalgebra.carrier i) ;
             is-recursive = IdxPropCoalgebra.has-prop i }
         ; cocone = F-Coalgebras-Lift-Cocone forget-IdxProp carrier-colimit
         ; carrier-colimitting = F-Coalgebras-Colimit-Carrier-Limitting forget-IdxProp carrier-colimit

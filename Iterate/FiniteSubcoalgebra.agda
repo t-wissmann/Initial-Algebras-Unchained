@@ -42,7 +42,7 @@ all-triangles =
   Triangle F-coalg-colim (FA-colim.proj P)
 
 -- In fact, every P can be extended to such a triangle, because
--- D P is presented and so it preserves the filtered colimit of the
+-- D P is presentable and so it preserves the filtered colimit of the
 -- coalgebra-colimit under (the postcomposition of) F:
 DP-preserves-coalg-colim : ∀ (P : 𝒟.Obj) →
   preserves-colimit
@@ -50,7 +50,7 @@ DP-preserves-coalg-colim : ∀ (P : 𝒟.Obj) →
     LiftHom[ D.₀ P ,-]
 DP-preserves-coalg-colim P =
   let (idx , _) = P in
-      𝒞-lfp.fin-presented
+      𝒞-lfp.fin-presentable
         idx
         coalg-colim.𝒟 -- the diagram scheme
         𝒟-filtered    -- ... which is filtered
@@ -63,7 +63,7 @@ P-to-triangle P = P ,
     (DP-preserves-coalg-colim P)
     (FA-colim.proj P)
 
--- In the following, we construct a presented coalgebra
+-- In the following, we construct a presentable coalgebra
 -- "below" (FA,Fα).
 -- The construction uses multiple components, all parametric
 -- in such a triangle, which we now fix globally:
@@ -88,22 +88,22 @@ module CC (t : all-triangles) where
   p : P ⇒ F.₀ A
   p = FA-colim.proj (proj₁ t)
 
-  P-is-presented : presented P
-  P-is-presented =
+  P-is-presentable : presentable P
+  P-is-presentable =
     -- here, we need to unfold the definition of P as a sliceobj
-    -- from the index of a presented object
+    -- from the index of a presentable object
     let (idx , _) = (proj₁ t) in
-    𝒞-lfp.fin-presented idx
+    𝒞-lfp.fin-presentable idx
 
-  X-is-presented : presented X
-  X-is-presented = FinitaryRecursive.finite-carrier coalg-colim.all-have-prop
+  X-is-presentable : presentable X
+  X-is-presentable = FinitaryRecursive.finite-carrier coalg-colim.all-have-prop
 
   X,x-is-recursive : IsRecursive X,x
   X,x-is-recursive = FinitaryRecursive.is-recursive coalg-colim.all-have-prop
 
   -- the constructed coalgebra has a coproduct as its carrier
   P+X : Coproduct P X
-  P+X = 𝒞-lfp.coproduct P X P-is-presented X-is-presented
+  P+X = 𝒞-lfp.coproduct P X P-is-presentable X-is-presentable
   module P+X = Coproduct P+X renaming (A+B to obj)
 
   p' : P ⇒ F.₀ X
@@ -204,17 +204,17 @@ module CC (t : all-triangles) where
     where
       open HomReasoning
 
-  P+X-is-presented : presented P+X.obj
-  P+X-is-presented =
-        presented-coproduct
-          P+X Fil-to-filtered P-is-presented X-is-presented
+  P+X-is-presentable : presentable P+X.obj
+  P+X-is-presentable =
+        presentable-coproduct
+          P+X Fil-to-filtered P-is-presentable X-is-presentable
 
   --   The property that all objects in the diagram ...
   P+X-coalg-is-FinitaryRecursive : FinitaryRecursive P+X-coalg
   P+X-coalg-is-FinitaryRecursive =
     record {
-      -- 1. .. have presented carrier
-      finite-carrier = P+X-is-presented ;
+      -- 1. .. have presentable carrier
+      finite-carrier = P+X-is-presentable ;
       -- 2. .. are recursive:
       is-recursive =
         -- for recursiveness, we use our formalization of ([CUV06, Prop. 5])

@@ -10,7 +10,7 @@ open import Data.Product
 open import Colimit-Lemmas
 open import Filtered
 
-module Presented {o ℓ fil-level}
+module Presentable {o ℓ fil-level}
   (𝒞 : Category o ℓ ℓ)
   (o' ℓ' e' : Level) -- The level for the diagram schemes of interest
   (Fil : Category o' ℓ' e' → Set fil-level) -- some variant of 'filtered'
@@ -25,18 +25,18 @@ open import Categories.Object.Coproduct (𝒞)
 open import Categories.Morphism (𝒞)
 open import Categories.Morphism.Reasoning.Core 𝒞
 
-presented : 𝒞.Obj → Set _
-presented X =
+presentable : 𝒞.Obj → Set _
+presentable X =
   ∀ (𝒟 : Category o' ℓ' e') → -- forall diagram schemes
   Fil 𝒟 →                     -- satisfying some notion of filteredness
   (J : Functor 𝒟 𝒞) →         -- and all their diagrams
   preserves-colimit J LiftHom[ X ,-] -- the hom-functor preserves all (existing) colimits
 
--- presented objects are closed under coproducts
-presented-coproduct : {A B : 𝒞.Obj} → (coprod : Coproduct A B) →
+-- presentable objects are closed under coproducts
+presentable-coproduct : {A B : 𝒞.Obj} → (coprod : Coproduct A B) →
   (∀ {𝒟} → Fil 𝒟 → filtered 𝒟) → -- 'Fil' implies filtered
-  presented A → presented B → presented (Coproduct.A+B coprod)
-presented-coproduct {A} {B} coprod P⇒filtered A-pres B-pres 𝒟 𝒟-has-P J J-colim =
+  presentable A → presentable B → presentable (Coproduct.A+B coprod)
+presentable-coproduct {A} {B} coprod P⇒filtered A-pres B-pres 𝒟 𝒟-has-P J J-colim =
   hom-colim-construct
     J-colim
     (filtered.bounds (P⇒filtered 𝒟-has-P))

@@ -53,7 +53,7 @@ id-filtered f = f
 
 open import LFP-slices (Setoids 0ℓ 0ℓ)
 open import LFP (Setoids 0ℓ 0ℓ) 0ℓ 0ℓ 0ℓ filtered id-filtered
-open import Presented (Setoids 0ℓ 0ℓ) 0ℓ 0ℓ 0ℓ filtered
+open import Presentable (Setoids 0ℓ 0ℓ) 0ℓ 0ℓ 0ℓ filtered
 open import Categories.Category.Slice (Setoids 0ℓ 0ℓ)
 
 -- -- we use a custom 'setoid' variation to achieve arbitrary levels o, ℓ
@@ -73,8 +73,8 @@ Fin≈ n = setoid (Fin n)
 Fin≈-zero-empty : {ℓ-a : Level} {a : Set ℓ-a} → Fin 0 → a
 Fin≈-zero-empty ()
 
-Fin-is-presented : ∀ (n : ℕ) → presented (Fin≈ n)
-Fin-is-presented n 𝒟 𝒟-filtered J colim =
+Fin-is-presentable : ∀ (n : ℕ) → presentable (Fin≈ n)
+Fin-is-presentable n 𝒟 𝒟-filtered J colim =
   -- see where-clause at the end
   bounded-colimiting
     (lift-hom-n ∘F J)
@@ -435,7 +435,7 @@ setoids-LFP : WeaklyLFP
 setoids-LFP = record
                { Idx = ℕ
                ; fin = Fin≈
-               ; fin-presented = Fin-is-presented
+               ; fin-presentable = Fin-is-presentable
                ; build-from-fin = canonical-cocone-is-limitting
                ; canonical-has-prop = λ X → lift-filtered (canonical-cat-is-filtered X)
                ; coproduct = λ A B _ _ →  BinaryCoproducts.coproduct (Cocartesian.coproducts Setoids-Cocartesian) {A} {B} 

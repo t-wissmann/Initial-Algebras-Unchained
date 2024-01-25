@@ -293,7 +293,7 @@ lift-Cocone⇒ K v =
     module K = Cocone K
     module case2-defs (t : all-triangles) where
         module t = CC t
-        m,r = 𝒞-lfp.presentable-split-in-fin t.X t.X-is-presented
+        m,r = 𝒞-lfp.presentable-split-in-fin t.X t.X-is-presentable
         m : 𝒞-lfp.Idx
         m = proj₁ m,r
         r = proj₂ m,r

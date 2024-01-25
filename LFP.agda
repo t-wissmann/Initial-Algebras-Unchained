@@ -51,8 +51,8 @@ open import Categories.Morphism.Reasoning.Core 𝒞
 open import Categories.Diagram.Coequalizer (𝒞)
 open import Categories.Diagram.Pushout (𝒞)
 open import Categories.Diagram.Pushout.Properties (𝒞)
-open import Presented 𝒞 (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (e' ⊔ ℓ) P
--- open import Unlift-Presented {o' = o' ⊔ ℓ} {ℓ' = ℓ' ⊔ ℓ} {e' = e' ⊔ ℓ} {o'' = ℓ} {ℓ'' = ℓ} {e'' = ℓ} 𝒞 P
+open import Presentable 𝒞 (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (e' ⊔ ℓ) P
+-- open import Unlift-Presentable {o' = o' ⊔ ℓ} {ℓ' = ℓ' ⊔ ℓ} {e' = e' ⊔ ℓ} {o'' = ℓ} {ℓ'' = ℓ} {e'' = ℓ} 𝒞 P
 import Setoids-Colimit
 
 open Hom
@@ -112,25 +112,25 @@ record WeaklyLFP : Set (suc (o' ⊔ ℓ' ⊔ e') ⊔ o ⊔ suc ℓ ⊔ prop-leve
     Idx : Set ℓ
     fin : Idx → 𝒞.Obj
     -- ... of which every element is fp:
-    fin-presented : ∀ (i : Idx) → presented (fin i)
+    fin-presentable : ∀ (i : Idx) → presentable (fin i)
     -- All other objects are built from those fp objects:
     build-from-fin : ∀ (X : 𝒞.Obj) → IsLimitting (Cocone[ fin ↓ X ])
     -- and moreover every canonical diagram is filtered
     canonical-has-prop : ∀ (X : 𝒞.Obj) → P (liftC' (Cat[ fin ↓ X ]))
 
-    -- also, we need finite colimits of presented objects:
-    coproduct : ∀ (A B : 𝒞.Obj) → presented A → presented B → Coproduct A B
-    -- coequalizer : ∀ {A B} (f g : 𝒞 [ A , B ]) → presented A → presented B → Coequalizer f g
+    -- also, we need finite colimits of presentable objects:
+    coproduct : ∀ (A B : 𝒞.Obj) → presentable A → presentable B → Coproduct A B
+    -- coequalizer : ∀ {A B} (f g : 𝒞 [ A , B ]) → presentable A → presentable B → Coequalizer f g
 
   -- pushout : ∀ {A B C} (f : 𝒞 [ A , B ]) (g : 𝒞 [ A , C ]) →
-  --             presented A → presented B → presented C →
+  --             presentable A → presentable B → presentable C →
   --             Pushout f g
   -- pushout f g A-pres B-pres C-pres =
   --   let
   --     B+C = (coproduct _ _ B-pres C-pres)
   --   in
   --   Coproduct×Coequalizer⇒Pushout
-  --     B+C (coequalizer _ _ A-pres (presented-coproduct B+C P⇒filtered B-pres C-pres))
+  --     B+C (coequalizer _ _ A-pres (presentable-coproduct B+C P⇒filtered B-pres C-pres))
 
   canonical-diagram-scheme : ∀ (X : 𝒞.Obj) → Category ℓ ℓ ℓ
   canonical-diagram-scheme X = Cat[ fin ↓ X ]
@@ -150,7 +150,7 @@ record WeaklyLFP : Set (suc (o' ⊔ ℓ' ⊔ e') ⊔ o ⊔ suc ℓ ⊔ prop-leve
       (Cocone.ψ Cocone[ fin ↓ X ])
   fin-generator X = colimit-is-jointly-epic (Colimit-from-prop (build-from-fin X))
 
-  presentable-split-in-fin : ∀ (X : 𝒞.Obj) → presented X → Σ[ i ∈ Idx ] (Retract X (fin i))
+  presentable-split-in-fin : ∀ (X : 𝒞.Obj) → presentable X → Σ[ i ∈ Idx ] (Retract X (fin i))
   presentable-split-in-fin X X-pres =
     (proj₁ (lower (Triangle.x t))) ,
     (record {
@@ -172,12 +172,12 @@ record WeaklyLFP : Set (suc (o' ⊔ ℓ' ⊔ e') ⊔ o ⊔ suc ℓ ⊔ prop-leve
 
 
 
-  -- the family of presented objects
-  presented-obj : Σ 𝒞.Obj presented → 𝒞.Obj
-  presented-obj = proj₁
+  -- the family of presentable objects
+  presentable-obj : Σ 𝒞.Obj presentable → 𝒞.Obj
+  presentable-obj = proj₁
 
-  presented-colimit : ∀ (X : 𝒞.Obj) → IsLimitting (Cocone[ presented-obj ↓ X ])
-  presented-colimit X = record {
+  presentable-colimit : ∀ (X : 𝒞.Obj) → IsLimitting (Cocone[ presentable-obj ↓ X ])
+  presentable-colimit X = record {
       ! = λ {K} → record {
         arr = fin-colimit.rep (pres-cocone-to-fin K) ;
         commute = λ{ {(A , A-pres), f} →
@@ -205,7 +205,7 @@ record WeaklyLFP : Set (suc (o' ⊔ ℓ' ⊔ e') ⊔ o ⊔ suc ℓ ⊔ prop-leve
             ≈⟨ fin-colimit.commute ⟩∘⟨refl ⟩
           Cocone.ψ (pres-cocone-to-fin K) k-obj ∘ g.section
             ≡⟨⟩
-          K.ψ (((fin k) , (fin-presented k)) , f ∘ g.retract) ∘ g.section
+          K.ψ (((fin k) , (fin-presentable k)) , f ∘ g.retract) ∘ g.section
             ≈⟨ K.commute (slicearr sliceident) ⟩
           K.ψ ((A , A-pres), f)
           ∎
@@ -221,7 +221,7 @@ record WeaklyLFP : Set (suc (o' ⊔ ℓ' ⊔ e') ⊔ o ⊔ suc ℓ ⊔ prop-leve
       open Category 𝒞
       open HomReasoning
 
-      pres = presented-obj
+      pres = presentable-obj
       fin-colimit : Colimit (Functor[ fin ↓ X ])
       fin-colimit = Colimit-from-prop (build-from-fin X)
       module fin-colimit = Colimit fin-colimit
@@ -230,14 +230,14 @@ record WeaklyLFP : Set (suc (o' ⊔ ℓ' ⊔ e') ⊔ o ⊔ suc ℓ ⊔ prop-leve
       pres-cocone-to-fin K =
         record { coapex =
           record {
-            ψ = λ {(k , f) → K.ψ (((fin k) , (fin-presented k)) , f)} ;
+            ψ = λ {(k , f) → K.ψ (((fin k) , (fin-presentable k)) , f)} ;
             commute = K.commute
           } }
         where
           module K = Cocone K
 
       transform-cocone⇒ : ∀ {K : Cocone _} →
-                          Cocone⇒ _ (Cocone[ presented-obj ↓ X ]) K →
+                          Cocone⇒ _ (Cocone[ presentable-obj ↓ X ]) K →
                           Cocone⇒ _ (fin-colimit.colimit) (pres-cocone-to-fin K)
       transform-cocone⇒ {K} mor =
         record {

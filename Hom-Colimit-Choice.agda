@@ -32,7 +32,7 @@ private
 open import Categories.Morphism.Reasoning.Core 𝒞
 
 module LiftHom (o' ℓ' e' : Level) where
-  -- in the definition of presented object, we lift the hom setoids to a higher
+  -- in the definition of presentable object, we lift the hom setoids to a higher
   -- level such that setoids are cocomplete:
   LiftHom[_,-] : 𝒞.Obj → Functor 𝒞 (Setoids (ℓ ⊔ o') (o' ⊔ ℓ' ⊔ e ⊔ ℓ))
   LiftHom[_,-] X = LiftSetoids (ℓ ⊔ o') (o' ⊔ ℓ' ⊔ e ⊔ ℓ) ∘F Hom[ 𝒞 ][ X ,-]

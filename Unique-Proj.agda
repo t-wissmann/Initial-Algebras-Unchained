@@ -31,7 +31,7 @@ module Unique-Proj {o ℓ fil-level}
   where
 
 open import Categories.Morphism.Reasoning.Core 𝒞
-open import Presented 𝒞 (o ⊔ ℓ) ℓ ℓ Fil
+open import Presentable 𝒞 (o ⊔ ℓ) ℓ ℓ Fil
 open import Colimit-Lemmas
 open import Helper-Definitions
 
@@ -45,13 +45,13 @@ private
 
 
 hom-to-coalg-colim-triangle : ∀ {B,β : F-Coalgebra F} →
-  presented (F-Coalgebra.A B,β) →
+  presentable (F-Coalgebra.A B,β) →
   preserves-colimit (forget-Coalgebra ∘F A,α.D) F →
   -- ^- F preserves the colimit 'coalg'
   (h : F-Coalgebras F [ B,β , A,α.to-Coalgebra ]) →
   Fil (CoalgColim.𝒟 A,α) →
   Triangle (F-Coalgebras F) A,α.colim h
-hom-to-coalg-colim-triangle {B,β} B-presented F-finitary h 𝒟-Fil =
+hom-to-coalg-colim-triangle {B,β} B-presentable F-finitary h 𝒟-Fil =
   triangle i g∘p' g∘p'-equation
   where
     module F = Functor F
@@ -62,10 +62,10 @@ hom-to-coalg-colim-triangle {B,β} B-presented F-finitary h 𝒟-Fil =
     open F-Coalgebra A,α.to-Coalgebra
     open F-Coalgebra B,β renaming (A to B; α to β)
     module h = F-Coalgebra-Morphism h
-    -- Since B is presented, we obtain a Triangle in 𝒞:
+    -- Since B is presentable, we obtain a Triangle in 𝒞:
     t : Triangle 𝒞 A,α.carrier-colim h.f
     t = hom-colim-choice 𝒞 A,α.carrier-colim B
-      (B-presented A,α.𝒟 𝒟-Fil (forget-Coalgebra ∘F A,α.D))
+      (B-presentable A,α.𝒟 𝒟-Fil (forget-Coalgebra ∘F A,α.D))
       h.f
     module t = Triangle t
     -- denote the intermediate coalgebra by:
@@ -117,7 +117,7 @@ hom-to-coalg-colim-triangle {B,β} B-presented F-finitary h 𝒟-Fil =
           -- Basic facts about the colimit:
           𝒞 F-colim (Fil-to-filtered 𝒟-Fil) B
           -- Using that hom(B,-) preserves it:
-          (B-presented A,α.𝒟 𝒟-Fil (F ∘F A,α.U∘D) F-colim)
+          (B-presentable A,α.𝒟 𝒟-Fil (F ∘F A,α.U∘D) F-colim)
           -- the competing factorizations:
           p₁ p₂ p₁-vs-p₂
 
