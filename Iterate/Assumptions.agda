@@ -29,7 +29,7 @@ module Iterate.Assumptions {o ℓ fil-level}
 open import Presentable 𝒞 (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ) Fil
 open import Coalgebra.Recursive 𝒞 F
 
-record FinitaryRecursive (coalg : F-Coalgebra F) : Set (suc (o' ⊔ ℓ') ⊔ o ⊔ suc ℓ ⊔ fil-level) where
+record FiniteRecursive (coalg : F-Coalgebra F) : Set (suc (o' ⊔ ℓ') ⊔ o ⊔ suc ℓ ⊔ fil-level) where
   -- the property that a coalgebra
   field
     -- 1. has finite carrier

@@ -32,7 +32,7 @@ module Iterate.Colimit {o ℓ} {fil-level}
 open import Iterate.FiniteSubcoalgebra Fil proof-globals
 open import Iterate.DiagramScheme Fil proof-globals
 open ProofGlobals proof-globals
-open import CoalgColim 𝒞 F FinitaryRecursive
+open import CoalgColim 𝒞 F FiniteRecursive
 
 
 cocone-is-triangle-independent : ∀ (K : Cocone (V ∘F E)) (P : 𝒟.Obj) (t1 t2 : Triangle F-coalg-colim (FA-colim.proj P))
@@ -361,7 +361,7 @@ FA,Fα-locally-finite =
   record
   { 𝒟 = ℰ
   ; D = E
-  ; all-have-prop = λ {t} → CC.P+X-coalg-is-FinitaryRecursive t 
+  ; all-have-prop = λ {t} → CC.P+X-coalg-is-FiniteRecursive t 
   ; cocone = FA,Fα-Cocone
   ; carrier-colimitting = FA,Fα-Colimit-on-carriers
   }

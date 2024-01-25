@@ -96,10 +96,10 @@ module CC (t : all-triangles) where
     𝒞-lfp.fin-presentable idx
 
   X-is-presentable : presentable X
-  X-is-presentable = FinitaryRecursive.finite-carrier coalg-colim.all-have-prop
+  X-is-presentable = FiniteRecursive.finite-carrier coalg-colim.all-have-prop
 
   X,x-is-recursive : IsRecursive X,x
-  X,x-is-recursive = FinitaryRecursive.is-recursive coalg-colim.all-have-prop
+  X,x-is-recursive = FiniteRecursive.is-recursive coalg-colim.all-have-prop
 
   -- the constructed coalgebra has a coproduct as its carrier
   P+X : Coproduct P X
@@ -210,8 +210,8 @@ module CC (t : all-triangles) where
           P+X Fil-to-filtered P-is-presentable X-is-presentable
 
   --   The property that all objects in the diagram ...
-  P+X-coalg-is-FinitaryRecursive : FinitaryRecursive P+X-coalg
-  P+X-coalg-is-FinitaryRecursive =
+  P+X-coalg-is-FiniteRecursive : FiniteRecursive P+X-coalg
+  P+X-coalg-is-FiniteRecursive =
     record {
       -- 1. .. have presentable carrier
       finite-carrier = P+X-is-presentable ;

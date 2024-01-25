@@ -67,7 +67,7 @@ module FinalRecursive
 
   -- if the finite recursive coalgebras have a colimit on the object level,
   -- then this lifts to the category of coalgebras:
-  B,β : CoalgColim {o ⊔ ℓ} {ℓ} {ℓ} 𝒞 F FinitaryRecursive
+  B,β : CoalgColim {o ⊔ ℓ} {ℓ} {ℓ} 𝒞 F FiniteRecursive
   B,β = record
         { 𝒟 = IdxPropCoalgebras
         ; D = forget-IdxProp
@@ -91,7 +91,7 @@ module FinalRecursive
       begin f ≡⟨⟩ f ∎ -- I didn't manage to phrase it via 'Equiv.refl' directly...
     }
 
-  FB,Fβ : CoalgColim 𝒞 F FinitaryRecursive
+  FB,Fβ : CoalgColim 𝒞 F FiniteRecursive
   FB,Fβ = iterate-CoalgColimit B,β coalgebras-filtered F-finitary
   module FB,Fβ = CoalgColim.CoalgColim FB,Fβ
 
@@ -112,7 +112,7 @@ module FinalRecursive
   unique-endo = B,β.unique-homomorphism B,β.to-Coalgebra B,β-proj-uniq
   module unique-endo = singleton-hom unique-endo
 
-  universal-property : ∀ (X : F-Coalgebra F) → FinitaryRecursive X →
+  universal-property : ∀ (X : F-Coalgebra F) → FiniteRecursive X →
                          F-Coalgebras F [ X =∃!=> B,β.to-Coalgebra ]
   universal-property X X-finrec = record
     { arr = proj-j.arr ∘ X→Dj
@@ -131,7 +131,7 @@ module FinalRecursive
       -- there is a split-quotient to one of the lfp generators:
       quot : Σ[ idx ∈ 𝒞-lfp.Idx ] (Retract 𝒞 X.A (𝒞-lfp.fin idx))
       quot = 𝒞-lfp.presentable-split-in-fin X.A
-        (FinitaryRecursive.finite-carrier X-finrec)
+        (FiniteRecursive.finite-carrier X-finrec)
       j' = proj₁ quot
       r = proj₂ quot
       module r = Retract r
@@ -140,7 +140,7 @@ module FinalRecursive
       j = record {
         carrier = j' ;
         structure = F-Coalgebra.α (retract-coalgebra X r) ;
-        has-prop = retract-coalgebra-recursive X r (FinitaryRecursive.is-recursive X-finrec) }
+        has-prop = retract-coalgebra-recursive X r (FiniteRecursive.is-recursive X-finrec) }
 
       proj-j : F-Coalgebras F [ B,β.D.₀ j =∃!=> B,β.to-Coalgebra ]
       proj-j = B,β-proj-uniq j

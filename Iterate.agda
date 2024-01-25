@@ -63,7 +63,7 @@ open import Iterate.Assumptions {o' = o'} {ℓ' = ℓ'} 𝒞 F Fil
 
 private
   module 𝒞-lfp = WeaklyLFP 𝒞-lfp
-open import CoalgColim 𝒞 F FinitaryRecursive
+open import CoalgColim 𝒞 F FiniteRecursive
 
 import Iterate.Colimit as I-C
 import Iterate.DiagramScheme as I-D

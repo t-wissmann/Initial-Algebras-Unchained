@@ -37,7 +37,7 @@ record ProofGlobals : Set (suc (o' ⊔ ℓ') ⊔ suc fil-level ⊔ suc (o ⊔ �
     Fil-to-filtered : ∀ {𝒟 : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ)} → Fil 𝒟 → filtered 𝒟
     𝒞-lfp : WeaklyLFP 𝒞 o' ℓ' ℓ' Fil Fil-to-filtered
     -- A coalgebra colimit:
-    coalg-colim : CoalgColim 𝒞 F (Assumption.FinitaryRecursive {o' = o'} {ℓ' = ℓ'} 𝒞 F Fil) {o' ⊔ ℓ} {ℓ' ⊔ ℓ}
+    coalg-colim : CoalgColim 𝒞 F (Assumption.FiniteRecursive {o' = o'} {ℓ' = ℓ'} 𝒞 F Fil) {o' ⊔ ℓ} {ℓ' ⊔ ℓ}
     𝒟-filtered : Fil (CoalgColim.𝒟 coalg-colim)
     -- ^- coalg is a colimit of a filtered diagram
     F-preserves-colim : preserves-colimit (CoalgColim.carrier-diagram coalg-colim) F
