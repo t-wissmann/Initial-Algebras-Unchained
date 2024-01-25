@@ -24,19 +24,15 @@ open import Categories.Functor using (_∘F_)
 
 open import Relation.Binary using (Poset)
 
--- For the future generalization from LFP to Locally Presentable:
--- type-theoretic generalization of presentable categories.
+-- For the generalization from LFP to Locally Presentable:
 -- In usual L(F)P-Categories, one considers a (regular) cardinal λ and
 -- then defines λ-presentable objects as those whose hom-set preserves
--- colimits of λ-directed diagrams. The notion 'λ-directed' means that
+-- colimits of λ-filtered diagrams. The notion 'λ-filtered' entails that
 -- the diagram has upper bounds for any set of elements of size smaller than λ.
--- Since this is inherently ordinal based, we change the definition for the
--- formalization in agda: instead of a (proper) upper bounds λ, we fix a type
--- κ and require that every κ-indexed family of elements has an upper bound.
--- This has the disadvantage that (Fin 2)-directed and (Fin 3)-directed are the
--- same concepts, because they both boil down to having bounds for any finite
--- set of elements. The advantage is that we do not need any ordinals at all.
---
+-- Since this is inherently ordinal-based, we change the definition for the
+-- formalization in agda: Instead of explicitly mentioning ordinals, we consider
+-- a property/predicate 'P' on diagrams which is assumed to imply filteredness.
+-- This subsumes stricter filteredness-notions such as countable-filteredness.
 module LFP {o ℓ prop-level} (𝒞 : Category o ℓ ℓ)
                  (o' ℓ' e' : Level)    -- levels for the diagram scheme
                  (P : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (e' ⊔ ℓ) → Set prop-level)
