@@ -35,7 +35,7 @@ open ProofGlobals proof-globals
 open import CoalgColim 𝒞 F FiniteRecursive
 
 
-cocone-is-triangle-independent : ∀ (K : Cocone (V ∘F E)) (P : 𝒟.Obj) (t1 t2 : Triangle F-coalg-colim (FA-colim.proj P))
+cocone-is-triangle-independent : ∀ (K : Cocone (V ∘F E)) (P : 𝒞p/FA.Obj) (t1 t2 : Triangle F-coalg-colim (FA-colim.proj P))
                     → Cocone.ψ K (P , t1) ∘ CC.P+X.i₁ (P , t1) ≈ Cocone.ψ K (P , t2) ∘ CC.P+X.i₁ (P , t2)
 cocone-is-triangle-independent K P t1 t2 = begin
     K.ψ Pt1 ∘ CC.P+X.i₁ Pt1
@@ -152,7 +152,7 @@ cocone-is-triangle-independent K P t1 t2 = begin
         V.₁ (E.₁ t2⇒t4) ∘ t2.P+X.i₁
         ∎
 
-E-Cocone-to-D : Cocone (V ∘F E) → Cocone D
+E-Cocone-to-D : Cocone (V ∘F E) → Cocone U-𝒞p/FA
 E-Cocone-to-D E-Cocone =
     record { coapex = record {
     ψ = λ { d →
@@ -179,7 +179,7 @@ E-Cocone-to-D E-Cocone =
     where
     module E-Cocone = Cocone E-Cocone
     open HomReasoning
-    module commute-defs {P Q : 𝒟.Obj} (h : 𝒟 [ P , Q ]) where
+    module commute-defs {P Q : 𝒞p/FA.Obj} (h : 𝒞p/FA [ P , Q ]) where
         module h = Slice⇒ h
         t1 = P-to-triangle P
         t2 = P-to-triangle Q
@@ -232,7 +232,7 @@ E-Cocone-to-D-choice K t1 =
     open HomReasoning
     module K = Cocone K
 
-induced : ∀ (K : Cocone (V ∘F E)) → Cocone⇒ D FA-colim.colimit (E-Cocone-to-D K)
+induced : ∀ (K : Cocone (V ∘F E)) → Cocone⇒ U-𝒞p/FA FA-colim.colimit (E-Cocone-to-D K)
 induced K = FA-colim.rep-cocone (E-Cocone-to-D K)
 
 -- The definition of CoalgColim requires that the cocone on the level
@@ -241,7 +241,7 @@ FA,Fα-Cocone-on-carriers : Cocone (V ∘F E)
 FA,Fα-Cocone-on-carriers = F-map-Coconeˡ V FA,Fα-Cocone
 module FA,Fα-Cocone-on-carriers = Cocone FA,Fα-Cocone-on-carriers
 
-lift-Cocone⇒ : ∀ (K : Cocone (V ∘F E)) → Cocone⇒ D FA-colim.colimit (E-Cocone-to-D K)
+lift-Cocone⇒ : ∀ (K : Cocone (V ∘F E)) → Cocone⇒ U-𝒞p/FA FA-colim.colimit (E-Cocone-to-D K)
                 → Cocone⇒ (V ∘F E) FA,Fα-Cocone-on-carriers K
 lift-Cocone⇒ K v =
     record { arr = v.arr ; commute = λ {t} →
@@ -299,7 +299,7 @@ lift-Cocone⇒ K v =
         r = proj₂ m,r
         module r = Retract r
         -- X ⇒ FA canonically factors through the diagram:
-        α∘proj-x : 𝒟.Obj
+        α∘proj-x : 𝒞p/FA.Obj
         α∘proj-x = (m , (α ∘ t.proj-X,x.f ∘ r.retract))
         t-X : all-triangles
         t-X = α∘proj-x , triangle t.X,x-dia (t.x ∘ r.retract) (extendʳ t.proj-X,x.commutes)
@@ -330,7 +330,7 @@ lift-Cocone⇒ K v =
 
 reflect-Cocone⇒ : ∀ (K : Cocone (V ∘F E))
                 → Cocone⇒ (V ∘F E) FA,Fα-Cocone-on-carriers K
-                → Cocone⇒ D FA-colim.colimit (E-Cocone-to-D K)
+                → Cocone⇒ U-𝒞p/FA FA-colim.colimit (E-Cocone-to-D K)
 reflect-Cocone⇒ K other =
     record {
     arr = other.arr ;

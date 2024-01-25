@@ -39,6 +39,8 @@ open ProofGlobals proof-globals
     FullSubCategory
     -- of the slicecategory for FA, Fα
     (Slice (F-Coalgebras F) (iterate A,α))
+    -- containing 'all-triangles' as objects
+    {I = all-triangles}
     λ t → sliceobj (CC.hom-to-FA t)
 module ℰ = Category ℰ
 
@@ -133,7 +135,7 @@ build-ℰ-hom t1 t2 h1 h2 h1-coalg-hom h1-slice =
         })
 
 -- build an ℰ-hom of shape id_P + h where h: X → Y is a coalgebra morphism
-coalg-hom-to-ℰ-hom : ∀ (P : 𝒟.Obj) (t1 t2 : Triangle F-coalg-colim (FA-colim.proj P))
+coalg-hom-to-ℰ-hom : ∀ (P : 𝒞p/FA.Obj) (t1 t2 : Triangle F-coalg-colim (FA-colim.proj P))
                     (h : coalg-colim.𝒟 [ CC.X,x-dia (P , t1) , CC.X,x-dia (P , t2) ])
                     → CC.p' (P , t2) ≈ F.₁ (V.₁ (coalg-colim.D.₁ h)) ∘ CC.p' (P , t1)
                     → ℰ [ (P , t1) , (P , t2) ]

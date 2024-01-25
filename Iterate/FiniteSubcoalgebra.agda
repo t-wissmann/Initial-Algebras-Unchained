@@ -38,16 +38,16 @@ open ProofGlobals proof-globals
 --          |                     |
 --          '-------> Carrier( F(X,x) )
 all-triangles =
-  Σ[ P ∈ 𝒟.Obj ]
+  Σ[ P ∈ 𝒞p/FA.Obj ]
   Triangle F-coalg-colim (FA-colim.proj P)
 
 -- In fact, every P can be extended to such a triangle, because
--- D P is presentable and so it preserves the filtered colimit of the
+-- U-𝒞p/FA P is presentable and so it preserves the filtered colimit of the
 -- coalgebra-colimit under (the postcomposition of) F:
-DP-preserves-coalg-colim : ∀ (P : 𝒟.Obj) →
+DP-preserves-coalg-colim : ∀ (P : 𝒞p/FA.Obj) →
   preserves-colimit
     (F ∘F coalg-colim.carrier-diagram)
-    LiftHom[ D.₀ P ,-]
+    LiftHom[ U-𝒞p/FA.₀ P ,-]
 DP-preserves-coalg-colim P =
   let (idx , _) = P in
       𝒞-lfp.fin-presentable
@@ -57,9 +57,9 @@ DP-preserves-coalg-colim P =
         (F ∘F coalg-colim.carrier-diagram)
 
 -- And so we obtain a triangle for each P:
-P-to-triangle : 𝒟.Obj → all-triangles
+P-to-triangle : 𝒞p/FA.Obj → all-triangles
 P-to-triangle P = P ,
-  hom-colim-choice F-coalg-colim (D.₀ P)
+  hom-colim-choice F-coalg-colim (U-𝒞p/FA.₀ P)
     (DP-preserves-coalg-colim P)
     (FA-colim.proj P)
 
@@ -83,7 +83,7 @@ module CC (t : all-triangles) where
   open F-Coalgebra X,x renaming (A to X; α to x) public
 
   P : 𝒞.Obj
-  P = D.₀ (proj₁ t)
+  P = U-𝒞p/FA.₀ (proj₁ t)
 
   p : P ⇒ F.₀ A
   p = FA-colim.proj (proj₁ t)

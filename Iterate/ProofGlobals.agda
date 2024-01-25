@@ -74,11 +74,11 @@ record ProofGlobals : Set (suc (o' ⊔ ℓ') ⊔ suc fil-level ⊔ suc (o ⊔ �
 
   module F = Functor F
 
-  𝒟 = 𝒞-lfp.canonical-diagram-scheme (F₀ A)
-  module 𝒟 = Category 𝒟
-  D = 𝒞-lfp.canonical-diagram (F₀ A)
-  module D = Functor D
-  FA-colim : Colimit D
+  𝒞p/FA = 𝒞-lfp.canonical-diagram-scheme (F₀ A)
+  module 𝒞p/FA = Category 𝒞p/FA
+  U-𝒞p/FA = 𝒞-lfp.canonical-diagram (F₀ A)
+  module U-𝒞p/FA = Functor U-𝒞p/FA
+  FA-colim : Colimit U-𝒞p/FA
   FA-colim = 𝒞-lfp.canonical-colimit (F₀ A)
   module FA-colim = Colimit FA-colim
 
