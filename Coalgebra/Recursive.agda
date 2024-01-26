@@ -6,6 +6,7 @@ module Coalgebra.Recursive {o ℓ e} (𝒞 : Category o ℓ e) (F : Endofunctor 
 
 private
   module 𝒞 = Category 𝒞
+  module F = Functor F
 
 open import Level
 
@@ -150,7 +151,6 @@ module _ (R : F-Coalgebra F) (B : F-Coalgebra F) where
   private
     module R = F-Coalgebra R
     module B = F-Coalgebra B
-    module F = Functor F
 
   sandwich-recursive :
     IsRecursive R
@@ -234,31 +234,15 @@ iterate-recursive : (R : F-Coalgebra F)
                     → IsRecursive R
                     → IsRecursive (iterate R)
 iterate-recursive R is-rec =
-  let
+  sandwich-recursive R (iterate R) is-rec r (Category.id (F-Coalgebras F)) equation
+  where
     module R = F-Coalgebra R
-    g : F-Coalgebra-Morphism R (iterate R)
-    g =
-      let
-        open Category 𝒞
-        open Equiv
-      in
-      record { f = R.α ; commutes = refl }
+    module FR = F-Coalgebra (iterate R)
+    r : F-Coalgebra-Morphism R (iterate R)
+    r = record { f = R.α ; commutes = 𝒞.Equiv.refl }
 
-    equation =
-      let
-        module FR = F-Coalgebra (iterate R)
-        open Functor F
-        open Category 𝒞
-        open HomReasoning
-      in
-      begin
-      FR.α ≈˘⟨ identityʳ ⟩
-      F₁ R.α ∘ id
-      ∎
-
-    open Category (F-Coalgebras F)
-  in
-  sandwich-recursive R (iterate R) is-rec g id equation
+    equation : 𝒞 [ FR.α ≈ F.₁ R.α 𝒞.∘ 𝒞.id ]
+    equation = 𝒞.Equiv.sym 𝒞.identityʳ
 
 -- the functor sends coalgebra morphisms to coalgebra morphisms:
 iterate-F-Coalgebra-Morphism : {A B : F-Coalgebra F}
@@ -276,7 +260,6 @@ iterate-F-Coalgebra-Morphism {A} {B} h =
     module h = F-Coalgebra-Morphism h
     open F-Coalgebra A
     open F-Coalgebra B renaming (A to B; α to β)
-    module F = Functor F
     open Category 𝒞
     open HomReasoning
 
@@ -309,7 +292,6 @@ module _ {o' ℓ' e' : Level} {𝒟 : Category o' ℓ' e'} (J : Functor 𝒟 (F-
   private
     module 𝒟 = Category 𝒟
     module J = Functor J
-    module F = Functor F
 
 
   Limitting-Cocone-IsRecursive :
@@ -394,7 +376,6 @@ R-Coalgebras-Colimit J 𝒞-colim =
   where
     module J = Functor J
     module 𝒞-colim = Colimit 𝒞-colim
-    module F = Functor F
     Coalg-colim : Colimit (forget-rec ∘F J)
     Coalg-colim = F-Coalgebras-Colimit _ 𝒞-colim
     module Coalg-colim = Colimit Coalg-colim

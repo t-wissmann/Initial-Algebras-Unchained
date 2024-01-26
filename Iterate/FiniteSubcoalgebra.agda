@@ -20,7 +20,10 @@ open import Colimit-Lemmas
 open import Iterate.ProofGlobals
 
 -- Let (A,α) be locally finite. For every P → FA, we construct
--- a finite subcoalgebra of (FA,Fα).
+-- a finite-recursive coalgebra with a canonical coalgebra morphism to (FA,Fα).
+-- Of course, this coalgebra morphism is not necessarily monomorphic. Still,
+-- we call it 'sub'-coalgebra because it conveys the right intuition that
+-- we use it to build (FA,Fα) from finite coalgebras.
 module Iterate.FiniteSubcoalgebra {o ℓ} {fil-level}
   {o' ℓ' : Level } -- Level for diagram schemes
   (Fil : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ)  → Set fil-level) -- some variant of 'filtered'
