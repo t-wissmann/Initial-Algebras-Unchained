@@ -1,15 +1,15 @@
 {-# OPTIONS --without-K --safe #-}
 --      ======================================================
 --
---                Initial Algebras Unchained:
---
---       A novel and constructive initial algebra construction
---                 without transfinite induction
+--                  Initial Algebras Unchained
+--                            ----
+--              A Novel Initial Algebra Construction
+--                     Formalized in Agda
 --
 --      ======================================================
 --
--- This file does not contain any proofs but provides links
--- to the respective modules of the formalization.
+-- This file provides links to the respective modules
+-- of the formalization.
 --
 
 import Helper-Definitions
@@ -25,7 +25,7 @@ import FullSub-map
 -- Properties of filtered diagrams
 import Filtered
 
--- definition of weak lfp category
+-- Definition of weak lfp category
 import LFP-slices
 import LFP
 
@@ -34,7 +34,7 @@ import Coalgebra.Recursive
 import Coalgebra.IdxProp
 import Coalgebra.IdxProp-fmap
 
--- some lemmas about recursive coalgebras
+-- Results about recursive coalgebras
 import Lambek
 
 
