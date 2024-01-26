@@ -35,6 +35,15 @@ open ProofGlobals proof-globals
 open import CoalgColim 𝒞 F FiniteRecursive
 
 
+-- for every (V∘E)-Cocone K with injections k_t and triangles P,t1 P,t2 for the
+-- same P in 𝒞p/FA, we have:
+--
+--    P ---inl--> P+X₁
+--    |            |
+--    |inl         | k_t1
+--    v            v
+--   P+X₂--k_t2--> K
+
 cocone-is-triangle-independent :
   ∀ (K : Cocone (V ∘F E)) (P : 𝒞p/FA.Obj)
     (t1 t2 : Triangle F-coalg-colim (FA-colim.proj P))
