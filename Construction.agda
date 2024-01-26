@@ -67,8 +67,8 @@ module FinalRecursive
 
   -- if the finite recursive coalgebras have a colimit on the object level,
   -- then this lifts to the category of coalgebras:
-  B,β : CoalgColim {o ⊔ ℓ} {ℓ} {ℓ} 𝒞 F FiniteRecursive
-  B,β = record
+  A,α : CoalgColim {o ⊔ ℓ} {ℓ} {ℓ} 𝒞 F FiniteRecursive
+  A,α = record
         { 𝒟 = IdxPropCoalgebras
         ; D = forget-IdxProp
         ; all-have-prop =
@@ -78,10 +78,10 @@ module FinalRecursive
         ; cocone = F-Coalgebras-Lift-Cocone forget-IdxProp carrier-colimit
         ; carrier-colimitting = F-Coalgebras-Colimit-Carrier-Limitting forget-IdxProp carrier-colimit
         }
-  module B,β = CoalgColim.CoalgColim B,β
+  module A,α = CoalgColim.CoalgColim A,α
 
-  B,β-scheme-Full : Full-≈ forget-IdxProp
-  B,β-scheme-Full = record {
+  A,α-scheme-Full : Full-≈ forget-IdxProp
+  A,α-scheme-Full = record {
     preimage = λ X Y f → f ;
     preimage-prop = λ X Y f →
       let
@@ -91,29 +91,29 @@ module FinalRecursive
       begin f ≡⟨⟩ f ∎ -- I didn't manage to phrase it via 'Equiv.refl' directly...
     }
 
-  FB,Fβ : CoalgColim 𝒞 F FiniteRecursive
-  FB,Fβ = iterate-CoalgColimit B,β coalgebras-filtered F-finitary
-  module FB,Fβ = CoalgColim.CoalgColim FB,Fβ
+  FA,Fα : CoalgColim 𝒞 F FiniteRecursive
+  FA,Fα = iterate-CoalgColimit A,α coalgebras-filtered F-finitary
+  module FA,Fα = CoalgColim.CoalgColim FA,Fα
 
-  B,β-proj-uniq : (i : B,β.𝒟.Obj) → F-Coalgebras F [ B,β.D.₀ i =∃!=> B,β.to-Coalgebra ]
-  B,β-proj-uniq i = record {
-    arr = B,β.colim.proj i ;
+  A,α-proj-uniq : (i : A,α.𝒟.Obj) → F-Coalgebras F [ A,α.D.₀ i =∃!=> A,α.to-Coalgebra ]
+  A,α-proj-uniq i = record {
+    arr = A,α.colim.proj i ;
     unique = λ h → let
         open Category (F-Coalgebras F)
         open HomReasoning
       in begin
-        B,β.colim.proj i
-          ≈˘⟨ unique-proj B,β F-finitary coalgebras-filtered (B,β-scheme-Full) h ⟩
+        A,α.colim.proj i
+          ≈˘⟨ unique-proj A,α F-finitary coalgebras-filtered (A,α-scheme-Full) h ⟩
         h
         ∎
       }
 
-  unique-endo : F-Coalgebras F [ B,β.to-Coalgebra =∃!=> B,β.to-Coalgebra ]
-  unique-endo = B,β.unique-homomorphism B,β.to-Coalgebra B,β-proj-uniq
+  unique-endo : F-Coalgebras F [ A,α.to-Coalgebra =∃!=> A,α.to-Coalgebra ]
+  unique-endo = A,α.unique-homomorphism A,α.to-Coalgebra A,α-proj-uniq
   module unique-endo = singleton-hom unique-endo
 
   universal-property : ∀ (X : F-Coalgebra F) → FiniteRecursive X →
-                         F-Coalgebras F [ X =∃!=> B,β.to-Coalgebra ]
+                         F-Coalgebras F [ X =∃!=> A,α.to-Coalgebra ]
   universal-property X X-finrec = record
     { arr = proj-j.arr ∘ X→Dj
     ; unique = λ h →
@@ -136,42 +136,45 @@ module FinalRecursive
       r = proj₂ quot
       module r = Retract r
       -- and thus this gives us a coalgebra in the diagram of B,β:
-      j : B,β.𝒟.Obj
+      j : A,α.𝒟.Obj
       j = record {
         carrier = j' ;
         structure = F-Coalgebra.α (retract-coalgebra X r) ;
         has-prop = retract-coalgebra-recursive X r (FiniteRecursive.is-recursive X-finrec) }
 
-      proj-j : F-Coalgebras F [ B,β.D.₀ j =∃!=> B,β.to-Coalgebra ]
-      proj-j = B,β-proj-uniq j
+      proj-j : F-Coalgebras F [ A,α.D.₀ j =∃!=> A,α.to-Coalgebra ]
+      proj-j = A,α-proj-uniq j
       module proj-j = singleton-hom proj-j
 
-      X→Dj : F-Coalgebras F [ X , B,β.D.₀ j ]
+      X→Dj : F-Coalgebras F [ X , A,α.D.₀ j ]
       X→Dj = retract-coalgebra-hom X r
 
-      Dj→X : F-Coalgebras F [ B,β.D.₀ j , X ]
+      Dj→X : F-Coalgebras F [ A,α.D.₀ j , X ]
       Dj→X = retract-coalgebra-hom⁻¹ X r
 
 
-  inverse : F-Coalgebras F [ FB,Fβ.to-Coalgebra =∃!=> B,β.to-Coalgebra ]
-  inverse = (FB,Fβ.unique-homomorphism
-        B,β.to-Coalgebra
-        λ i → universal-property (FB,Fβ.D.₀ i) (FB,Fβ.all-have-prop {i}))
+  inverse : F-Coalgebras F [ FA,Fα.to-Coalgebra =∃!=> A,α.to-Coalgebra ]
+  inverse = (FA,Fα.unique-homomorphism
+        A,α.to-Coalgebra
+        λ i → universal-property (FA,Fα.D.₀ i) (FA,Fα.all-have-prop {i}))
   module inverse = singleton-hom inverse
 
-  fixpoint : Iso 𝒞 B,β.structure (U.₁ inverse.arr)
-  fixpoint = lambek B,β.to-Coalgebra
-    (λ endo → unique-endo.unique₂ endo (Category.id (F-Coalgebras F) {B,β.to-Coalgebra}))
+  fixpoint : Iso 𝒞 A,α.structure (U.₁ inverse.arr)
+  fixpoint = lambek A,α.to-Coalgebra
+    (λ endo → unique-endo.unique₂ endo (Category.id (F-Coalgebras F) {A,α.to-Coalgebra}))
     inverse.arr
 
-  B,β-recursive : IsRecursive B,β.to-Coalgebra
-  B,β-recursive = Limitting-Cocone-IsRecursive B,β.D IdxPropCoalgebra.has-prop B,β.cocone B,β.carrier-colimitting
+  A,α-recursive : IsRecursive A,α.to-Coalgebra
+  A,α-recursive =
+    Limitting-Cocone-IsRecursive A,α.D
+      IdxPropCoalgebra.has-prop
+      A,α.cocone A,α.carrier-colimitting
 
   initial-algebra : Initial (F-Algebras F)
   initial-algebra = record {
-    ⊥ = record { A = B,β.carrier ; α = U.₁ inverse.arr } ;
+    ⊥ = record { A = A,α.carrier ; α = U.₁ inverse.arr } ;
     ⊥-is-initial =
       iso-recursive⇒initial
-        B,β.to-Coalgebra
-        B,β-recursive
+        A,α.to-Coalgebra
+        A,α-recursive
         (record { inv = U.₁ inverse.arr ; iso = fixpoint }) }
