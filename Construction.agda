@@ -108,55 +108,62 @@ module FinalRecursive
         ∎
       }
 
-  unique-endo : F-Coalgebras F [ A,α.to-Coalgebra =∃!=> A,α.to-Coalgebra ]
-  unique-endo = A,α.unique-homomorphism A,α.to-Coalgebra A,α-proj-uniq
-  module unique-endo = singleton-hom unique-endo
-
-  universal-property : ∀ (X : F-Coalgebra F) → FiniteRecursive X →
-                         F-Coalgebras F [ X =∃!=> A,α.to-Coalgebra ]
-  universal-property X X-finrec = record
-    { arr = proj-j.arr ∘ X→Dj
+  -- there is a unique coalgebra morphism from every finrec coalgebra to A,α:
+  universal-property : ∀ (C : F-Coalgebra F) → FiniteRecursive C →
+                         F-Coalgebras F [ C =∃!=> A,α.to-Coalgebra ]
+  universal-property C C-finrec = record
+    { arr = proj-j.arr ∘ C→Dj
     ; unique = λ h →
       let open HomReasoning in
       begin
-      proj-j.arr ∘ X→Dj ≈⟨ pushˡ (proj-j.unique (h ∘ Dj→X)) ⟩
-      h ∘ Dj→X ∘ X→Dj ≈⟨ elimʳ r.is-retract ⟩
+      proj-j.arr ∘ C→Dj ≈⟨ pushˡ (proj-j.unique (h ∘ Dj→C)) ⟩
+      h ∘ Dj→C ∘ C→Dj ≈⟨ elimʳ r.is-retract ⟩
       h
       ∎
     }
     where
       -- all compositions are on the level of coalgebra homomorphisms
       open Category (F-Coalgebras F)
-      module X = F-Coalgebra X
-      -- there is a split-quotient to one of the lfp generators:
-      quot : Σ[ idx ∈ 𝒞-lfp.Idx ] (Retract 𝒞 X.A (𝒞-lfp.fin idx))
-      quot = 𝒞-lfp.presentable-split-in-fin X.A
-        (FiniteRecursive.finite-carrier X-finrec)
-      j' = proj₁ quot
-      r = proj₂ quot
+      module C = F-Coalgebra C
+      -- there is a split-mono to one of the lfp generators:
+      split-mono : Σ[ idx ∈ 𝒞-lfp.Idx ] (Retract 𝒞 C.A (𝒞-lfp.fin idx))
+      split-mono = 𝒞-lfp.presentable-split-in-fin C.A
+        (FiniteRecursive.finite-carrier C-finrec)
+      j' = proj₁ split-mono
+      r = proj₂ split-mono
       module r = Retract r
       -- and thus this gives us a coalgebra in the diagram of B,β:
       j : A,α.𝒟.Obj
       j = record {
         carrier = j' ;
-        structure = F-Coalgebra.α (retract-coalgebra X r) ;
-        has-prop = retract-coalgebra-recursive X r (FiniteRecursive.is-recursive X-finrec) }
+        structure = F-Coalgebra.α (retract-coalgebra C r) ;
+        has-prop = retract-coalgebra-recursive C r (FiniteRecursive.is-recursive C-finrec) }
 
       proj-j : F-Coalgebras F [ A,α.D.₀ j =∃!=> A,α.to-Coalgebra ]
       proj-j = A,α-proj-uniq j
       module proj-j = singleton-hom proj-j
 
-      X→Dj : F-Coalgebras F [ X , A,α.D.₀ j ]
-      X→Dj = retract-coalgebra-hom X r
+      C→Dj : F-Coalgebras F [ C , A,α.D.₀ j ]
+      C→Dj = retract-coalgebra-hom C r
 
-      Dj→X : F-Coalgebras F [ A,α.D.₀ j , X ]
-      Dj→X = retract-coalgebra-hom⁻¹ X r
+      Dj→C : F-Coalgebras F [ A,α.D.₀ j , C ]
+      Dj→C = retract-coalgebra-hom⁻¹ C r
 
+  -- there is a unique coalgebra morphism from every locally finrec coalgebra to A,α:
+  universal-property-locally-finrec :
+            ∀ {o' ℓ' e' : Level} (R : CoalgColim 𝒞 F FiniteRecursive {o'} {ℓ'} {e'}) →
+            F-Coalgebras F [ CoalgColim.to-Coalgebra R =∃!=> A,α.to-Coalgebra ]
+  universal-property-locally-finrec R =
+    R.unique-homomorphism A,α.to-Coalgebra
+      λ i → universal-property (R.D.₀ i) (R.all-have-prop {i})
+    where module R = CoalgColim.CoalgColim R
+
+  unique-endo : F-Coalgebras F [ A,α.to-Coalgebra =∃!=> A,α.to-Coalgebra ]
+  unique-endo = A,α.unique-homomorphism A,α.to-Coalgebra A,α-proj-uniq
+  module unique-endo = singleton-hom unique-endo
 
   inverse : F-Coalgebras F [ FA,Fα.to-Coalgebra =∃!=> A,α.to-Coalgebra ]
-  inverse = (FA,Fα.unique-homomorphism
-        A,α.to-Coalgebra
-        λ i → universal-property (FA,Fα.D.₀ i) (FA,Fα.all-have-prop {i}))
+  inverse = universal-property-locally-finrec FA,Fα
   module inverse = singleton-hom inverse
 
   fixpoint : Iso 𝒞 A,α.structure (U.₁ inverse.arr)
