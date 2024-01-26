@@ -61,8 +61,23 @@ FA,Fα-Cocone = record { coapex =
     commute = λ f → Slice⇒.△ f } }
 module FA,Fα-Cocone = Cocone FA,Fα-Cocone
 
-data ⊥ : Set where
-
+--
+-- For triangles t1 t2, we can build an ℰ-hom t1 -> t2 provided that:
+-- h1 : P₁ -> P₂+X₂ in 𝒞
+-- h2 : i₁ -> i₂ in coalg-colim.𝒟 (i.e. the diagram of A,α)
+-- satisfying:
+--         P₁ --h1--> P₂+X₂
+--         |            |
+--         | p'         | [p',x]
+--         v            v
+--         FX₁--F h2-->FX₂
+-- and
+--         P₁  ---- p₁ ---> FA
+--          |                ^
+--          | h1             |
+--          v                |
+--         P₂+X₂  -----------'
+--
 build-ℰ-hom : (t1 t2 : all-triangles)
                 (h1 : CC.P t1 ⇒ CC.P+X.obj t2)
                 (h2 : coalg-colim.𝒟 [ CC.X,x-dia t1 , CC.X,x-dia t2 ])
