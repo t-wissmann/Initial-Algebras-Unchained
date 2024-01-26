@@ -26,7 +26,6 @@ module Unique-Proj {o ℓ fil-level}
   (F : Endofunctor 𝒞)
   (Fil : Category (o ⊔ ℓ) ℓ ℓ → Set fil-level) -- some variant of 'filtered'
   (Fil-to-filtered : ∀ {𝒟 : Category (o ⊔ ℓ) ℓ ℓ} → Fil 𝒟 → filtered 𝒟) -- .. which implies filtered
-  (𝒞-lfp : WeaklyLFP 𝒞 (o ⊔ ℓ) ℓ ℓ Fil Fil-to-filtered)
   (A,α : CoalgColim 𝒞 F (FiniteRecursive {o' = o ⊔ ℓ} {ℓ' = ℓ} 𝒞 F Fil) {o ⊔ ℓ} {ℓ} {ℓ})
   where
 

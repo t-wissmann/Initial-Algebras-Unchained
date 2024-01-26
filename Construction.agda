@@ -41,7 +41,7 @@ module Construction {o ℓ}
   where
 
 open import Coalgebra.Recursive 𝒞 F
-open import Unique-Proj 𝒞 F Fil Fil-to-filtered 𝒞-lfp
+open import Unique-Proj 𝒞 F Fil Fil-to-filtered
 open import Categories.Morphism.Reasoning 𝒞
 open import Lambek 𝒞 F
 
