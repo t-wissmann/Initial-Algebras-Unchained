@@ -35,8 +35,10 @@ open ProofGlobals proof-globals
 open import CoalgColim 𝒞 F FiniteRecursive
 
 
-cocone-is-triangle-independent : ∀ (K : Cocone (V ∘F E)) (P : 𝒞p/FA.Obj) (t1 t2 : Triangle F-coalg-colim (FA-colim.proj P))
-                    → Cocone.ψ K (P , t1) ∘ CC.P+X.i₁ (P , t1) ≈ Cocone.ψ K (P , t2) ∘ CC.P+X.i₁ (P , t2)
+cocone-is-triangle-independent :
+  ∀ (K : Cocone (V ∘F E)) (P : 𝒞p/FA.Obj)
+    (t1 t2 : Triangle F-coalg-colim (FA-colim.proj P))
+    → Cocone.ψ K (P , t1) ∘ CC.P+X.i₁ (P , t1) ≈ Cocone.ψ K (P , t2) ∘ CC.P+X.i₁ (P , t2)
 cocone-is-triangle-independent K P t1 t2 = begin
     K.ψ Pt1 ∘ CC.P+X.i₁ Pt1
     ≈˘⟨ K.commute t1⇒t3 ⟩∘⟨refl ⟩
