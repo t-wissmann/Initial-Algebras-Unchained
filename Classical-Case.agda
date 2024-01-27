@@ -52,11 +52,11 @@ build-IsRecursive-via-LEM : ∀ (R : F-Coalgebra F) → IsRecursive R → IsRecu
 build-IsRecursive-via-LEM R rec = record { is-recursive-dec = fromWitness rec }
 
 -- the diagram of the coalgebras satisfying IsRecursive-via-LEM is small but has
--- the same colimit as the 'big' diagram from the construction (using IsRecursive),
+-- the same colimit as the 'large' diagram from the construction (using IsRecursive),
 -- because IsRecursive-via-LEM and IsRecursive are equivalent
-build-big-colimit : Colimit (forget-IdxPropCoalgebra IsRecursive-via-LEM)
-                  → Colimit (forget-IdxPropCoalgebra IsRecursive)
-build-big-colimit = fmap-colimit build-IsRecursive-via-LEM
+build-large-colimit : Colimit (forget-IdxPropCoalgebra IsRecursive-via-LEM)
+                    → Colimit (forget-IdxPropCoalgebra IsRecursive)
+build-large-colimit = fmap-colimit build-IsRecursive-via-LEM
                                  (λ c → IsRecursive-via-LEM.is-recursive {c})
 
 
@@ -66,4 +66,4 @@ initial-algebra-from-colimit :
        (F-finitary : preserves-colimit (forget-IdxPropCoalgebra IsRecursive) F)
        → Initial (F-Algebras F)
 initial-algebra-from-colimit small-colimit coalg-filtered F-finitary =
-  FinalRecursive.initial-algebra (build-big-colimit small-colimit) coalg-filtered F-finitary
+  FinalRecursive.initial-algebra (build-large-colimit small-colimit) coalg-filtered F-finitary
