@@ -138,7 +138,7 @@ Fin-is-presentable n 𝒟 𝒟-filtered J colim =
     λ {i} kp →
       let
         module kp = KernelPairs kp
-        F-colim = F-map-Coconeˡ (LiftSetoids 0ℓ 0ℓ ∘F Hom.Hom[ Setoids 0ℓ 0ℓ ,-] (Fin≈ n)) colim.colimit
+        F-colim = F-map-Coconeˡ (LiftHom[ (Fin≈ n) ,-] ) colim.colimit
         module F-colim = Cocone (F-colim)
         -- we are given two tuples:
         f : Fin≈ n ⇒ J.₀ i
