@@ -15,7 +15,7 @@ open import Data.Nat using (ℕ)
 import Data.Nat
 import Data.Sum.Base as Sum
 open import Relation.Binary.Core using (Rel)
-open import Data.Fin
+open import Data.Fin hiding (lift)
 open import Data.Fin.Instances using (Fin-≡-isDecEquivalence)
 open import Data.Fin.Properties using (splitAt-inject+; splitAt-raise)
 open import Data.Product
@@ -39,22 +39,22 @@ open import Categories.Category.Cocartesian using (Cocartesian; BinaryCoproducts
 open import Setoids-Colimit
 open import Setoids-Choice
 open import Colimit-Lemmas
+open import Hom-Colimit-Choice
 open import FinCoequalizer
 
 module Setoids-LFP where
 
 private
-  variable
-    -- levels for setoids themselves:
-    o ℓ : Level
+  Setoids' = Setoids 0ℓ 0ℓ
 
 id-filtered : ∀ {o ℓ e : Level} {𝒟} → filtered {o} {ℓ} {e} 𝒟 → filtered {o} {ℓ} {e} 𝒟
 id-filtered f = f
 
-open import LFP-slices (Setoids 0ℓ 0ℓ)
-open import LFP (Setoids 0ℓ 0ℓ) 0ℓ 0ℓ 0ℓ filtered id-filtered
-open import Presentable (Setoids 0ℓ 0ℓ) 0ℓ 0ℓ 0ℓ filtered
-open import Categories.Category.Slice (Setoids 0ℓ 0ℓ)
+open import LFP-slices Setoids'
+open import LFP Setoids' 0ℓ 0ℓ 0ℓ filtered id-filtered
+open import Presentable Setoids' 0ℓ 0ℓ 0ℓ filtered
+open import Categories.Category.Slice Setoids'
+open LiftHom Setoids' 0ℓ 0ℓ 0ℓ
 
 -- -- we use a custom 'setoid' variation to achieve arbitrary levels o, ℓ
 -- ≡-setoid : ∀ {o ℓ : Level} → Set 0ℓ → Setoid o ℓ
@@ -157,11 +157,11 @@ Fin-is-presentable n 𝒟 𝒟-filtered J colim =
       in
       record { B = i' ; inj₁ = h ; inj₂ = h ; identifies = Level.lift eq }
   where
-    open Hom (Setoids 0ℓ 0ℓ)
+    open Hom (Setoids')
     hom-n = Hom[ (Fin≈ n) ,-]
-    lift-hom-n = LiftSetoids 0ℓ 0ℓ ∘F hom-n
+    lift-hom-n = LiftHom[ (Fin≈ n) ,-]
     module colim = Colimit colim
-    open Category (Setoids 0ℓ 0ℓ)
+    open Category (Setoids')
     module 𝒟 = Category 𝒟
     module J = Functor J
     module 𝒟-filtered = filtered 𝒟-filtered

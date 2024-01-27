@@ -44,6 +44,7 @@ import Setoids-Choice -- a weak choice principle for preimages of elements of co
 import Setoids-Colimit -- necessary/sufficient conditions when cocones are colimitting
 import Hom-Colimit-Choice -- instance of the above for colimits of hom sets
 
+import FinCoequalizer -- (weak form of) finite coequalizers in Setoids for the verification of:
 import Setoids-LFP -- Setoids are an instance of a (weak) LFP category
 
 -- Coalgebras that arise as colimits:

@@ -25,12 +25,15 @@ open import Categories.Object.Coproduct (𝒞)
 open import Categories.Morphism (𝒞)
 open import Categories.Morphism.Reasoning.Core 𝒞
 
-presentable : 𝒞.Obj → Set _
-presentable X =
+finitary : {o'' ℓ'' e'' : Level} {ℰ : Category o'' ℓ'' e''} (F : Functor 𝒞 ℰ) → Set _
+finitary F =
   ∀ (𝒟 : Category o' ℓ' e') → -- forall diagram schemes
   Fil 𝒟 →                     -- satisfying some notion of filteredness
   (J : Functor 𝒟 𝒞) →         -- and all their diagrams
-  preserves-colimit J LiftHom[ X ,-] -- the hom-functor preserves all (existing) colimits
+  preserves-colimit J F       -- the functor preserves all (existing) colimits
+
+presentable : 𝒞.Obj → Set _
+presentable X = finitary LiftHom[ X ,-] -- the hom-functor is finitary
 
 -- presentable objects are closed under coproducts
 presentable-coproduct : {A B : 𝒞.Obj} → (coprod : Coproduct A B) →
