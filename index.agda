@@ -26,6 +26,7 @@ import FullSub-map
 import Filtered
 
 -- Definition of weak lfp category
+import Presentable
 import LFP-slices
 import LFP
 
@@ -56,6 +57,7 @@ import Unique-Proj
 -- also a colimit of 'finite' coalgebras:
 import Iterate.Assumptions
 import Iterate.ProofGlobals
+import Iterate.FiniteSubcoalgebra
 import Iterate.DiagramScheme -- the diagram scheme for the claimed colimit
 import Iterate.Colimit
 import Iterate
