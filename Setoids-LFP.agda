@@ -45,6 +45,9 @@ open import FinCoequalizer
 module Setoids-LFP where
 
 private
+  -- WARNING: it seems to be impossible to raise the levels of the diagrams! Even
+  -- if the colimit of a diagram scheme from a higher level exists, it is impossible
+  -- to apply the Setoids-Choice principle!
   Setoids' = Setoids 0ℓ 0ℓ
 
 id-filtered : ∀ {o ℓ e : Level} {𝒟} → filtered {o} {ℓ} {e} 𝒟 → filtered {o} {ℓ} {e} 𝒟
