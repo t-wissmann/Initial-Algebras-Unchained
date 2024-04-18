@@ -1,0 +1,70 @@
+build-agda:
+  image: haskell:9.6
+  stage: build
+  variables:
+    CABAL_DIR: "$CI_PROJECT_DIR/.cabal"
+    AGDA_DIR: "$CI_PROJECT_DIR/.agda"
+  before_script:
+    - export PATH="$PATH:${CABAL_DIR}/bin"
+    - which agda || { cabal update && cabal install Agda ; }
+    - mkdir -p "${AGDA_DIR}/repos"
+    - "verb() { echo -e \"\\e[1;33m:: \\e[0;32m$*\\e[0m\" ; \"$@\" ; }"
+    - fetch-dep() {
+        d=${AGDA_DIR}/repos/${2##*/} ;
+        if [[ -d "$d" ]] ;
+        then pushd "$d" ; verb git fetch origin "$1" ; verb git checkout -f --detach FETCH_HEAD ; popd ;
+        else verb git clone --depth 1 --branch "$1"  "$2" "$d" ;
+        fi
+      }
+    - fetch-dep v1.7.2 https://github.com/agda/agda-stdlib
+    - fetch-dep v0.1.7.2 https://github.com/agda/agda-categories
+    - echo -n > ${AGDA_DIR}/defaults
+    - find "${AGDA_DIR}" -name '*.agda-lib' | tee ${AGDA_DIR}/libraries
+  script:
+    - export PATH="$PATH:${CABAL_DIR}/bin"
+    #- sed -i '/OPTIONS/s, OPTIONS , OPTIONS --allow-unsolved-metas ,' *.agda
+    - for i in $(git ls-files 'src/*.agda') ; do agda "$i" ; done
+    - echo "Building HTML documentation"
+    - mkdir -p html
+    - time agda --html --html-dir=html/ src/index.agda
+    - git ls-files > agda-files.txt
+  cache:
+    when: always
+    paths:
+      - _build/
+      - ./.agda
+      - ./.cabal
+  artifacts:
+    name: "${CI_PROJECT_NAME}-agda-html"
+    when: always
+    expire_in: 10 yrs
+    paths:
+    - html/
+    - agda-files.txt
+    - '*.md'
+
+# publish-doc:
+#   stage: test
+#   image: jgoerzen/debian-base-standard
+#   rules:
+#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+#   dependencies:
+#     - build-agda
+#   before_script:
+#     - mkdir -p ~/.ssh
+#     - chmod 700 ~/.ssh
+#     - eval $(ssh-agent -s)
+#     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+#     - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+#     - chmod 644 ~/.ssh/known_hosts
+#   script:
+#     - scp -r agda/html/* thorsten_unchained@ssh.nyc1.nearlyfreespeech.net:/home/public/iau-l24/
+#     - rm -f iau-agda-html-supplementary.zip
+#     - pushd agda
+#     - zip -r ../iau-agda-html-supplementary.zip html/ $(cat ../agda-files.txt)
+#     - popd
+#   artifacts:
+#     name: "${CI_PROJECT_NAME}-supplementary"
+#     when: always
+#     paths:
+#     - iau-agda-html-supplementary.zip
