@@ -35,10 +35,8 @@ import Coalgebra.Recursive
 import Coalgebra.IdxProp
 import Coalgebra.IdxProp-fmap
 
--- Results about recursive coalgebras
+-- A (slightly generalized) Lambek's Lemma
 import Lambek
-
-
 
 -- Some properties of Setoids:
 import Setoids-Choice -- a weak choice principle for preimages of elements of colimits
