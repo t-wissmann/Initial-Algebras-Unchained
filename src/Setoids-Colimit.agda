@@ -9,7 +9,7 @@ open import Agda.Builtin.Equality using (_≡_) renaming (refl to refl-by-def)
 open import Agda.Builtin.Sigma
 open import Data.Product
 open import Relation.Binary.Bundles using (Setoid)
-open import Function.Equality
+open import Function.Bundles
 
 open import Categories.Category using (Category; _[_,_]; _[_≈_]; _[_∘_])
 open import Categories.Functor
@@ -97,7 +97,7 @@ module _ {o ℓ e c ℓ'} {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
         in
         begin
         J.F₁ (D [ y∨z.inj₁ ∘ f ]) ⟨$⟩ x ≈⟨ J.homomorphism (refl (J.F₀ X)) ⟩
-        J.F₁ y∨z.inj₁ ⟨$⟩ (J.F₁ f ⟨$⟩ x) ≈⟨ cong (J.F₁ y∨z.inj₁) fx≈y ⟩
+        J.F₁ y∨z.inj₁ ⟨$⟩ (J.F₁ f ⟨$⟩ x) ≈⟨ Func.cong (J.F₁ y∨z.inj₁) fx≈y ⟩
         J.F₁ y∨z.inj₁ ⟨$⟩ y             ≈⟨ y∨z.identifies ⟩
         J.F₁ y∨z.inj₂ ⟨$⟩ z
         ∎
@@ -128,11 +128,11 @@ module _ {o ℓ e c ℓ'} {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
             open SetoidR (J.F₀ W.tip)
         in
         begin
-        J.F₁ w₁ ⟨$⟩ x               ≈˘⟨ cong (J.F₁ w₁) fy≈x ⟩
+        J.F₁ w₁ ⟨$⟩ x               ≈˘⟨ Func.cong (J.F₁ w₁) fy≈x ⟩
         J.F₁ w₁ ⟨$⟩ (J.F₁ f ⟨$⟩ y)   ≈˘⟨ J.homomorphism (refl (J.F₀ Y)) ⟩
         J.F₁ (D [ w₁ ∘ f ]) ⟨$⟩ y   ≈⟨ J.F-resp-≈ W.commutes (refl (J.F₀ Y)) ⟩
         J.F₁ (D [ w₂ ∘ V.inj₁ ]) ⟨$⟩ y   ≈⟨ J.homomorphism (refl (J.F₀ Y)) ⟩
-        J.F₁ w₂ ⟨$⟩ ((J.F₁ V.inj₁) ⟨$⟩ y) ≈⟨ cong (J.F₁ w₂) V.identifies ⟩
+        J.F₁ w₂ ⟨$⟩ ((J.F₁ V.inj₁) ⟨$⟩ y) ≈⟨ Func.cong (J.F₁ w₂) V.identifies ⟩
         J.F₁ w₂ ⟨$⟩ ((J.F₁ V.inj₂) ⟨$⟩ z) ≈˘⟨ J.homomorphism (refl (J.F₀ Z)) ⟩
         J.F₁ (D [ w₂ ∘ V.inj₂ ]) ⟨$⟩ z
         ∎
@@ -152,16 +152,14 @@ module _ {o ℓ e c ℓ'} {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
         constr⊢x≈y =
           begin
           construction.proj X ⟨$⟩ x ≈˘⟨ u.commute (refl (J.F₀ X)) ⟩
-          u.arr ⟨$⟩ (Colim.proj X ⟨$⟩ x) ≈⟨ cong u.arr x≈y ⟩
+          u.arr ⟨$⟩ (Colim.proj X ⟨$⟩ x) ≈⟨ Func.cong u.arr x≈y ⟩
           u.arr ⟨$⟩ (Colim.proj Y ⟨$⟩ y) ≈⟨ u.commute (refl (J.F₀ Y)) ⟩
           construction.proj Y ⟨$⟩ y
           ∎
 
 
   -- the next results characterize: when is a Cocone a Colimit in Setoids?
-  open import Function.Equality using (_⟶_)
-  -- (f: A ⟶ B)
-  record KernelPairs {o'' e'' : Level} {A B : Setoid o'' e''} (f : A ⟶ B) : Set (o'' ⊔ e'') where
+  record KernelPairs {o'' e'' : Level} {A B : Setoid o'' e''} (f : Func A B) : Set (o'' ⊔ e'') where
     field
         pr₁ : Setoid.Carrier A
         pr₂ : Setoid.Carrier A
@@ -241,7 +239,7 @@ module _ {o ℓ e c ℓ'} {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
           E.ψ V ⟨$⟩ (J.F₁ inj-X ⟨$⟩ x)   ≡⟨⟩
           E.ψ V ⟨$⟩ x-in-V              ≈˘⟨ E.commute ident.inj₁ refl-auto ⟩
           E.ψ ident.B ⟨$⟩ (J.F₁ ident.inj₁ ⟨$⟩ x-in-V)
-              ≈⟨ cong (E.ψ ident.B) ident.identifies ⟩
+              ≈⟨ Func.cong (E.ψ ident.B) ident.identifies ⟩
           E.ψ ident.B ⟨$⟩ (J.F₁ ident.inj₂ ⟨$⟩ y-in-V)
                                         ≈⟨ E.commute ident.inj₂ refl-auto ⟩
           E.ψ V ⟨$⟩ y-in-V              ≡⟨⟩
@@ -261,9 +259,9 @@ module _ {o ℓ e c ℓ'} {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
               in
               E.ψ preim.i ⟨$⟩ preim.preimage
 
-            f-well-def : C.N ⟶ E.N
+            f-well-def : Func C.N E.N
             f-well-def = record
-              { _⟨$⟩_ = f ; cong =
+              { to = f ; cong =
               λ {x} {y} x≈y →
                 let
                   X = get-preimage x
@@ -293,7 +291,7 @@ module _ {o ℓ e c ℓ'} {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
               begin
               f (C.ψ X ⟨$⟩ x)         ≡⟨⟩
               E.ψ P.i ⟨$⟩ P.preimage  ≈⟨ lemma E P.preimage x P.x-sent-to-c ⟩
-              E.ψ X ⟨$⟩ x             ≈⟨ cong (E.ψ X) x≈x' ⟩
+              E.ψ X ⟨$⟩ x             ≈⟨ Func.cong (E.ψ X) x≈x' ⟩
               E.ψ X ⟨$⟩ x'
               ∎
             }
@@ -324,7 +322,7 @@ module _ {o ℓ e c ℓ'} {D : Category o ℓ e} (J : Functor D (Setoids (o ⊔ 
           begin
           f ⟨$⟩ x         ≈⟨ lemma E x.preimage y.preimage preimages-identified ⟩
           E.ψ y.i ⟨$⟩ y.preimage                  ≈˘⟨ w.commute refl-auto ⟩
-          w.arr ⟨$⟩ (C.ψ y.i ⟨$⟩ y.preimage)       ≈⟨ cong w.arr y.x-sent-to-c ⟩
+          w.arr ⟨$⟩ (C.ψ y.i ⟨$⟩ y.preimage)       ≈⟨ Func.cong w.arr y.x-sent-to-c ⟩
           w.arr ⟨$⟩ y
           ∎
       }

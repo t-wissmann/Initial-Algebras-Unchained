@@ -7,7 +7,7 @@ open import Categories.Functor using (Functor; _∘F_)
 open import Categories.Functor.Hom
 open import Data.Product
 
-open import Function.Equality using (_⟨$⟩_)
+open import Function.Bundles using (_⟨$⟩_)
 open import Relation.Binary using (Setoid)
 
 open import Categories.Functor.Construction.LiftSetoids

@@ -17,13 +17,14 @@ import Data.Sum.Base as Sum
 open import Relation.Binary.Core using (Rel)
 open import Data.Fin hiding (lift)
 open import Data.Fin.Instances using (Fin-≡-isDecEquivalence)
-open import Data.Fin.Properties using (splitAt-inject+; splitAt-raise)
+open import Data.Fin.Properties using (splitAt-inject+; splitAt-↑ˡ; splitAt-↑ʳ; splitAt-raise)
 open import Data.Product
-open import Function.Equality hiding (setoid; _∘_; cong) renaming (id to ⟶id)
+-- open import Function.Equality hiding (setoid; _∘_; cong) renaming (id to ⟶id)
+open import Function.Bundles
 open import Relation.Binary.Structures using (IsDecEquivalence)
-open import Relation.Binary.PropositionalEquality hiding ([_])
+open import Relation.Binary.PropositionalEquality using (cong; refl)
 open import Relation.Binary.PropositionalEquality.Properties
-open import Relation.Binary.PropositionalEquality using (→-to-⟶)
+-- open import Relation.Binary.PropositionalEquality using (→-to-⟶)
 open import Categories.Diagram.Cocone
 open import Categories.Diagram.Cocone.Properties
 open import Categories.Diagram.Colimit using (Colimit)
@@ -52,6 +53,17 @@ private
 
 id-filtered : ∀ {o ℓ e : Level} {𝒟} → filtered {o} {ℓ} {e} 𝒟 → filtered {o} {ℓ} {e} 𝒟
 id-filtered f = f
+
+→-to-⟶ : ∀ {a b ℓ : Level} {A : Set a} {B : Setoid b ℓ} →
+         (A → Setoid.Carrier B) → Func (setoid A) B
+→-to-⟶ {B = B} f = record
+  { to = f
+  ; cong = λ {refl → Setoid.refl B }
+  }
+
+const : ∀ {a b ℓ : Level} {A : Set a} {B : Setoid b ℓ} →
+         Setoid.Carrier B → Func (setoid A) B
+const x = →-to-⟶ (λ _ → x)
 
 open import LFP-slices Setoids'
 open import LFP Setoids' 0ℓ 0ℓ 0ℓ filtered id-filtered
@@ -133,7 +145,7 @@ Fin-is-presentable n 𝒟 𝒟-filtered J colim =
           begin
           (colim.proj B ∘ g≈ ∘ id) ⟨$⟩ k ≡⟨⟩
           colim.proj B ⟨$⟩ (g k) ≈˘⟨ g-correct k ⟩
-          f ⟨$⟩ k ≈⟨ Π.cong f eq ⟩
+          f ⟨$⟩ k ≈⟨ Func.cong f eq ⟩
           f ⟨$⟩ k'
           ∎
           )
@@ -227,10 +239,10 @@ Fin-is-presentable n 𝒟 𝒟-filtered J colim =
           begin
           (J.₁ h ∘ s) ⟨$⟩ Fin.zero ≡⟨⟩
           J.₁ h ⟨$⟩ (s ⟨$⟩ Fin.zero) ≈⟨ J.homomorphism refl-j ⟩
-          J.₁ h-inj₁ ⟨$⟩  (J.₁ (coeq 𝒟.∘ ident-in-dia-0.inj₁) ⟨$⟩ (s ⟨$⟩ Fin.zero)) ≈⟨ Π.cong (J.₁ h-inj₁) (J.homomorphism refl-j) ⟩
-          (J.₁ h-inj₁ ∘ J.₁ coeq) ⟨$⟩ (J.₁ ident-in-dia-0.inj₁ ⟨$⟩ (s ⟨$⟩ Fin.zero)) ≈⟨ Π.cong (J.₁ h-inj₁ ∘ J.₁ coeq) ident-in-dia-0.identifies ⟩
-          (J.₁ h-inj₁ ∘ J.₁ coeq) ⟨$⟩ (J.₁ ident-in-dia-0.inj₂ ⟨$⟩ (t ⟨$⟩ Fin.zero)) ≈˘⟨ Π.cong (J.₁ h-inj₁) (J.homomorphism refl-j) ⟩
-          (J.₁ h-inj₁ ∘ J.₁ (coeq 𝒟.∘ ident-in-dia-0.inj₂)) ⟨$⟩ (t ⟨$⟩ Fin.zero) ≈˘⟨ Π.cong (J.₁ h-inj₁) (J.F-resp-≈ coeq-prop refl-j) ⟩
+          J.₁ h-inj₁ ⟨$⟩  (J.₁ (coeq 𝒟.∘ ident-in-dia-0.inj₁) ⟨$⟩ (s ⟨$⟩ Fin.zero)) ≈⟨ Func.cong (J.₁ h-inj₁) (J.homomorphism refl-j) ⟩
+          (J.₁ h-inj₁ ∘ J.₁ coeq) ⟨$⟩ (J.₁ ident-in-dia-0.inj₁ ⟨$⟩ (s ⟨$⟩ Fin.zero)) ≈⟨ Func.cong (J.₁ h-inj₁ ∘ J.₁ coeq) ident-in-dia-0.identifies ⟩
+          (J.₁ h-inj₁ ∘ J.₁ coeq) ⟨$⟩ (J.₁ ident-in-dia-0.inj₂ ⟨$⟩ (t ⟨$⟩ Fin.zero)) ≈˘⟨ Func.cong (J.₁ h-inj₁) (J.homomorphism refl-j) ⟩
+          (J.₁ h-inj₁ ∘ J.₁ (coeq 𝒟.∘ ident-in-dia-0.inj₂)) ⟨$⟩ (t ⟨$⟩ Fin.zero) ≈˘⟨ Func.cong (J.₁ h-inj₁) (J.F-resp-≈ coeq-prop refl-j) ⟩
           (J.₁ h-inj₁ ∘ J.₁ (coeq 𝒟.∘ ident-in-dia-0.inj₁)) ⟨$⟩ (t ⟨$⟩ Fin.zero) ≈˘⟨ J.homomorphism refl-j ⟩
           (J.₁ (h-inj₁ 𝒟.∘ coeq 𝒟.∘ ident-in-dia-0.inj₁)) ⟨$⟩ (t ⟨$⟩ Fin.zero) ≡⟨⟩
           (J.₁ h ∘ t) ⟨$⟩ Fin.zero
@@ -240,7 +252,7 @@ Fin-is-presentable n 𝒟 𝒟-filtered J colim =
           (J.₁ h ∘ s) ⟨$⟩ Fin.suc m ≡⟨⟩
           (J.₁ (h-inj₁ 𝒟.∘ h-0) ∘ s) ⟨$⟩ Fin.suc m ≈⟨ J.F-resp-≈ closed.commutes refl-j ⟩
           (J.₁ (h-inj₂ 𝒟.∘ h-suc) ∘ s) ⟨$⟩ Fin.suc m ≈⟨ J.homomorphism refl-j ⟩
-          J.₁ h-inj₂ ⟨$⟩ (J.₁ h-suc ⟨$⟩ (s ⟨$⟩ Fin.suc m)) ≈⟨ Π.cong (J.₁ h-inj₂) (ident-in-dia-suc (Setoid.refl (Fin≈ k))) ⟩
+          J.₁ h-inj₂ ⟨$⟩ (J.₁ h-suc ⟨$⟩ (s ⟨$⟩ Fin.suc m)) ≈⟨ Func.cong (J.₁ h-inj₂) (ident-in-dia-suc (Setoid.refl (Fin≈ k))) ⟩
           J.₁ h-inj₂ ⟨$⟩ (J.₁ h-suc ⟨$⟩ (t ⟨$⟩ Fin.suc m)) ≈˘⟨ J.homomorphism refl-j ⟩
           (J.₁ (h-inj₂ 𝒟.∘ h-suc) ∘ t) ⟨$⟩ Fin.suc m ≈˘⟨ J.F-resp-≈ closed.commutes refl-j ⟩
           (J.₁ (h-inj₁ 𝒟.∘ h-0) ∘ t) ⟨$⟩ Fin.suc m ≡⟨⟩
@@ -268,14 +280,14 @@ canonical-cocone-is-limitting X =
       in
       record {
       arr = record {
-        _⟨$⟩_ = underlying
+        to = underlying
            ;
         cong = λ {x} {x'} x≈x' →
           let
             -- f : Slice⇒ (sliceobj (const x)) (sliceobj (const x'))
             f : (Cat[ Fin≈ ↓ X ]) [ t x , t x' ]
             f = slicearr
-                  {h = Function.Equality.id}
+                  {h = id}
                   λ { {Fin.zero} {Fin.zero} refl → Setoid.sym X x≈x'}
             eq : C.ψ (t x) ≈ C.ψ (t x') ∘ F.₁ f
             eq =
@@ -302,7 +314,7 @@ canonical-cocone-is-limitting X =
         C.ψ s ⟨$⟩ ((F.₁ (morph x)) ⟨$⟩ Fin.zero)
           ≡⟨⟩
         C.ψ s ⟨$⟩ x
-          ≈⟨ Π.cong (C.ψ s) x≈x' ⟩
+          ≈⟨ Func.cong (C.ψ s) x≈x' ⟩
         C.ψ s ⟨$⟩ x'
         ∎
         }
@@ -323,7 +335,7 @@ canonical-cocone-is-limitting X =
     C.ψ (t x) ⟨$⟩ Fin.zero
       ≈˘⟨ other.commute (Setoid.refl (Fin≈ 1)) ⟩
     other.arr ⟨$⟩ x
-      ≈⟨ Π.cong other.arr x≈x' ⟩
+      ≈⟨ Func.cong other.arr x≈x' ⟩
     other.arr ⟨$⟩ x'
     ∎
   }
@@ -334,20 +346,20 @@ concat-tuples {a} {n} {m} s t n+m = Sum.[ s , t ] (splitAt n n+m)
 
 
 merge-parallel : (k n : ℕ) (X : Setoid 0ℓ 0ℓ)
-  (s : Fin≈ k ⟶ X)
-  (t : Fin≈ n ⟶ X)
+  (s : Func (Fin≈ k) X)
+  (t : Func (Fin≈ n) X)
   (g h : Cat[ Fin≈ ↓ X ] [ (k , s) , (n , t) ]) → MergedMorphisms (Cat[ Fin≈ ↓ X ]) g h
 merge-parallel k n X s t (slicearr {h = g≈} g-prop) (slicearr {h = h≈} h-prop) =
   record {
     tip = n , t ;
     merge = (slicearr {h = →-to-⟶ EndoCoeq.f } λ { {x} {x} refl → Setoid.sym X (merge-△ x) });
-    prop = λ { {x} {x} refl  → EndoCoeq.identify-R (g≈.app x) (h≈.app x) (x , (refl , refl)) }
+    prop = λ { {x} {x} refl  → EndoCoeq.identify-R (g≈.to x) (h≈.to x) (x , (refl , refl)) }
   }
   where
-    module t = Π t
-    module g≈ = Π g≈ renaming (_⟨$⟩_ to app)
-    module h≈ = Π h≈ renaming (_⟨$⟩_ to app)
-    module EndoCoeq = EndoCoequalize (finite-coequalize k (Fin n) (IsDecEquivalence._≟_ Fin-≡-isDecEquivalence) g≈.app h≈.app)
+    module t = Func t
+    module g≈ = Func g≈
+    module h≈ = Func h≈
+    module EndoCoeq = EndoCoequalize (finite-coequalize k (Fin n) (IsDecEquivalence._≟_ Fin-≡-isDecEquivalence) g≈.to h≈.to)
 
     open Setoid X using (_≈_)
     open SetoidR X
@@ -357,10 +369,10 @@ merge-parallel k n X s t (slicearr {h = g≈} g-prop) (slicearr {h = h≈} h-pro
       (setoid-kernel-IsEquivalence X (λ y → t ⟨$⟩ y))
       (λ { {y1} {y2} (y , (gy , hy)) →
         begin
-        t ⟨$⟩ y1    ≡˘⟨ cong t._⟨$⟩_ gy ⟩
+        t ⟨$⟩ y1    ≡˘⟨ cong t.to gy ⟩
         t ⟨$⟩ (g≈ ⟨$⟩ y)    ≈⟨ g-prop refl ⟩
         s ⟨$⟩ y    ≈˘⟨ h-prop refl ⟩
-        t ⟨$⟩ (h≈ ⟨$⟩ y)    ≡⟨ cong t._⟨$⟩_ hy ⟩
+        t ⟨$⟩ (h≈ ⟨$⟩ y)    ≡⟨ cong t.to hy ⟩
         t ⟨$⟩ y2
         ∎
         })
@@ -371,23 +383,24 @@ canonical-cat-is-filtered : ∀ (X : Setoid 0ℓ 0ℓ) → filtered (Cat[ Fin≈
 canonical-cat-is-filtered X =
   record {
     bounds = record
-              { non-empty = 0 , (record { _⟨$⟩_ = λ () ; cong = λ {x} → exfalso x }) ;
+              { non-empty = 0 , (record { to = λ () ; cong = λ {x} → exfalso x }) ;
               upper-bound = λ {(k , s) (n , t) →
                 (k Data.Nat.+ n) , →-to-⟶ (concat-tuples (_⟨$⟩_ s) (_⟨$⟩_ t)) } ;
               is-above₁ = λ {(k , s) (n , t) →
                 let
                   open SetoidR X
+                  -- inject+ = _↑ˡ_
                 in
-                slicearr {h = →-to-⟶ (inject+ n)}
+                slicearr {h = →-to-⟶ (λ - → - ↑ˡ n)}
                 λ {i} {i'} i≈i' → begin
-                concat-tuples (_⟨$⟩_ s) (_⟨$⟩_ t) (inject+ n i)
+                concat-tuples (_⟨$⟩_ s) (_⟨$⟩_ t) (i ↑ˡ n)
                   ≡⟨⟩
-                Sum.[ _⟨$⟩_ s , _⟨$⟩_ t ] (splitAt k (inject+ n i))
-                  ≡⟨ cong Sum.[ _⟨$⟩_ s , _⟨$⟩_ t ] (splitAt-inject+ k n i) ⟩
+                Sum.[ _⟨$⟩_ s , _⟨$⟩_ t ] (splitAt k (i ↑ˡ n))
+                  ≡⟨ cong Sum.[ _⟨$⟩_ s , _⟨$⟩_ t ] (splitAt-↑ˡ k i n) ⟩
                 -- Sum.[ _⟨$⟩_ s , _⟨$⟩_ t ] (Sum.inj₁ i)
                 --  ≡⟨⟩
                 s ⟨$⟩ i
-                  ≈⟨ Π.cong s i≈i' ⟩
+                  ≈⟨ Func.cong s i≈i' ⟩
                 s ⟨$⟩ i'
                 ∎
                 } ;
@@ -395,17 +408,17 @@ canonical-cat-is-filtered X =
                 let
                   open SetoidR X
                 in
-                slicearr {h = →-to-⟶ (raise {n} k)}
+                slicearr {h = →-to-⟶ (_↑ʳ_ {n} k)}
                 λ {i} {i'} i≈i' →
                 begin
-                concat-tuples (_⟨$⟩_ s) (_⟨$⟩_ t) (raise k i)
+                concat-tuples (_⟨$⟩_ s) (_⟨$⟩_ t) (k ↑ʳ i)
                   ≡⟨⟩
-                Sum.[ _⟨$⟩_ s , _⟨$⟩_ t ] (splitAt k (raise k i))
-                  ≡⟨ cong Sum.[ _⟨$⟩_ s , _⟨$⟩_ t ] (splitAt-raise k n i) ⟩
+                Sum.[ _⟨$⟩_ s , _⟨$⟩_ t ] (splitAt k (k ↑ʳ i))
+                  ≡⟨ cong Sum.[ _⟨$⟩_ s , _⟨$⟩_ t ] (splitAt-↑ʳ k n i) ⟩
                 -- Sum.[ _⟨$⟩_ s , _⟨$⟩_ t ] (Sum.inj₂ i)
                 --  ≡⟨⟩
                 t ⟨$⟩ i
-                  ≈⟨ Π.cong t i≈i' ⟩
+                  ≈⟨ Func.cong t i≈i' ⟩
                 t ⟨$⟩ i'
                 ∎
               } } ;

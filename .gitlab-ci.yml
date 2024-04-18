@@ -16,8 +16,8 @@ build-agda:
         else verb git clone --depth 1 --branch "$1"  "$2" "$d" ;
         fi
       }
-    - fetch-dep v1.7.2 https://github.com/agda/agda-stdlib
-    - fetch-dep v0.1.7.2 https://github.com/agda/agda-categories
+    - fetch-dep v2.0 https://github.com/agda/agda-stdlib
+    - fetch-dep v0.2.0 https://github.com/agda/agda-categories
     - echo -n > ${AGDA_DIR}/defaults
     - find "${AGDA_DIR}" -name '*.agda-lib' | tee ${AGDA_DIR}/libraries
   script:

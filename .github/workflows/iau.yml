@@ -4,6 +4,7 @@ on:
     branches: ['master']
 jobs:
   check:
+    # Using the template from https://github.com/marketplace/actions/setup-agda
     name: Check src/index.agda
     runs-on: ubuntu-latest # or macOS-latest, or windows-latest
     steps:
@@ -13,9 +14,9 @@ jobs:
       - uses: wenkokke/setup-agda@v2
         with:
           agda-version: '2.6.4'
-          agda-stdlib-version: '1.7.2'
+          agda-stdlib-version: '2.0'
           agda-libraries: |
-            https://github.com/agda/agda-categories.git#v0.1.7.2
+            https://github.com/agda/agda-categories.git#v0.2.0
 
       # Check greet.agda, which you can find in tests/agda:
       - run: agda src/index.agda

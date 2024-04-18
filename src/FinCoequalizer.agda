@@ -10,6 +10,7 @@ open import Relation.Binary
 open import Relation.Binary.Core using (Rel)
 open import Relation.Binary.Construct.Closure.Equivalence using (EqClosure)
 import Relation.Binary.Construct.Closure.Equivalence as EqClos
+open import Relation.Binary.Construct.Closure.Symmetric using (fwd; bwd)
 open import Relation.Binary.PropositionalEquality.Core
 open import Data.Nat using (ℕ)
 open import Data.Fin
@@ -17,7 +18,8 @@ open import Data.Bool.Base
 open import Function using (_∋_)
 open import Relation.Nullary
 open import Relation.Nullary.Reflects using (invert)
-open import Relation.Nullary.Decidable.Core using (dec-true; from-yes)
+open import Relation.Nullary.Decidable using (dec-true)
+open import Relation.Nullary.Decidable.Core using (from-yes)
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive
 open import Relation.Binary.PropositionalEquality hiding ([_])
 open import Relation.Binary.PropositionalEquality.Properties
@@ -110,7 +112,7 @@ finite-coequalize (ℕ.suc k) Y Y≡-dec g h =
                   y                        ∼⟨ nested-f-prop y ⟩
                   nested.f y               ≡⟨ fy=fg0 ⟩
                   nested.f (g Fin.zero)    ∼⟨ EqClos.symmetric g↙↘h (nested-f-prop _) ⟩
-                  g Fin.zero               ∼⟨ return (inj₁ (Fin.zero , (refl , refl))) ⟩
+                  g Fin.zero               ∼⟨ return (fwd (Fin.zero , (refl , refl))) ⟩
                   h Fin.zero               ∼⟨ nested-f-prop _ ⟩
                   nested.f (h Fin.zero)
                   ∎
@@ -121,9 +123,9 @@ finite-coequalize (ℕ.suc k) Y Y≡-dec g h =
 EqClosure-ump : {ℓ ℓ' : Level}  → {Y : Set} → (R : Rel Y ℓ) → (S : Rel Y ℓ') → IsEquivalence S → (R ⇒ S) → (EqClosure R ⇒ S)
 EqClosure-ump {Y = Y} R S S-is-equiv R⇒S {x} {.x} ε =
   IsEquivalence.reflexive S-is-equiv refl
-EqClosure-ump {Y = Y} R S S-is-equiv R⇒S {x} {y} (inj₁ Rxj ◅ tail) =
+EqClosure-ump {Y = Y} R S S-is-equiv R⇒S {x} {y} (fwd Rxj ◅ tail) =
   IsEquivalence.trans S-is-equiv (R⇒S Rxj) (EqClosure-ump R S S-is-equiv R⇒S tail)
-EqClosure-ump {Y = Y} R S S-is-equiv R⇒S {x} {y} (inj₂ Rjx ◅ tail) =
+EqClosure-ump {Y = Y} R S S-is-equiv R⇒S {x} {y} (bwd Rjx ◅ tail) =
   IsEquivalence.trans S-is-equiv
     (IsEquivalence.sym S-is-equiv (R⇒S Rjx))
     (EqClosure-ump R S S-is-equiv R⇒S tail)

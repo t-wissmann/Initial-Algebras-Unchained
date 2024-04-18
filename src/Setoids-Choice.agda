@@ -9,7 +9,7 @@ open import Agda.Builtin.Equality using (_≡_) renaming (refl to refl-by-def)
 open import Agda.Builtin.Sigma
 open import Data.Product
 open import Relation.Binary.Bundles using (Setoid)
-open import Function.Equality
+open import Function.Bundles
 
 open import Categories.Category using (Category; _[_,_]; _[_≈_]; _[_∘_])
 open import Categories.Functor
@@ -84,7 +84,7 @@ module _ {o ℓ e c ℓ'} {D : Category o ℓ e} {J : Functor D (Setoids (o ⊔ 
         inject-cmorph = construction.rep-cocone Colim.colimit
         module inject-cmorph = Cocone⇒ inject-cmorph
 
-        inject-cmorph-correct : ∀ x → Π._⟨$⟩_ inject-cmorph.arr x ≡ colimit-inject x
+        inject-cmorph-correct : ∀ x → inject-cmorph.arr ⟨$⟩ x ≡ colimit-inject x
         inject-cmorph-correct x = refl-by-def
 
         same-cocone-morph : Cocones J [ id-cmorph ≈ (Cocones J [ inject-cmorph ∘ choice-cmorph ]) ]
