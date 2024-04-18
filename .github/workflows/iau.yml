@@ -15,7 +15,7 @@ jobs:
           agda-version: '2.6.4'
           agda-stdlib-version: '1.7.2'
           agda-libraries: |
-            https://github.com/agda/agda-categories#v0.1.7.2
+            https://github.com/agda/agda-categories.git#v0.1.7.2
 
       # Check greet.agda, which you can find in tests/agda:
       - run: agda src/index.agda
