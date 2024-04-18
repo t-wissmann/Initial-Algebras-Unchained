@@ -30,11 +30,11 @@ find "$AGDA_DIR/stdlib-1.7.2" "$AGDA_DIR/categories-1.7.2" -name '*.agda-lib' | 
 
 Checking all the proofs:
 ```bash
-agda index.agda
+agda src/index.agda
 ```
 
 Generating the html documentation:
 ```bash
 mkdir -p html
-agda --html --html-dir=html/ index.agda
+agda --html --html-dir=html/ src/index.agda
 ```

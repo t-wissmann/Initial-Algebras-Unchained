@@ -1,4 +1,4 @@
 name: initial-algebras-unchained
 depend:
     agda-categories
-include: .
+include: src/
