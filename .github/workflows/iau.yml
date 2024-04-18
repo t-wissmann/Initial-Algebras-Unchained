@@ -1,0 +1,17 @@
+name: Initial Algebras Unchained
+on:
+  push:
+    branches: ['master']
+jobs:
+  check:
+    name: Check src/index.agda
+    runs-on: ubuntu-latest # or macOS-latest, or windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      # Setup the latest version of Agda:
+      - uses: wenkokke/setup-agda@v2
+
+      # Check greet.agda, which you can find in tests/agda:
+      - run: agda src/index.agda
+        working-directory: .
