@@ -19,7 +19,6 @@ open import Categories.Category.Construction.F-Coalgebras
 open import Categories.Morphism using (IsIso; Iso; module ≅; Retract)
 import Categories.Morphism
 open import Categories.Object.Initial using (IsInitial)
-open import Function.Equality using (cong)
 open import Categories.Morphism.Reasoning
 
 open import F-Coalgebra-Colimit

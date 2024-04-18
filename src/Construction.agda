@@ -22,8 +22,6 @@ open import Categories.Category.Construction.F-Coalgebras
 open import Categories.Category.Construction.F-Algebras
 open import Categories.Functor.Coalgebra
 open import Categories.Functor.Properties using (Full)
-open import Function.Surjection using (Surjective)
-open import Function.Equality hiding (_∘_)
 open import Categories.Functor.Construction.SubCategory using (FullSub)
 open import Categories.Functor.Construction.SubCategory.Properties using (FullSubFull)
 

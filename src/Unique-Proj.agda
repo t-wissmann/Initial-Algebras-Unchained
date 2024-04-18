@@ -18,8 +18,6 @@ open import F-Coalgebra-Colimit
 open import Iterate.Assumptions
 open import Data.Product
 open import Categories.Functor.Properties using (Full)
-open import Function.Surjection using (Surjective)
-open import Function.Equality hiding (_∘_)
 
 module Unique-Proj {o ℓ fil-level}
   (𝒞 : Category o ℓ ℓ)

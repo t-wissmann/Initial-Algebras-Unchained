@@ -17,8 +17,6 @@ open import Categories.Category.Construction.Comma
 open import Categories.Category.Slice
 open import Categories.Functor.Slice as Sl
 open import Categories.Functor.Properties using (Full)
-open import Function.Surjection using (Surjective)
-open import Function.Equality hiding (_∘_)
 open import Categories.Functor.Construction.SubCategory
 open import Categories.Functor using (Functor; Endofunctor)
 open import Data.Product
