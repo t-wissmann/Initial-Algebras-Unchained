@@ -9,6 +9,10 @@ If it is still desired to compile the proofs again, the installation of the
 following dependencies is required:
 -->
 
+You can browse the html documentation of this Agda formalization on
+
+  * https://git8.cs.fau.de/software/initial-algebras-unchained
+
 ## Dependencies
 
   - agda (version 2.6.4)

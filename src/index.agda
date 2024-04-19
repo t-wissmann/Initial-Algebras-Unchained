@@ -6,6 +6,9 @@
 --              A Novel Initial Algebra Construction
 --                     Formalized in Agda
 --
+--              By Thorsten Wißmann and Stefan Milius
+--              accepted for publication at LICS 2024
+--
 --      ======================================================
 --
 -- This file provides links to the respective modules
