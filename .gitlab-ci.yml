@@ -43,28 +43,22 @@ build-agda:
     - agda-files.txt
     - '*.md'
 
-# publish-doc:
-#   stage: test
-#   image: jgoerzen/debian-base-standard
-#   rules:
-#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-#   dependencies:
-#     - build-agda
-#   before_script:
-#     - mkdir -p ~/.ssh
-#     - chmod 700 ~/.ssh
-#     - eval $(ssh-agent -s)
-#     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-#     - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
-#     - chmod 644 ~/.ssh/known_hosts
-#   script:
-#     - scp -r agda/html/* thorsten_unchained@ssh.nyc1.nearlyfreespeech.net:/home/public/iau-l24/
-#     - rm -f iau-agda-html-supplementary.zip
-#     - pushd agda
-#     - zip -r ../iau-agda-html-supplementary.zip html/ $(cat ../agda-files.txt)
-#     - popd
-#   artifacts:
-#     name: "${CI_PROJECT_NAME}-supplementary"
-#     when: always
-#     paths:
-#     - iau-agda-html-supplementary.zip
+publish-doc:
+  stage: test
+  image: jgoerzen/debian-base-standard
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  dependencies:
+    - build-agda
+  before_script:
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - scp -r html/* thorsten_unchained@ssh.nyc1.nearlyfreespeech.net:/home/public/iau-l24/
+  artifacts:
+    name: "${CI_PROJECT_NAME}-supplementary"
+    when: always
