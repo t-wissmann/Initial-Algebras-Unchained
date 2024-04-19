@@ -11,7 +11,7 @@ following dependencies is required:
 
 You can browse the html documentation of this Agda formalization on
 
-  * https://git8.cs.fau.de/software/initial-algebras-unchained
+  * https://unchained.nfshost.com/iau-l24/
 
 ## Dependencies
 

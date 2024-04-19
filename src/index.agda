@@ -1,15 +1,18 @@
 {-# OPTIONS --without-K --safe #-}
---      ======================================================
+--      ============================================================
 --
---                  Initial Algebras Unchained
---                            ----
---              A Novel Initial Algebra Construction
---                     Formalized in Agda
+--                     Initial Algebras Unchained
+--                               ----
+--                 A Novel Initial Algebra Construction
+--                        Formalized in Agda
 --
---              By Thorsten Wißmann and Stefan Milius
---              accepted for publication at LICS 2024
+--                 By Thorsten Wißmann and Stefan Milius
+--                 accepted for publication at LICS 2024
 --
---      ======================================================
+--                       Agda Source repository:
+--      https://git8.cs.fau.de/software/initial-algebras-unchained
+--
+--      ============================================================
 --
 -- This file provides links to the respective modules
 -- of the formalization.
