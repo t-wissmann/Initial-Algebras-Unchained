@@ -24,8 +24,8 @@ private
 -- 2. there is some homomorphism from F(A,α) to A,α
 
 lambek : (∀ (f : A,α Coalg.⇒ A,α) → Coalg [ f ≈ Coalg.id ]) →
-         (inv : (iterate A,α) Coalg.⇒ A,α) →
-         Iso α (F-Coalgebra-Morphism.f inv)
+         (h : (iterate A,α) Coalg.⇒ A,α) →
+         Iso α (F-Coalgebra-Morphism.f h)
 lambek id_uniq h = record { isoˡ = h∘α≈id ; isoʳ = α∘h≈id }
   where
     open Category 𝒞
@@ -35,10 +35,17 @@ lambek id_uniq h = record { isoˡ = h∘α≈id ; isoʳ = α∘h≈id }
     α-hom : A,α Coalg.⇒ (iterate A,α)
     α-hom = record { f = α ; commutes = 𝒞.Equiv.refl }
 
+    -- we can compose it with the proposed inverse h to yield
+    -- an endomorphism on A,α
     h∘α : A,α Coalg.⇒ A,α
     h∘α = h Coalg.∘ α-hom
 
+    -- this endomorphism is necessarily the identity
+    h∘α≈id : Coalg [ h∘α ≈ Coalg.id ]
     h∘α≈id = id_uniq h∘α
+
+    -- for the other identity (on FA), we use the first identity
+    -- and use that 'h' is coalgebra morphism:
     α∘h≈id = let open HomReasoning in
       begin
       α ∘ h.f            ≈⟨ h.commutes ⟩
