@@ -1,12 +1,18 @@
 {-# OPTIONS --without-K --safe #-}
 open import Categories.Category
-open import Categories.Functor using (Functor)
+open import Data.Product
+open import Categories.Morphism
+open import Categories.Diagram.Cocone.Properties
+open import Categories.Category.Construction.Cocones
+open import Categories.Functor
 
-module Helper-Definitions {o ℓ e} where
-
+module Helper-Definitions where
 open import Level
 
-record Full-≈  {𝒞 : Category o ℓ e} {o' ℓ' e' : Level} {𝒟 : Category o' ℓ' e'} (F : Functor 𝒟 𝒞) : Set (o ⊔ ℓ ⊔ e ⊔ o' ⊔ ℓ' ⊔ e') where
+_[_≅_] : {o ℓ e : Level} (𝒞 : Category o ℓ e) → (A B : Category.Obj 𝒞) → Set _
+_[_≅_] 𝒞 A B = _≅_ 𝒞 A B
+
+record Full-≈ {o ℓ e} {𝒞 : Category o ℓ e} {o' ℓ' e' : Level} {𝒟 : Category o' ℓ' e'} (F : Functor 𝒟 𝒞) : Set (o ⊔ ℓ ⊔ e ⊔ o' ⊔ ℓ' ⊔ e') where
   -- A more explicit definition of 'Full'ness of a functor F.
   private
     module 𝒞 = Category 𝒞
@@ -17,7 +23,7 @@ record Full-≈  {𝒞 : Category o ℓ e} {o' ℓ' e' : Level} {𝒟 : Category
     preimage-prop : ∀ (X Y : 𝒟.Obj) → (f : 𝒞 [ F.₀ X , F.₀ Y ]) → 𝒞 [ F.₁ (preimage X Y f) ≈ f ]
 
 
-record  singleton-hom (𝒞 : Category o ℓ e) (X Y : Category.Obj 𝒞) : Set (ℓ ⊔ e) where
+record  singleton-hom {o ℓ e} (𝒞 : Category o ℓ e) (X Y : Category.Obj 𝒞) : Set (ℓ ⊔ e) where
   -- the fact that a hom-setoid (from X to Y) is a singleton (up to ≈)
   field
     arr : 𝒞 [ X , Y ]
@@ -28,5 +34,34 @@ record  singleton-hom (𝒞 : Category o ℓ e) (X Y : Category.Obj 𝒞) : Set 
     let open Category 𝒞 in
     Equiv.trans (Equiv.sym (unique f)) (unique g)
 
-_[_=∃!=>_] : (𝒞 : Category o ℓ e) (X Y : Category.Obj 𝒞) → Set _
+_[_=∃!=>_] : {o ℓ e : Level} → (𝒞 : Category o ℓ e) (X Y : Category.Obj 𝒞) → Set _
 _[_=∃!=>_] = singleton-hom
+
+
+_<===>_ : ∀ {a b : Level} → Set a → Set b → Set (a ⊔ b)
+_<===>_ x y = (x → y) × (y → x)
+infix -5 _<===>_
+
+private
+  variable
+    o ℓ e : Level
+    C D J J′ : Category o ℓ e
+
+module _ {F : Functor J C} (G : Functor C D) where
+  private
+    module C = Category C
+    module D = Category D
+    module F = Functor F
+    module G = Functor G
+    module CF = Cocone F
+    GF = G ∘F F
+    module CGF = Cocone GF
+
+  F-map-Cocone-Functor : Functor (Cocones F) (Cocones (G ∘F F))
+  F-map-Cocone-Functor = record
+     { F₀ = F-map-Coconeˡ G
+     ; F₁ = F-map-Cocone⇒ˡ G
+     ; identity = λ {A} → G.identity
+     ; homomorphism = λ {X} {Y} {Z} {f} {g} → G.homomorphism
+     ; F-resp-≈ = G.F-resp-≈
+     }

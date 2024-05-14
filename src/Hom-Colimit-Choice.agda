@@ -18,6 +18,7 @@ open import Categories.Functor.Construction.LiftSetoids using (LiftSetoids)
 
 import Setoids-Choice as Setoids
 import Setoids-Colimit
+open import Helper-Definitions
 open import Setoids-Colimit using (KernelPairs)
 open import Colimit-Lemmas
 open import Filtered
@@ -65,7 +66,7 @@ module _
   -- If a hom-functor 𝒞(P,-) preserves a colimit C, this gives rise to a
   -- factorization of morphisms P ⇒ C through the diagram:
   hom-colim-choice : (P : 𝒞.Obj) →
-      preserves-colimit D LiftHom[ P ,-] →
+      preserves-colimit D (LiftHom[ P ,-]) →
       (p : P ⇒ colim.coapex) →
       Triangle p
   hom-colim-choice P hom-preserves-colim p =
@@ -107,6 +108,15 @@ module _
   UniqueColimitFactorization₁ P =
       ∀ {i : 𝒟.Obj} (f g : P ⇒ D.₀ i) → colim.proj i ∘ f ≈ colim.proj i ∘ g →
         Σ[ i' ∈ 𝒟.Obj ] Σ[ h ∈ i 𝒟.⇒ i' ] (D.₁ h ∘ f ≈ D.₁ h ∘ g)
+
+  include-UniqueColimitFactorization₁ : (P : 𝒞.Obj) →
+    UniqueColimitFactorization₁ P →
+    UniqueColimitFactorization P
+  include-UniqueColimitFactorization₁ P uniq1 {i} f g eq =
+    let
+      i' , h , eq = uniq1 {i} f g eq
+    in
+    i' , (h , (h , eq))
 
   -- If the diagram is filtered, then the above two properties are equivalent:
   coequalize-colimit-factorization : (P : 𝒞.Obj) → filtered 𝒟 →
@@ -170,7 +180,7 @@ module _
   hom-colim-unique-factor₁ :
       filtered 𝒟 →
       (P : 𝒞.Obj) →
-      IsLimitting (F-map-Coconeˡ (LiftHom[ P ,-]) (Colimit.colimit colim)) →
+      LiftHom[ P ,-] preserves-the-colimit colim →
       UniqueColimitFactorization₁ P
   hom-colim-unique-factor₁ fil P is-colim =
     coequalize-colimit-factorization P fil
@@ -242,3 +252,24 @@ module _
               D.₁ g' ∘ g ∘ id
             ∎)
           }
+
+  -- a hom functor of P preserves a given colimit 'colim' iff
+  -- (a) every morphism from P to colim factors through the diagram, and
+  -- (b) this factorization is essentially unique
+  hom-filtered-colimit-characterization : filtered 𝒟 → (P : 𝒞.Obj) →
+      LiftHom[ P ,-] preserves-the-colimit colim
+                    <===>
+      (∀ (p : P ⇒ colim.coapex) → Triangle p) × UniqueColimitFactorization₁ P
+
+  hom-filtered-colimit-characterization fil-𝒟 P = ===> , <===
+    where
+      ===> = λ is-limitting →
+        hom-colim-choice P (preserves-all-colimits (LiftHom[ P ,-]) colim is-limitting)
+        ,
+        λ {i} → hom-colim-unique-factor₁ fil-𝒟 P (is-limitting) {i = i}
+
+      <===  =
+        λ { (exist-factor , uniq-factor) →
+          hom-colim-construct
+            (filtered.bounds fil-𝒟) P exist-factor
+            (include-UniqueColimitFactorization₁ P uniq-factor) }

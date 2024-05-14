@@ -10,16 +10,18 @@ open import Agda.Builtin.Sigma
 open import Categories.Category.Construction.F-Coalgebras
 open import Categories.Category.Construction.Cocones using (Cocones)
 open import Categories.Functor.Coalgebra
-open import Categories.Morphism 𝒞 -- open the module with the category 𝒞 fixed.
-open import Categories.Object.Initial using (IsInitial)
+open import Categories.Morphism -- open the module with the category 𝒞 fixed.
+open import Categories.Object.Initial using (IsInitial; Initial)
+import Categories.Object.Initial as initial
 
 open import Categories.Category
 open import Categories.Object.Coproduct using (Coproduct)
 
-open import Categories.Diagram.Colimit using (Colimit; transport-by-iso)
+open import Categories.Diagram.Colimit using (Colimit; transport-by-iso; up-to-iso-cone)
 open import Categories.Diagram.Cocone
 open import Categories.Diagram.Cocone.Properties
 open import Categories.Functor using (_∘F_)
+open import Categories.Functor.Properties using ([_]-resp-≅)
 open import Agda.Builtin.Equality
 open import Categories.Morphism.Reasoning
 open import Categories.Morphism.Reasoning.Core
@@ -36,16 +38,53 @@ private
 IsLimitting : {o' ℓ' e' : Level} {D : Category o' ℓ' e'} {J : Functor D 𝒞} → Cocone J → Set _
 IsLimitting {J = J} cocone = IsInitial (Cocones J) cocone
 
+Colimit-from-prop : {o' ℓ' e' : Level} {D : Category o' ℓ' e'} {J : Functor D 𝒞}
+                      → {cocone : Cocone J} → IsLimitting cocone → Colimit J
+Colimit-from-prop {cocone = cocone} limitting =
+  record { initial = record { ⊥ = cocone ; ⊥-is-initial = limitting } }
+
 -- The property that a functor F preserves the colimit of diagram J:
+_preserves-the-colimit_ : {o' o'' ℓ' ℓ'' e' e'' : _} →
+  {𝒟 : Category o' ℓ' e'} →
+  {ℰ : Category o'' ℓ'' e''} →
+  {J : Functor 𝒟 𝒞} → (F : Functor 𝒞 ℰ) →
+  Colimit J → Set _
+_preserves-the-colimit_ {J = J} F colim =
+  IsInitial (Cocones (F ∘F J)) (F-map-Coconeˡ F (Colimit.colimit colim))
+
 preserves-colimit : {o' o'' ℓ' ℓ'' e' e'' : _} →
   {𝒟 : Category o' ℓ' e'} →
   {ℰ : Category o'' ℓ'' e''} →
   (J : Functor 𝒟 𝒞) → (F : Functor 𝒞 ℰ) → Set _
 preserves-colimit J F =
-  ∀ (colim : Colimit J) → IsInitial (Cocones (F ∘F J)) (F-map-Coconeˡ F (Colimit.colimit colim))
-  -- We use the underlying 'IsInitial' here instead of 'IsLimitting',
-  -- because 'IsLimitting' is fixed for colimits
-  -- in the module parameter 𝒞, whereas here, we have a colimit in ℰ.
+  ∀ (colim : Colimit J) → F preserves-the-colimit colim
+
+-- If a functor F preserves a particular colimit C₁ for a given diagram J,
+-- then F preserves every colimit of the diagram J
+preserves-all-colimits : {o' o'' ℓ' ℓ'' e' e'' : _} →
+  {𝒟 : Category o' ℓ' e'} →
+  {ℰ : Category o'' ℓ'' e''} →
+  {J : Functor 𝒟 𝒞} → (F : Functor 𝒞 ℰ) →
+  (C₁ : Colimit J) →
+  (F preserves-the-colimit C₁) →
+  (preserves-colimit J F)
+preserves-all-colimits {J = J} F C₁ F-preserves-C₁ C₂ = Initial.⊥-is-initial FC₂-colimit
+  where
+    module C₁ = Colimit C₁
+    module C₂ = Colimit C₂
+    FC₁ : Cocone (F ∘F J)
+    FC₁ = F-map-Coconeˡ F C₁.colimit
+    FC₂ : Cocone (F ∘F J)
+    FC₂ = F-map-Coconeˡ F C₂.colimit
+    FC₁-initial : Initial (Cocones (F ∘F J))
+    FC₁-initial = record { ⊥ = FC₁ ; ⊥-is-initial = F-preserves-C₁ }
+    C₁≅C₂ : Cocones J [ C₁.colimit ≅ C₂.colimit ]
+    C₁≅C₂ = up-to-iso-cone J C₁ C₂
+    module C₁≅C₂ = _≅_ C₁≅C₂
+    FC₁≅FC₂ : Cocones (F ∘F J) [ FC₁ ≅ FC₂ ]
+    FC₁≅FC₂ = [ (F-map-Cocone-Functor F) ]-resp-≅ C₁≅C₂
+    FC₂-colimit : Initial (Cocones (F ∘F J))
+    FC₂-colimit = (initial.transport-by-iso _ FC₁-initial FC₁≅FC₂)
 
 
 -- the property whether a Sink is jointly epic:
@@ -150,7 +189,7 @@ FullSub-Colimit : {o' ℓ' e' i : Level}
                 → (J : Functor D (FullSubCategory 𝒞 U))
                 → (C-colim : Colimit (FullSub 𝒞 ∘F  J))
                 → (lifted-colim-obj : I)
-                → Colimit.coapex C-colim ≅ U lifted-colim-obj
+                → 𝒞 [ Colimit.coapex C-colim ≅ U lifted-colim-obj ]
                 → Colimit J
 FullSub-Colimit {D = D} {I = I} U J plain-C-colim lifted-colim-obj iso =
   record { initial = record { ⊥ = Sub-Cocone ; ⊥-is-initial = Sub-Cocone-initial } }
@@ -204,11 +243,6 @@ FullSub-Colimit {D = D} {I = I} U J plain-C-colim lifted-colim-obj iso =
         in
         IsInitial.!-unique C-colim.initial.⊥-is-initial C-cocone-morph
       }
-
-Colimit-from-prop : {o' ℓ' e' : Level} {D : Category o' ℓ' e'} {J : Functor D 𝒞}
-                      → {cocone : Cocone J} → IsLimitting cocone → Colimit J
-Colimit-from-prop {cocone = cocone} limitting =
-  record { initial = record { ⊥ = cocone ; ⊥-is-initial = limitting } }
 
 HasCoproducts : Set _
 HasCoproducts = ∀ (A B : 𝒞.Obj) → Coproduct 𝒞 A B
