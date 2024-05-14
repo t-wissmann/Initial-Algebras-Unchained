@@ -43,6 +43,9 @@ preserves-colimit : {o' o'' ℓ' ℓ'' e' e'' : _} →
   (J : Functor 𝒟 𝒞) → (F : Functor 𝒞 ℰ) → Set _
 preserves-colimit J F =
   ∀ (colim : Colimit J) → IsInitial (Cocones (F ∘F J)) (F-map-Coconeˡ F (Colimit.colimit colim))
+  -- We use the underlying 'IsInitial' here instead of 'IsLimitting',
+  -- because 'IsLimitting' is fixed for colimits
+  -- in the module parameter 𝒞, whereas here, we have a colimit in ℰ.
 
 
 -- the property whether a Sink is jointly epic:
