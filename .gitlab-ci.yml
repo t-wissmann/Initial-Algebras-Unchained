@@ -27,7 +27,7 @@ build-agda:
     - echo "Building HTML documentation"
     - mkdir -p html
     - time agda --html --html-dir=html/ src/index.agda
-    - git ls-files > agda-files.txt
+    - "tar cv $(git ls-files) | { cd html && tar xv ; }"
   cache:
     when: always
     paths:
