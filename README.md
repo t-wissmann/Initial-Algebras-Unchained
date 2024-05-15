@@ -11,7 +11,7 @@ following dependencies is required:
 
 You can browse the html documentation of this Agda formalization on
 
-  * https://unchained.nfshost.com/iau-l24/
+  * https://thorsten-wissmann.de/archive/init-alg-lics24/
 
 ## Dependencies
 
