@@ -38,6 +38,10 @@ module LiftHom (o' ℓ' e' : Level) where
   LiftHom[_,-] : 𝒞.Obj → Functor 𝒞 (Setoids (ℓ ⊔ o') (o' ⊔ ℓ' ⊔ e ⊔ ℓ))
   LiftHom[_,-] X = LiftSetoids (ℓ ⊔ o') (o' ⊔ ℓ' ⊔ e ⊔ ℓ) ∘F Hom[ 𝒞 ][ X ,-]
 
+  -- With above LiftHom, finite presentability would instantiate to:
+  -- finitely-presentable : 𝒞.Obj → Set _
+  -- finitely-presentable P = ∀ {𝒟 : Category o' ℓ' e'} {D : Functor 𝒟 𝒞} (_ : filtered 𝒟) (colim : Colimit D) → LiftHom[ P ,-] preserves-the-colimit colim
+
 module _
   {o' ℓ' e' : Level}
   {𝒟 : Category o' ℓ' e'}
