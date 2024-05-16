@@ -155,17 +155,17 @@ build-ℰ-hom t1 t2 h1 h2 h1-coalg-hom h1-slice =
             ∎
         })
 
--- build an ℰ-hom of shape id_P + h where h: X → Y is a coalgebra morphism
-coalg-hom-to-ℰ-hom : ∀ (P : 𝒞p/FA.Obj) (t1 t2 : Triangle F-coalg-colim (FA-colim.proj P))
-                    (h : coalg-colim.𝒟 [ CC.X,x-dia (P , t1) , CC.X,x-dia (P , t2) ])
-                    → CC.p' (P , t2) ≈ F.₁ (V.₁ (coalg-colim.D.₁ h)) ∘ CC.p' (P , t1)
-                    → ℰ [ (P , t1) , (P , t2) ]
-coalg-hom-to-ℰ-hom P t1 t2 h hom-preserves-p' =
-    build-ℰ-hom (P , t1) (P , t2)
+-- build an ℰ-hom of shape id_P + h where h: i → j is a coalgebra morphism from the diagram 𝒟
+coalg-hom-to-ℰ-hom : ∀ (P : 𝒞p/FA.Obj) (i j : Triangle F-coalg-colim (FA-colim.proj P))
+                    (h : coalg-colim.𝒟 [ CC.X,x-dia (P , i) , CC.X,x-dia (P , j) ])
+                    → CC.p' (P , j) ≈ F.₁ (V.₁ (coalg-colim.D.₁ h)) ∘ CC.p' (P , i)
+                    → ℰ [ (P , i) , (P , j) ]
+coalg-hom-to-ℰ-hom P i j h hom-preserves-p' =
+    build-ℰ-hom (P , i) (P , j)
     t2.P+X.i₁ h hom-prop t2.hom-to-FA-i₁
     where
-    module t1 = CC (P , t1)
-    module t2 = CC (P , t2)
+    module t1 = CC (P , i)
+    module t2 = CC (P , j)
     open HomReasoning
     hom-prop = begin
         t2.[p',x] ∘ t2.P+X.i₁ ≈⟨ t2.P+X.inject₁ ⟩
