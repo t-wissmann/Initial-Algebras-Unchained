@@ -147,9 +147,9 @@ cocone-is-triangle-independent K P t1 t2 = begin
 
     Pt1 = (P , t1)
     Pt2 = (P , t2)
-    Pt3 : all-triangles
+    Pt3 : ℰ₀
     Pt3 = (P , t3)
-    Pt4 : all-triangles
+    Pt4 : ℰ₀
     Pt4 = (P , t4)
 
     first-component-always-P =
@@ -230,7 +230,7 @@ E-Cocone-to-D E-Cocone =
             ∎)
 
 
-E-Cocone-to-D-choice : ∀ (K : Cocone (V ∘F E)) → (t : all-triangles) →
+E-Cocone-to-D-choice : ∀ (K : Cocone (V ∘F E)) → (t : ℰ₀) →
                         Cocone.ψ (E-Cocone-to-D K) (proj₁ t) ≈ Cocone.ψ K t ∘ CC.P+X.i₁ t
 E-Cocone-to-D-choice K t1 =
     begin
@@ -302,7 +302,7 @@ lift-Cocone⇒ K v =
     module v = Cocone⇒ v
     open HomReasoning
     module K = Cocone K
-    module case2-defs (t : all-triangles) where
+    module case2-defs (t : ℰ₀) where
         module t = CC t
         m,r = 𝒞-lfp.presentable-split-in-fin t.X t.X-is-presentable
         m : 𝒞-lfp.Idx
@@ -312,7 +312,7 @@ lift-Cocone⇒ K v =
         -- X ⇒ FA canonically factors through the diagram:
         α∘proj-x : 𝒞p/FA.Obj
         α∘proj-x = (m , (α ∘ t.proj-X,x.f ∘ r.retract))
-        t-X : all-triangles
+        t-X : ℰ₀
         t-X = α∘proj-x , triangle t.X,x-dia (t.x ∘ r.retract) (extendʳ t.proj-X,x.commutes)
         module t-X = CC t-X
 

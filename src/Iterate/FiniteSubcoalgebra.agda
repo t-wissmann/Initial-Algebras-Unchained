@@ -40,7 +40,8 @@ open ProofGlobals proof-globals
 --          |                     |
 --          |                     |
 --          '-------> Carrier( F(X,x) )
-all-triangles =
+-- We denote those by ℰ₀, because they form the objects of the diagram scheme ℰ later.
+ℰ₀ =
   Σ[ P ∈ 𝒞p/FA.Obj ]
   Triangle F-coalg-colim (FA-colim.proj P)
 
@@ -60,7 +61,7 @@ DP-preserves-coalg-colim P =
         (F ∘F coalg-colim.carrier-diagram)
 
 -- And so we obtain a triangle for each P:
-P-to-triangle : 𝒞p/FA.Obj → all-triangles
+P-to-triangle : 𝒞p/FA.Obj → ℰ₀
 P-to-triangle P = P ,
   hom-colim-choice F-coalg-colim (U-𝒞p/FA.₀ P)
     (DP-preserves-coalg-colim P)
@@ -70,7 +71,7 @@ P-to-triangle P = P ,
 -- "below" (FA,Fα).
 -- The construction uses multiple components, all parametric
 -- in such a triangle, which we now fix globally:
-module CC (t : all-triangles) where
+module CC (t : ℰ₀) where
   -- The first ingredient is the 'intermediate' coalgebra through which
   -- the triangle factors:
   X,x-dia : coalg-colim.𝒟.Obj -- the underlying object in the diagram scheme

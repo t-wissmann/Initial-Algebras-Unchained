@@ -39,8 +39,8 @@ open ProofGlobals proof-globals
     FullSubCategory
     -- of the slicecategory for FA, Fα
     (Slice (F-Coalgebras F) (iterate A,α))
-    -- containing 'all-triangles' as objects
-    {I = all-triangles}
+    -- containing all commuting triangles ℰ₀ as objects
+    {I = ℰ₀}
     λ t → sliceobj (CC.hom-to-FA t)
     -- Unfortunately, ℰ is not quite of the shape
     -- of Cat[_↓_] (from LFP-slices), because:
@@ -78,7 +78,7 @@ module FA,Fα-Cocone = Cocone FA,Fα-Cocone
 --          v                |
 --         P₂+X₂  -----------'
 --
-build-ℰ-hom : (t1 t2 : all-triangles)
+build-ℰ-hom : (t1 t2 : ℰ₀)
                 (h1 : CC.P t1 ⇒ CC.P+X.obj t2)
                 (h2 : coalg-colim.𝒟 [ CC.X,x-dia t1 , CC.X,x-dia t2 ])
                 → (CC.[p',x] t2 ∘ h1 ≈ F.₁ (V.₁ (coalg-colim.D.₁ h2)) ∘ CC.p' t1)
