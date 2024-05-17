@@ -9,7 +9,7 @@ open import Categories.Category.SubCategory
 open import Categories.Diagram.Cocone
 open import Categories.Functor.Construction.SubCategory
 
-module LFP-slices {o ℓ e} (𝒞 : Category o ℓ e) where
+module Canonical-Cocone {o ℓ e} (𝒞 : Category o ℓ e) where
 
 private
   module 𝒞 = Category 𝒞

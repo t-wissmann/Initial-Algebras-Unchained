@@ -46,7 +46,7 @@ open import LFP 𝒞 o' ℓ' ℓ' Fil Fil-to-filtered hiding (WeaklyLFP)
 
 module 𝒞 = Category 𝒞
 open import Coalgebra.Recursive 𝒞 F
-open import LFP-slices 𝒞
+open import Canonical-Cocone 𝒞
 open import Hom-Colimit-Choice
 open import Categories.Diagram.Pushout 𝒞
 open import Categories.Morphism 𝒞

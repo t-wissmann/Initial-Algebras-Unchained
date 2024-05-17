@@ -33,7 +33,7 @@ import Filtered
 
 -- Definition of weak lfp category
 import Presentable
-import LFP-slices
+import Canonical-Cocone
 import LFP
 
 -- Properties about coalgebras:

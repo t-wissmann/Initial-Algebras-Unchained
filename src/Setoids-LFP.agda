@@ -65,7 +65,7 @@ const : ∀ {a b ℓ : Level} {A : Set a} {B : Setoid b ℓ} →
          Setoid.Carrier B → Func (setoid A) B
 const x = →-to-⟶ (λ _ → x)
 
-open import LFP-slices Setoids'
+open import Canonical-Cocone Setoids'
 open import LFP Setoids' 0ℓ 0ℓ 0ℓ filtered id-filtered
 open import Presentable Setoids' 0ℓ 0ℓ 0ℓ filtered
 open import Categories.Category.Slice Setoids'

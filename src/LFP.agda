@@ -42,7 +42,7 @@ module LFP {o ℓ prop-level} (𝒞 : Category o ℓ ℓ)
 private
   module 𝒞 = Category 𝒞
 
-open import LFP-slices (𝒞)
+open import Canonical-Cocone (𝒞)
 open import Categories.Functor.Slice (𝒞) using (Forgetful)
 open import Categories.Functor.Hom
 open import Categories.Object.Coproduct (𝒞)
