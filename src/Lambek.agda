@@ -46,6 +46,7 @@ lambek id_uniq h = record { isoˡ = h∘α≈id ; isoʳ = α∘h≈id }
 
     -- for the other identity (on FA), we use the first identity
     -- and use that 'h' is coalgebra morphism:
+    α∘h≈id : α ∘ h.f ≈ id
     α∘h≈id = let open HomReasoning in
       begin
       α ∘ h.f            ≈⟨ h.commutes ⟩
