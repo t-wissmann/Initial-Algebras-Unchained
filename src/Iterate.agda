@@ -39,7 +39,7 @@ module Iterate {o ℓ fil-level}
   (F : Endofunctor 𝒞)
   (Fil : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ)  → Set fil-level) -- some variant of 'filtered'
   (Fil-to-filtered : ∀ {𝒟 : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ)} → Fil 𝒟 → filtered 𝒟) -- .. which implies filtered
-  (𝒞-lfp : Accessible 𝒞 o' ℓ' ℓ' Fil Fil-to-filtered)
+  (𝒞-acc : Accessible 𝒞 o' ℓ' ℓ' Fil Fil-to-filtered)
   where
 
 open import Accessible-Category 𝒞 o' ℓ' ℓ' Fil Fil-to-filtered hiding (Accessible)
@@ -60,7 +60,7 @@ module F-Coalgebras = Category (F-Coalgebras F)
 open import Iterate.Assumptions {o' = o'} {ℓ' = ℓ'} 𝒞 F Fil
 
 private
-  module 𝒞-lfp = Accessible 𝒞-lfp
+  module 𝒞-acc = Accessible 𝒞-acc
 open import CoalgColim 𝒞 F FiniteRecursive
 
 import Iterate.Colimit as I-C
@@ -84,7 +84,7 @@ iterate-CoalgColimit coalg-colim 𝒟-filtered F-preserves-colim = goal
       { 𝒞 = 𝒞
       ; F = F
       ; Fil-to-filtered = Fil-to-filtered
-      ; 𝒞-lfp = 𝒞-lfp
+      ; 𝒞-acc = 𝒞-acc
       ; coalg-colim = coalg-colim
       ; 𝒟-filtered = 𝒟-filtered
       ; F-preserves-colim = F-preserves-colim

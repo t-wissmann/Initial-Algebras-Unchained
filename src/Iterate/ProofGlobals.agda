@@ -35,7 +35,7 @@ record ProofGlobals : Set (suc (o' ⊔ ℓ') ⊔ suc fil-level ⊔ suc (o ⊔ �
     F : Endofunctor 𝒞
     -- The notion 'Fil' implies filtered:
     Fil-to-filtered : ∀ {𝒟 : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ)} → Fil 𝒟 → filtered 𝒟
-    𝒞-lfp : Accessible 𝒞 o' ℓ' ℓ' Fil Fil-to-filtered -- TODO: rename
+    𝒞-acc : Accessible 𝒞 o' ℓ' ℓ' Fil Fil-to-filtered -- TODO: rename
     -- A coalgebra colimit:
     coalg-colim : CoalgColim 𝒞 F (Assumption.FiniteRecursive {o' = o'} {ℓ' = ℓ'} 𝒞 F Fil) {o' ⊔ ℓ} {ℓ' ⊔ ℓ}
     𝒟-filtered : Fil (CoalgColim.𝒟 coalg-colim)
@@ -56,7 +56,7 @@ record ProofGlobals : Set (suc (o' ⊔ ℓ') ⊔ suc fil-level ⊔ suc (o ⊔ �
 
   module F-Coalgebras = Category (F-Coalgebras F)
 
-  module 𝒞-lfp = Accessible 𝒞-lfp
+  module 𝒞-acc = Accessible 𝒞-acc
 
   open LiftHom (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ) public
 
@@ -74,12 +74,12 @@ record ProofGlobals : Set (suc (o' ⊔ ℓ') ⊔ suc fil-level ⊔ suc (o ⊔ �
 
   module F = Functor F
 
-  𝒞p/FA = 𝒞-lfp.canonical-diagram-scheme (F₀ A)
+  𝒞p/FA = 𝒞-acc.canonical-diagram-scheme (F₀ A)
   module 𝒞p/FA = Category 𝒞p/FA
-  U-𝒞p/FA = 𝒞-lfp.canonical-diagram (F₀ A)
+  U-𝒞p/FA = 𝒞-acc.canonical-diagram (F₀ A)
   module U-𝒞p/FA = Functor U-𝒞p/FA
   FA-colim : Colimit U-𝒞p/FA
-  FA-colim = 𝒞-lfp.canonical-colimit (F₀ A)
+  FA-colim = 𝒞-acc.canonical-colimit (F₀ A)
   module FA-colim = Colimit FA-colim
 
   -- -- At the same time, F(A,α) is a colimit of coalgebras, which

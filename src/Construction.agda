@@ -123,7 +123,7 @@ module FinalRecursive
       -- all compositions are on the level of coalgebra homomorphisms
       open Category (F-Coalgebras F)
       module C = F-Coalgebra C
-      -- there is a split-mono to one of the lfp generators:
+      -- there is a split-mono to one of the presentable generators of 𝒞:
       split-mono : Σ[ idx ∈ 𝒞-acc.Idx ] (Retract 𝒞 C.A (𝒞-acc.fin idx))
       split-mono = 𝒞-acc.presentable-split-in-fin C.A
         (FiniteRecursive.finite-carrier C-finrec)

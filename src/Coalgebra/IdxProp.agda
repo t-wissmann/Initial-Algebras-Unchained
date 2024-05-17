@@ -22,7 +22,8 @@ private
   module 𝒞 = Category 𝒞
 
 record IdxPropCoalgebra : Set (i ⊔ ℓ ⊔ prop-level) where
-  -- a IdxProp coalgebra consists of one of the generators for 𝒞-lfp
+  -- an IdxProp coalgebra consists of one object from the family
+  -- (usually from 𝒞_p of an accessible category)
   -- together with a coalgebra structure on it
   field
       carrier : Idx

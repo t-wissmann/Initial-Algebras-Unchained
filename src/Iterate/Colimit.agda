@@ -303,8 +303,8 @@ lift-Cocone⇒ K v =
     module K = Cocone K
     module case2-defs (t : ℰ₀) where
         module t = CC t
-        m,r = 𝒞-lfp.presentable-split-in-fin t.X t.X-is-presentable
-        m : 𝒞-lfp.Idx
+        m,r = 𝒞-acc.presentable-split-in-fin t.X t.X-is-presentable
+        m : 𝒞-acc.Idx
         m = proj₁ m,r
         r = proj₂ m,r
         module r = Retract r

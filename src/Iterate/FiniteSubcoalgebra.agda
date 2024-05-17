@@ -53,7 +53,7 @@ DP-preserves-coalg-colim : ∀ (P : 𝒞p/FA.Obj) →
     LiftHom[ U-𝒞p/FA.₀ P ,-]
 DP-preserves-coalg-colim P =
   let (idx , _) = P in
-      𝒞-lfp.fin-presentable
+      𝒞-acc.fin-presentable
         idx
         coalg-colim.𝒟 -- the diagram scheme
         𝒟-filtered    -- ... which is filtered
@@ -96,7 +96,7 @@ module CC (t : ℰ₀) where
     -- here, we need to unfold the definition of P as a sliceobj
     -- from the index of a presentable object
     let (idx , _) = (proj₁ t) in
-    𝒞-lfp.fin-presentable idx
+    𝒞-acc.fin-presentable idx
 
   X-is-presentable : presentable X
   X-is-presentable = FiniteRecursive.finite-carrier coalg-colim.all-have-prop
@@ -106,7 +106,7 @@ module CC (t : ℰ₀) where
 
   -- the constructed coalgebra has a coproduct as its carrier
   P+X : Coproduct P X
-  P+X = 𝒞-lfp.coproduct P X P-is-presentable X-is-presentable
+  P+X = 𝒞-acc.coproduct P X P-is-presentable X-is-presentable
   module P+X = Coproduct P+X renaming (A+B to obj)
 
   p' : P ⇒ F.₀ X
