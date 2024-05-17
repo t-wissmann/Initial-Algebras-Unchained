@@ -20,9 +20,6 @@ open import Colimit-Lemmas
 open import Categories.Diagram.Colimit
 open import Categories.Diagram.Cocone
 
--- TODO: how can I make G an implicit parameter in the following theorem/proof?
--- TODO2: why does 'C' have to be an explicit parameter to jointly-epic?
-
 forget-Coalgebra : Functor (F-Coalgebras F) 𝒞
 forget-Coalgebra =
     let

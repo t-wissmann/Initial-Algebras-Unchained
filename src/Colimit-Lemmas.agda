@@ -118,9 +118,6 @@ limitting-cocone-is-jointly-epic {G = G} cocone limitting {Z} {g} {h} equalize-g
           h ∘ cocone.ψ X
           ∎
           } }
-    -- -- TODO: why doesn't the proof work with the following definition of h-morph?
-    -- h-morph : Cocone⇒ _ colim.colimit Z-cocone
-    -- h-morph = IsInitial.! colim.initial.⊥-is-initial
     -- g and h induce cocone morphisms:
     h-morph : Cocone⇒ _ cocone Z-cocone
     h-morph = record

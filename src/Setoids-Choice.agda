@@ -68,7 +68,8 @@ module _ {o ℓ e c ℓ'} {D : Category o ℓ e} {J : Functor D (Setoids (o ⊔ 
                                 Colim.proj (fst (colimit-choice x))
                                   ⟨$⟩ (snd (colimit-choice x)) ]]
     colimit-choice-correct {top-level-x} =
-        let
+      same-cocone-morph (refl Colim.coapex)
+        where
         -- we show the equality by the uniqueness of cocone morphisms, so we
         -- construct a couple of cocone morphisms for the above equation.
         -- 1. the identity cocone morphism:
@@ -89,11 +90,6 @@ module _ {o ℓ e c ℓ'} {D : Category o ℓ e} {J : Functor D (Setoids (o ⊔ 
 
         same-cocone-morph : Cocones J [ id-cmorph ≈ (Cocones J [ inject-cmorph ∘ choice-cmorph ]) ]
         same-cocone-morph =
-            -- TODO: why is this so long?
-            IsInitial.!-unique₂
-            (Initial.⊥-is-initial Colim.initial)
-            id-cmorph
-            (Cocones J [ inject-cmorph ∘ choice-cmorph ])
-        in
-        same-cocone-morph (refl Colim.coapex)
-
+            Colim.initial.!-unique₂
+              id-cmorph
+              (Cocones J [ inject-cmorph ∘ choice-cmorph ])

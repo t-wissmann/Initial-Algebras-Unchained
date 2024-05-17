@@ -166,7 +166,7 @@ module _
       ident-f-g : Setoids-Colimit.identified-in-diagram (LiftHom[ P ,-] ∘F D) (Level.lift f) (Level.lift g)
       ident-f-g =
         Setoids-Colimit.filtered-identification-colim
-          {c = ℓ ⊔ o'} {ℓ' = o' ⊔ ℓ' ⊔ e ⊔ ℓ} -- TODO: why can't the levels be inferred from LiftHom[_,-]?
+          {c = ℓ ⊔ o'} {ℓ' = o' ⊔ ℓ' ⊔ e ⊔ ℓ}
           (LiftHom[ P ,-] ∘F D)
           (Colimit-from-prop is-colim)
           fil
@@ -204,7 +204,7 @@ module _
       IsLimitting (F-map-Coconeˡ (LiftHom[ P ,-]) (Colimit.colimit colim))
   hom-colim-construct bounds P all-factor uniq-factor =
     Setoids-Colimit.bounded-colimiting
-      {c = ℓ ⊔ o'} {ℓ' = o' ⊔ ℓ' ⊔ e ⊔ ℓ} -- TODO: why can't the levels be inferred from LiftHom[_,-]?
+      {c = ℓ ⊔ o'} {ℓ' = o' ⊔ ℓ' ⊔ e ⊔ ℓ}
       (LiftHom[ P ,-] ∘F D)
       (F-map-Coconeˡ (LiftHom[ P ,-]) (Colimit.colimit colim))
       bounds

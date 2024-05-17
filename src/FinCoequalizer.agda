@@ -97,7 +97,7 @@ finite-coequalize (ℕ.suc k) Y Y≡-dec g h =
       cong f' (nested.identify-R y₁ y₂ (k' , (gk=y₁ , hk=y₂)))
 
     reflect-f : (y : Y) → EqClosure (SpanRel g h) y (f y)
-    reflect-f y with (Y≡-dec (nested.f y) (nested.f (g Fin.zero))) -- TODO: pattern on the Dec object
+    reflect-f y with (Y≡-dec (nested.f y) (nested.f (g Fin.zero)))
     ... | yes p = (EqClosure (SpanRel g h) y (nested.f (h Fin.zero))) ∋
                   let
                     g↙↘h = SpanRel g h
