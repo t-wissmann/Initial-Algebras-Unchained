@@ -66,4 +66,4 @@ initial-algebra-from-colimit :
        (F-finitary : preserves-colimit (forget-IdxPropCoalgebra IsRecursive) F)
        → Initial (F-Algebras F)
 initial-algebra-from-colimit small-colimit coalg-filtered F-finitary =
-  FinalRecursive.initial-algebra (build-large-colimit small-colimit) coalg-filtered F-finitary
+  TerminalRecursive.initial-algebra (build-large-colimit small-colimit) coalg-filtered F-finitary

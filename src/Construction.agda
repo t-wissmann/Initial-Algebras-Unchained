@@ -55,7 +55,7 @@ private
 -- and which satisfy 'IsRecursive':
 open import Coalgebra.IdxProp 𝒞 F 𝒞-acc.fin IsRecursive
 
-module FinalRecursive
+module TerminalRecursive
        (carrier-colimit : Colimit forget-IdxPropCoalgebra)
        -- ^- the colimit of all recursive coalgebras with carrier in 𝒞-acc.fin
        (coalgebras-filtered : Fil IdxPropCoalgebras)

@@ -19,7 +19,7 @@ private
   module 𝒞 = Category 𝒞
 
 -- This is essentially the Lambek proof from Categories.Category.Construction.F-Algebras.
--- But, we generalize the two crucial properties of the final coalgebra to as
+-- But, we generalize the two crucial properties of the terminal coalgebra to as
 -- explicit axioms:
 -- 1. 'id' is the only endomorphism on A,α
 -- 2. there is some homomorphism from F(A,α) to A,α
