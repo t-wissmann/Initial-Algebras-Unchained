@@ -43,7 +43,7 @@ open import Colimit-Lemmas
 open import Hom-Colimit-Choice
 open import FinCoequalizer
 
-module Setoids-LFP where
+module Setoids-Accessible where
 
 private
   -- WARNING: it seems to be impossible to raise the levels of the diagrams! Even

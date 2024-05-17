@@ -50,7 +50,7 @@ import Setoids-Colimit -- necessary/sufficient conditions when cocones are colim
 import Hom-Colimit-Choice -- instance of the above for colimits of hom sets
 
 import FinCoequalizer -- (weak form of) finite coequalizers in Setoids for the verification of:
-import Setoids-LFP -- Setoids are an instance of a (weak) LFP category
+import Setoids-Accessible -- Setoids are an instance of a (Fil-)accessible category
 
 -- Coalgebras that arise as colimits:
 import CoalgColim
