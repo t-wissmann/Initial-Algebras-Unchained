@@ -17,7 +17,7 @@ You can browse the html documentation of this Agda formalization online:
   - agda-categories (v0.2.0)
   - agda-stdlib (v2.0, implicitly required by agda-categories)
 
-If agda itself is already installed, the following sections describe the
+Assuming that Agda is already installed, the following sections describe the
 installation of the required libraries and the compilation of the proofs of the
 present project.
 
