@@ -14,7 +14,7 @@ open import Categories.Object.Initial
 open import Categories.Morphism
 
 open import Filtered
-open import LFP using (WeaklyLFP)
+open import Accessible-Category using (Accessible)
 open import CoalgColim
 open import F-Coalgebra-Colimit
 open import Data.Product
@@ -35,7 +35,7 @@ module Construction {o ℓ}
   {fil-level : Level}
   (Fil : Category (o ⊔ ℓ) ℓ ℓ → Set fil-level) -- some variant of 'filtered'
   (Fil-to-filtered : ∀ {𝒟 : Category (o ⊔ ℓ) ℓ ℓ} → Fil 𝒟 → filtered 𝒟) -- .. which implies filtered
-  (𝒞-lfp : WeaklyLFP 𝒞 (o ⊔ ℓ) ℓ ℓ Fil Fil-to-filtered)
+  (𝒞-lfp : Accessible 𝒞 (o ⊔ ℓ) ℓ ℓ Fil Fil-to-filtered)
   where
 
 open import Coalgebra.Recursive 𝒞 F
@@ -45,7 +45,7 @@ open import Lambek 𝒞 F
 
 private
     module 𝒞 = Category 𝒞
-    module 𝒞-lfp = WeaklyLFP 𝒞-lfp
+    module 𝒞-lfp = Accessible 𝒞-lfp
     module F = Functor F
     module U = Functor (forget-Coalgebra {𝒞 = 𝒞} {F = F})
 

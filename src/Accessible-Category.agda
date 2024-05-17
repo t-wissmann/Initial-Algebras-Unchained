@@ -24,19 +24,19 @@ open import Categories.Functor using (_∘F_)
 
 open import Relation.Binary using (Poset)
 
--- For the generalization from LFP to Locally Presentable:
 -- In usual L(F)P-Categories, one considers a (regular) cardinal λ and
 -- then defines λ-presentable objects as those whose hom-set preserves
 -- colimits of λ-filtered diagrams. The notion 'λ-filtered' entails that
 -- the diagram has upper bounds for any set of elements of size smaller than λ.
 -- Since this is inherently ordinal-based, we change the definition for the
 -- formalization in agda: Instead of explicitly mentioning ordinals, we consider
--- a property/predicate 'P' on diagrams which is assumed to imply filteredness.
+-- a property/predicate 'Fil' on diagrams which is assumed to imply filteredness.
 -- This subsumes stricter filteredness-notions such as countable-filteredness.
-module LFP {o ℓ prop-level} (𝒞 : Category o ℓ ℓ)
+module Accessible-Category
+                 {o ℓ prop-level} (𝒞 : Category o ℓ ℓ)
                  (o' ℓ' e' : Level)    -- levels for the diagram scheme
-                 (P : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (e' ⊔ ℓ) → Set prop-level)
-                 (P⇒filtered : ∀ {𝒟} → P 𝒟 → filtered 𝒟)
+                 (Fil : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (e' ⊔ ℓ) → Set prop-level)
+                 (Fil⇒filtered : ∀ {𝒟} → Fil 𝒟 → filtered 𝒟)
                  where
 
 private
@@ -51,8 +51,7 @@ open import Categories.Morphism.Reasoning.Core 𝒞
 open import Categories.Diagram.Coequalizer (𝒞)
 open import Categories.Diagram.Pushout (𝒞)
 open import Categories.Diagram.Pushout.Properties (𝒞)
-open import Presentable 𝒞 (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (e' ⊔ ℓ) P
--- open import Unlift-Presentable {o' = o' ⊔ ℓ} {ℓ' = ℓ' ⊔ ℓ} {e' = e' ⊔ ℓ} {o'' = ℓ} {ℓ'' = ℓ} {e'' = ℓ} 𝒞 P
+open import Presentable 𝒞 (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (e' ⊔ ℓ) Fil
 import Setoids-Colimit
 
 open Hom
@@ -106,31 +105,20 @@ module Lift-Colimit {𝒟 : Category ℓ ℓ ℓ} {D : Functor 𝒟 𝒞} where
       module colim-D = Colimit colim-D
 
 
-record WeaklyLFP : Set (suc (o' ⊔ ℓ' ⊔ e') ⊔ o ⊔ suc ℓ ⊔ prop-level) where
+record Accessible : Set (suc (o' ⊔ ℓ' ⊔ e') ⊔ o ⊔ suc ℓ ⊔ prop-level) where
   field
-    -- a (small)family (resp. 'set') of objects ...
+    -- a (small)family (resp. 'set') of objects, called 𝒞_p in the paper ...
     Idx : Set ℓ
     fin : Idx → 𝒞.Obj
-    -- ... of which every element is fp:
+    -- ... of which every element is presentable
     fin-presentable : ∀ (i : Idx) → presentable (fin i)
     -- All other objects are built from those fp objects:
     build-from-fin : ∀ (X : 𝒞.Obj) → IsLimitting (Cocone[ fin ↓ X ])
     -- and moreover every canonical diagram is filtered
-    canonical-has-prop : ∀ (X : 𝒞.Obj) → P (liftC' (Cat[ fin ↓ X ]))
+    canonical-has-prop : ∀ (X : 𝒞.Obj) → Fil (liftC' (Cat[ fin ↓ X ]))
 
-    -- also, we need finite colimits of presentable objects:
+    -- also, we need finite coproducts of presentable objects:
     coproduct : ∀ (A B : 𝒞.Obj) → presentable A → presentable B → Coproduct A B
-    -- coequalizer : ∀ {A B} (f g : 𝒞 [ A , B ]) → presentable A → presentable B → Coequalizer f g
-
-  -- pushout : ∀ {A B C} (f : 𝒞 [ A , B ]) (g : 𝒞 [ A , C ]) →
-  --             presentable A → presentable B → presentable C →
-  --             Pushout f g
-  -- pushout f g A-pres B-pres C-pres =
-  --   let
-  --     B+C = (coproduct _ _ B-pres C-pres)
-  --   in
-  --   Coproduct×Coequalizer⇒Pushout
-  --     B+C (coequalizer _ _ A-pres (presentable-coproduct B+C P⇒filtered B-pres C-pres))
 
   canonical-diagram-scheme : ∀ (X : 𝒞.Obj) → Category ℓ ℓ ℓ
   canonical-diagram-scheme X = Cat[ fin ↓ X ]
@@ -150,6 +138,8 @@ record WeaklyLFP : Set (suc (o' ⊔ ℓ' ⊔ e') ⊔ o ⊔ suc ℓ ⊔ prop-leve
       (Cocone.ψ Cocone[ fin ↓ X ])
   fin-generator X = colimit-is-jointly-epic (Colimit-from-prop (build-from-fin X))
 
+  -- every presentable object is the split-quotient of some object from
+  -- the generating family 𝒞_p:
   presentable-split-in-fin : ∀ (X : 𝒞.Obj) → presentable X → Σ[ i ∈ Idx ] (Retract X (fin i))
   presentable-split-in-fin X X-pres =
     (proj₁ (lower (Triangle.x t))) ,
@@ -172,10 +162,11 @@ record WeaklyLFP : Set (suc (o' ⊔ ℓ' ⊔ e') ⊔ o ⊔ suc ℓ ⊔ prop-leve
 
 
 
-  -- the family of presentable objects
+  -- the family of all presentable objects
   presentable-obj : Σ 𝒞.Obj presentable → 𝒞.Obj
   presentable-obj = proj₁
 
+  -- the big canonical cocone with all presentable objects is also (co-)limitting:
   presentable-colimit : ∀ (X : 𝒞.Obj) → IsLimitting (Cocone[ presentable-obj ↓ X ])
   presentable-colimit X = record {
       ! = λ {K} → record {

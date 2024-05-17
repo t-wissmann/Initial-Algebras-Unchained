@@ -13,7 +13,7 @@ open import Data.Product
 
 open import Categories.Functor.Coalgebra
 
-open import LFP using (WeaklyLFP)
+open import Accessible-Category using (Accessible)
 open import Filtered
 open import Colimit-Lemmas
 
@@ -35,7 +35,7 @@ record ProofGlobals : Set (suc (o' ⊔ ℓ') ⊔ suc fil-level ⊔ suc (o ⊔ �
     F : Endofunctor 𝒞
     -- The notion 'Fil' implies filtered:
     Fil-to-filtered : ∀ {𝒟 : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ)} → Fil 𝒟 → filtered 𝒟
-    𝒞-lfp : WeaklyLFP 𝒞 o' ℓ' ℓ' Fil Fil-to-filtered
+    𝒞-lfp : Accessible 𝒞 o' ℓ' ℓ' Fil Fil-to-filtered -- TODO: rename
     -- A coalgebra colimit:
     coalg-colim : CoalgColim 𝒞 F (Assumption.FiniteRecursive {o' = o'} {ℓ' = ℓ'} 𝒞 F Fil) {o' ⊔ ℓ} {ℓ' ⊔ ℓ}
     𝒟-filtered : Fil (CoalgColim.𝒟 coalg-colim)
@@ -44,7 +44,7 @@ record ProofGlobals : Set (suc (o' ⊔ ℓ') ⊔ suc fil-level ⊔ suc (o ⊔ �
     -- ^- F preserves the colimit 'coalg'
 
 
-  open import LFP 𝒞 o' ℓ' ℓ' Fil Fil-to-filtered hiding (WeaklyLFP) public
+  open import Accessible-Category 𝒞 o' ℓ' ℓ' Fil Fil-to-filtered hiding (Accessible) public
 
   module 𝒞 = Category 𝒞
   open import Hom-Colimit-Choice 𝒞 public
@@ -56,7 +56,7 @@ record ProofGlobals : Set (suc (o' ⊔ ℓ') ⊔ suc fil-level ⊔ suc (o ⊔ �
 
   module F-Coalgebras = Category (F-Coalgebras F)
 
-  module 𝒞-lfp = WeaklyLFP 𝒞-lfp
+  module 𝒞-lfp = Accessible 𝒞-lfp
 
   open LiftHom (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ) public
 

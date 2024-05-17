@@ -66,7 +66,7 @@ const : ∀ {a b ℓ : Level} {A : Set a} {B : Setoid b ℓ} →
 const x = →-to-⟶ (λ _ → x)
 
 open import Canonical-Cocone Setoids'
-open import LFP Setoids' 0ℓ 0ℓ 0ℓ filtered id-filtered
+open import Accessible-Category Setoids' 0ℓ 0ℓ 0ℓ filtered id-filtered
 open import Presentable Setoids' 0ℓ 0ℓ 0ℓ filtered
 open import Categories.Category.Slice Setoids'
 open LiftHom Setoids' 0ℓ 0ℓ 0ℓ
@@ -447,8 +447,8 @@ lift-filtered fil =
       } } }
   where module fil = filtered fil
 
-setoids-LFP : WeaklyLFP
-setoids-LFP = record
+Setoids-Accessible : Accessible
+Setoids-Accessible = record
                { Idx = ℕ
                ; fin = Fin≈
                ; fin-presentable = Fin-is-presentable

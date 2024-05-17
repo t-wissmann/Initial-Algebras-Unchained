@@ -12,7 +12,6 @@ open import Categories.Category.Construction.F-Coalgebras
 open import Categories.Diagram.Colimit
 
 open import Filtered
-open import LFP using (WeaklyLFP)
 open import CoalgColim
 open import F-Coalgebra-Colimit
 open import Iterate.Assumptions

@@ -1,7 +1,7 @@
 {-# OPTIONS --without-K --safe #-}
 open import Level
 open import Agda.Builtin.Equality renaming (refl to ≡-refl)
-open import LFP using (WeaklyLFP)
+open import Accessible-Category using (Accessible)
 open import F-Coalgebra-Colimit
 open import Categories.Category
 open import Categories.Functor
@@ -24,7 +24,7 @@ module Classical-Case {o ℓ}
        {fil-level : Level}
        (Fil : Category (o ⊔ ℓ) ℓ ℓ → Set fil-level) -- some variant of 'filtered'
        (Fil-to-filtered : ∀ {𝒟 : Category (o ⊔ ℓ) ℓ ℓ} → Fil 𝒟 → filtered 𝒟) -- .. which implies filtered
-       (𝒞-lfp : WeaklyLFP 𝒞 (o ⊔ ℓ) ℓ ℓ Fil Fil-to-filtered)
+       (𝒞-lfp : Accessible 𝒞 (o ⊔ ℓ) ℓ ℓ Fil Fil-to-filtered)
        -- The law of excluded middle means that for every set A, we know whether it is
        -- empty or non-empty:
        (law-of-excluded-middle : ∀ (A : Set (o ⊔ ℓ)) → Dec A)
@@ -32,7 +32,7 @@ module Classical-Case {o ℓ}
 
 private
   module 𝒞 = Category 𝒞
-  module 𝒞-lfp = WeaklyLFP 𝒞-lfp
+  module 𝒞-lfp = Accessible 𝒞-lfp
 
 open import Coalgebra.Recursive 𝒞 F
 open import Coalgebra.IdxProp 𝒞 F 𝒞-lfp.fin

@@ -17,7 +17,6 @@ open import Data.Product
 
 open import Categories.Functor.Coalgebra
 
-open import LFP using (WeaklyLFP)
 open import Filtered
 open import Colimit-Lemmas
 open import Iterate.ProofGlobals
@@ -43,7 +42,7 @@ open ProofGlobals proof-globals
     {I = ℰ₀}
     λ t → sliceobj (CC.hom-to-FA t)
     -- Unfortunately, ℰ is not quite of the shape
-    -- of Cat[_↓_] (from LFP-slices), because:
+    -- of Cat[_↓_] (from Canonical-Cocone), because:
     -- * Cat[_↓_] keeps the slice-arrow to F(A,α) as a separate member in
     --   the indes set
     -- * but for ℰ, the slice-arrow to F(A,α) is derived from

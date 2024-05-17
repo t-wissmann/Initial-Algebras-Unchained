@@ -31,10 +31,10 @@ import FullSub-map
 -- Properties of filtered diagrams
 import Filtered
 
--- Definition of weak lfp category
+-- Definition of Fil-accessible categories
 import Presentable
 import Canonical-Cocone
-import LFP
+import Accessible-Category
 
 -- Properties about coalgebras:
 import Coalgebra.Recursive

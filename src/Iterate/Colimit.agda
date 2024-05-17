@@ -16,7 +16,6 @@ open import Data.Product
 
 open import Categories.Functor.Coalgebra
 
-open import LFP using (WeaklyLFP)
 open import Filtered
 open import Colimit-Lemmas
 open import Iterate.ProofGlobals

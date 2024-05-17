@@ -24,7 +24,7 @@ open import Data.Product
 open import Categories.Functor.Coalgebra
 
 open import Data.Product
-open import LFP using (WeaklyLFP)
+open import Accessible-Category using (Accessible)
 open import Filtered
 open import Cofinal
 open import Setoids-Choice
@@ -39,10 +39,10 @@ module Iterate {o ℓ fil-level}
   (F : Endofunctor 𝒞)
   (Fil : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ)  → Set fil-level) -- some variant of 'filtered'
   (Fil-to-filtered : ∀ {𝒟 : Category (o' ⊔ ℓ) (ℓ' ⊔ ℓ) (ℓ' ⊔ ℓ)} → Fil 𝒟 → filtered 𝒟) -- .. which implies filtered
-  (𝒞-lfp : WeaklyLFP 𝒞 o' ℓ' ℓ' Fil Fil-to-filtered)
+  (𝒞-lfp : Accessible 𝒞 o' ℓ' ℓ' Fil Fil-to-filtered)
   where
 
-open import LFP 𝒞 o' ℓ' ℓ' Fil Fil-to-filtered hiding (WeaklyLFP)
+open import Accessible-Category 𝒞 o' ℓ' ℓ' Fil Fil-to-filtered hiding (Accessible)
 
 module 𝒞 = Category 𝒞
 open import Coalgebra.Recursive 𝒞 F
@@ -60,7 +60,7 @@ module F-Coalgebras = Category (F-Coalgebras F)
 open import Iterate.Assumptions {o' = o'} {ℓ' = ℓ'} 𝒞 F Fil
 
 private
-  module 𝒞-lfp = WeaklyLFP 𝒞-lfp
+  module 𝒞-lfp = Accessible 𝒞-lfp
 open import CoalgColim 𝒞 F FiniteRecursive
 
 import Iterate.Colimit as I-C
