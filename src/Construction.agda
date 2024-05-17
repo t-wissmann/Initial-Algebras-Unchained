@@ -50,11 +50,16 @@ private
     module V = Functor (forget-Coalgebra {𝒞 = 𝒞} {F = F})
 
 
+-- Here, we instantiate the diagram for the main colimit/construction:
+-- We consider coalgebras whose carrier come from the family 𝒞-acc.fin
+-- and which satisfy 'IsRecursive':
 open import Coalgebra.IdxProp 𝒞 F 𝒞-acc.fin IsRecursive
 
 module FinalRecursive
        (carrier-colimit : Colimit forget-IdxPropCoalgebra)
+       -- ^- the colimit of all recursive coalgebras with carrier in 𝒞-acc.fin
        (coalgebras-filtered : Fil IdxPropCoalgebras)
+       -- ^- the assumption that above colimit is Fil(tered)
        (F-finitary : preserves-colimit forget-IdxPropCoalgebra F)
        where
 
@@ -81,12 +86,7 @@ module FinalRecursive
   A,α-scheme-Full : Full-≈ forget-IdxProp
   A,α-scheme-Full = record {
     preimage = λ X Y f → f ;
-    preimage-prop = λ X Y f →
-      let
-        open Category (F-Coalgebras F)
-        open HomReasoning
-      in
-      begin f ≡⟨⟩ f ∎ -- I didn't manage to phrase it via 'Equiv.refl' directly...
+    preimage-prop = λ X Y f → Category.Equiv.refl 𝒞
     }
 
   FA,Fα : CoalgColim 𝒞 F FiniteRecursive
