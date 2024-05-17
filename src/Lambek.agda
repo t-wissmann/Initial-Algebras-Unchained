@@ -5,6 +5,7 @@ open import Categories.Category
 open import Categories.Functor using (Functor; Endofunctor)
 open import Categories.Functor.Coalgebra
 open import Categories.Category.Construction.F-Coalgebras
+open import Categories.Object.Terminal
 
 module Lambek {o ℓ e : Level} (𝒞 : Category o ℓ e) (F : Endofunctor 𝒞) (A,α : F-Coalgebra F) where
 
@@ -56,6 +57,7 @@ lambek id_uniq h = record { isoˡ = h∘α≈id ; isoʳ = α∘h≈id }
       id
       ∎
 
+-- A more opaque version:
 lambek' : (∀ (f : A,α Coalg.⇒ A,α) → Coalg [ f ≈ Coalg.id ]) →
          (inv : (iterate A,α) Coalg.⇒ A,α) →
          (A ≅ F.₀ A)
@@ -63,3 +65,15 @@ lambek' id_uniq inv = record {
   from = α ;
   to = F-Coalgebra-Morphism.f inv ;
   iso = lambek id_uniq inv }
+
+-- We can instantiate above result back to the usual statement that the
+-- terminal coalgebra has isomorphic structure:
+lambek-terminal-coalgebra : IsTerminal Coalg A,α → IsIso α
+lambek-terminal-coalgebra A,α-terminal = record
+  { inv = F-Coalgebra-Morphism.f h
+  ; iso = lambek (λ f → !-unique₂ {A,α} {f} {Coalg.id}) h
+  }
+  where
+    open IsTerminal A,α-terminal
+    h : Coalg [ iterate A,α , A,α ]
+    h = !
