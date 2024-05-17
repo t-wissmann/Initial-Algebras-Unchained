@@ -47,7 +47,7 @@ private
     module 𝒞 = Category 𝒞
     module 𝒞-lfp = Accessible 𝒞-lfp
     module F = Functor F
-    module U = Functor (forget-Coalgebra {𝒞 = 𝒞} {F = F})
+    module V = Functor (forget-Coalgebra {𝒞 = 𝒞} {F = F})
 
 
 open import Coalgebra.IdxProp 𝒞 F 𝒞-lfp.fin IsRecursive
@@ -164,7 +164,7 @@ module FinalRecursive
   inverse = universal-property-locally-finrec FA,Fα
   module inverse = singleton-hom inverse
 
-  fixpoint : Iso 𝒞 A,α.structure (U.₁ inverse.arr)
+  fixpoint : Iso 𝒞 A,α.structure (V.₁ inverse.arr)
   fixpoint = lambek A,α.to-Coalgebra
     (λ endo → unique-endo.unique₂ endo (Category.id (F-Coalgebras F) {A,α.to-Coalgebra}))
     inverse.arr
@@ -177,9 +177,9 @@ module FinalRecursive
 
   initial-algebra : Initial (F-Algebras F)
   initial-algebra = record {
-    ⊥ = record { A = A,α.carrier ; α = U.₁ inverse.arr } ;
+    ⊥ = record { A = A,α.carrier ; α = V.₁ inverse.arr } ;
     ⊥-is-initial =
       iso-recursive⇒initial
         A,α.to-Coalgebra
         A,α-recursive
-        (record { inv = U.₁ inverse.arr ; iso = fixpoint }) }
+        (record { inv = V.₁ inverse.arr ; iso = fixpoint }) }
