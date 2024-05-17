@@ -9,7 +9,9 @@
 --                 By Thorsten Wißmann and Stefan Milius
 --                 accepted for publication at LICS 2024
 --
---                       Agda Source repository:
+--                            Preprint:
+--                  https://arxiv.org/abs/2405.09504
+--                       Agda source repository:
 --      https://git8.cs.fau.de/software/initial-algebras-unchained
 --
 --      ============================================================

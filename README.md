@@ -1,16 +1,14 @@
 # Agda Formalization of 'Initial Algebras Unchained'
 
-<!--
-This archive contains both the agda source files and its HTML documentation
-with clickable links for easier navigation (see `html/index.html`).
-It is not necessary to compile the source again.
+This is the formalization from the Paper 'Initial Algebras Unchained - A Novel
+Initial Algebra Construction Formalized in Agda' accepted for publication at
+LICS 2024.
 
-If it is still desired to compile the proofs again, the installation of the
-following dependencies is required:
--->
+  * A preprint version is available here: https://arxiv.org/abs/2405.09504
 
-You can browse the html documentation of this Agda formalization on
+You can browse the html documentation of this Agda formalization online:
 
+  * https://arxiv.org/src/2405.09504/anc/index.html
   * https://thorsten-wissmann.de/archive/init-alg-lics24/
 
 ## Dependencies
