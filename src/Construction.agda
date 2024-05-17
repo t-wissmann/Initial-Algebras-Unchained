@@ -35,7 +35,7 @@ module Construction {o ℓ}
   {fil-level : Level}
   (Fil : Category (o ⊔ ℓ) ℓ ℓ → Set fil-level) -- some variant of 'filtered'
   (Fil-to-filtered : ∀ {𝒟 : Category (o ⊔ ℓ) ℓ ℓ} → Fil 𝒟 → filtered 𝒟) -- .. which implies filtered
-  (𝒞-lfp : Accessible 𝒞 (o ⊔ ℓ) ℓ ℓ Fil Fil-to-filtered)
+  (𝒞-acc : Accessible 𝒞 (o ⊔ ℓ) ℓ ℓ Fil Fil-to-filtered)
   where
 
 open import Coalgebra.Recursive 𝒞 F
@@ -45,12 +45,12 @@ open import Lambek 𝒞 F
 
 private
     module 𝒞 = Category 𝒞
-    module 𝒞-lfp = Accessible 𝒞-lfp
+    module 𝒞-acc = Accessible 𝒞-acc
     module F = Functor F
     module V = Functor (forget-Coalgebra {𝒞 = 𝒞} {F = F})
 
 
-open import Coalgebra.IdxProp 𝒞 F 𝒞-lfp.fin IsRecursive
+open import Coalgebra.IdxProp 𝒞 F 𝒞-acc.fin IsRecursive
 
 module FinalRecursive
        (carrier-colimit : Colimit forget-IdxPropCoalgebra)
@@ -59,7 +59,7 @@ module FinalRecursive
        where
 
   open import Iterate.Assumptions {o' = o ⊔ ℓ} {ℓ' = ℓ} 𝒞 F Fil
-  open import Iterate {o' = o ⊔ ℓ} {ℓ' = ℓ} 𝒞 F Fil Fil-to-filtered 𝒞-lfp
+  open import Iterate {o' = o ⊔ ℓ} {ℓ' = ℓ} 𝒞 F Fil Fil-to-filtered 𝒞-acc
   private
     module carrier-colimit = Colimit carrier-colimit
 
@@ -71,7 +71,7 @@ module FinalRecursive
         ; D = forget-IdxProp
         ; all-have-prop =
           λ {i} → record {
-            finite-carrier = 𝒞-lfp.fin-presentable (IdxPropCoalgebra.carrier i) ;
+            finite-carrier = 𝒞-acc.fin-presentable (IdxPropCoalgebra.carrier i) ;
             is-recursive = IdxPropCoalgebra.has-prop i }
         ; cocone = F-Coalgebras-Lift-Cocone forget-IdxProp carrier-colimit
         ; carrier-colimitting = F-Coalgebras-Colimit-Carrier-Limitting forget-IdxProp carrier-colimit
@@ -124,8 +124,8 @@ module FinalRecursive
       open Category (F-Coalgebras F)
       module C = F-Coalgebra C
       -- there is a split-mono to one of the lfp generators:
-      split-mono : Σ[ idx ∈ 𝒞-lfp.Idx ] (Retract 𝒞 C.A (𝒞-lfp.fin idx))
-      split-mono = 𝒞-lfp.presentable-split-in-fin C.A
+      split-mono : Σ[ idx ∈ 𝒞-acc.Idx ] (Retract 𝒞 C.A (𝒞-acc.fin idx))
+      split-mono = 𝒞-acc.presentable-split-in-fin C.A
         (FiniteRecursive.finite-carrier C-finrec)
       j' = proj₁ split-mono
       r = proj₂ split-mono
