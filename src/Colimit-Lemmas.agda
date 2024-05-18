@@ -43,7 +43,7 @@ Colimit-from-prop : {o' ℓ' e' : Level} {D : Category o' ℓ' e'} {J : Functor 
 Colimit-from-prop {cocone = cocone} limitting =
   record { initial = record { ⊥ = cocone ; ⊥-is-initial = limitting } }
 
--- The property that a functor F preserves the colimit of diagram J:
+-- The property that a functor F preserves a concrete colimit of diagram J:
 _preserves-the-colimit_ : {o' o'' ℓ' ℓ'' e' e'' : _} →
   {𝒟 : Category o' ℓ' e'} →
   {ℰ : Category o'' ℓ'' e''} →
@@ -52,6 +52,7 @@ _preserves-the-colimit_ : {o' o'' ℓ' ℓ'' e' e'' : _} →
 _preserves-the-colimit_ {J = J} F colim =
   IsInitial (Cocones (F ∘F J)) (F-map-Coconeˡ F (Colimit.colimit colim))
 
+-- The property that a functor preserves every colimitting cone for a diagram J:
 preserves-colimit : {o' o'' ℓ' ℓ'' e' e'' : _} →
   {𝒟 : Category o' ℓ' e'} →
   {ℰ : Category o'' ℓ'' e''} →
@@ -59,8 +60,9 @@ preserves-colimit : {o' o'' ℓ' ℓ'' e' e'' : _} →
 preserves-colimit J F =
   ∀ (colim : Colimit J) → F preserves-the-colimit colim
 
--- If a functor F preserves a particular colimit C₁ for a given diagram J,
--- then F preserves every colimit of the diagram J
+-- The above two notions are equivalent, because colimits unique up to isomorphism,
+-- so if a functor F preserves a particular colimitting cocone C₁ for a given diagram J,
+-- then F preserves every colimit of the diagram J:
 preserves-all-colimits : {o' o'' ℓ' ℓ'' e' e'' : _} →
   {𝒟 : Category o' ℓ' e'} →
   {ℰ : Category o'' ℓ'' e''} →
@@ -95,6 +97,7 @@ jointly-epic {i} {I} {dom} {codom} sink =
     (∀ (x : I) → 𝒞 [ 𝒞 [ g ∘ sink x ] ≈ 𝒞 [ h ∘ sink x ] ]) →
     𝒞 [ g ≈ h ]
 
+-- If a cocone is limitting, then it is necessarily jointly epic:
 limitting-cocone-is-jointly-epic : ∀ {o′ ℓ′ e′} {J : Category o′ ℓ′ e′} {G : Functor J 𝒞}
                                  → (cocone : Cocone G)
                                  → IsLimitting cocone
@@ -128,6 +131,7 @@ limitting-cocone-is-jointly-epic {G = G} cocone limitting {Z} {g} {h} equalize-g
       { arr = g ;
       commute = λ {X} → equalize-g-h X }
 
+-- Same property with the colimit bundled:
 colimit-is-jointly-epic : ∀ {o′ ℓ′ e′} {J : Category o′ ℓ′ e′} {G : Functor J 𝒞} →
                           (colim : Colimit G) → jointly-epic (Colimit.proj colim)
 colimit-is-jointly-epic {G = G} colim {Z} =

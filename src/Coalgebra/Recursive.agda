@@ -142,90 +142,86 @@ iso-recursive⇒initial R is-rec r-iso =
     IsRecursive.unique is-rec A h g-coalg2alg
   }
 
--- Apply the functor F to the coalgebra carrier and structure:
-
-module _ (R : F-Coalgebra F) (B : F-Coalgebra F) where
-  -- ([CUV06, Prop. 5])
-  open Category 𝒞
-  private
+-- ([CUV06, Prop. 5])
+sandwich-recursive :
+  ∀ (R B : F-Coalgebra F)
+  → IsRecursive R
+  → (h : F-Coalgebra-Morphism R B)
+  → (g : F-Coalgebra-Morphism B (iterate R))
+  → 𝒞 [ F-Coalgebra.α B ≈ F.₁ (F-Coalgebra-Morphism.f h) 𝒞.∘ (F-Coalgebra-Morphism.f g) ]
+  → IsRecursive B
+sandwich-recursive R B R-is-rec h g equation =
+  let
     module R = F-Coalgebra R
     module B = F-Coalgebra B
-
-  sandwich-recursive :
-    IsRecursive R
-    → (h : F-Coalgebra-Morphism R B)
-    → (g : F-Coalgebra-Morphism B (iterate R))
-    → B.α ≈ F.F₁ (F-Coalgebra-Morphism.f h) ∘ (F-Coalgebra-Morphism.f g)
-    → IsRecursive B
-  sandwich-recursive R-is-rec h g equation =
+    module h = F-Coalgebra-Morphism h
+    module g = F-Coalgebra-Morphism g
+    open IsRecursive R-is-rec
+    open Category 𝒞
+  in
+  record {
+  recur = λ D →
     let
-      module h = F-Coalgebra-Morphism h
-      module g = F-Coalgebra-Morphism g
-      open IsRecursive R-is-rec
+      -- for an F-algebra D, consider the induced solution by R:
+      module D = F-Algebra D
+      R2D = recur D
+      module R2D = C2A-morphism R2D
+      -- use this under the functor to get a solution from B to D:
+      sol = D.α ∘ F.₁ R2D.f ∘ g.f
+      open HomReasoning
     in
     record {
-    recur = λ D →
-      let
-        -- for an F-algebra D, consider the induced solution by R:
-        module D = F-Algebra D
-        R2D = recur D
-        module R2D = C2A-morphism R2D
-        -- use this under the functor to get a solution from B to D:
-        sol = D.α ∘ F.F₁ R2D.f ∘ g.f
-        open HomReasoning
-      in
-      record {
-      f = sol;
-      commutes =
-          -- in the following, the only non-trivial steps are R2D.commutes and g.commutes
-          begin
-          sol                        ≡⟨⟩
-          D.α ∘ F.F₁ R2D.f ∘ g.f      ≈⟨ refl⟩∘⟨ F.F-resp-≈ R2D.commutes ⟩∘⟨refl ⟩
-          D.α ∘ F.F₁ (D.α ∘ F.F₁ R2D.f ∘ R.α) ∘ g.f          ≈˘⟨ refl⟩∘⟨ F.F-resp-≈ assoc ⟩∘⟨refl ⟩
-          D.α ∘ F.F₁ ((D.α ∘ F.F₁ R2D.f) ∘ R.α) ∘ g.f        ≈⟨ refl⟩∘⟨ F.homomorphism ⟩∘⟨refl ⟩
-          D.α ∘ (F.F₁ (D.α ∘ F.F₁ R2D.f) ∘ F.F₁ R.α) ∘ g.f   ≈⟨ refl⟩∘⟨ assoc ⟩
-          D.α ∘ F.F₁ (D.α ∘ F.F₁ R2D.f) ∘ F.F₁ R.α ∘ g.f     ≈⟨ refl⟩∘⟨ refl⟩∘⟨ g.commutes ⟩
-          D.α ∘ F.F₁ (D.α ∘ F.F₁ R2D.f) ∘ F.F₁ g.f ∘ B.α     ≈˘⟨ refl⟩∘⟨ assoc ⟩
-          D.α ∘ (F.F₁ (D.α ∘ F.F₁ R2D.f) ∘ F.F₁ g.f) ∘ B.α   ≈˘⟨ refl⟩∘⟨ F.homomorphism ⟩∘⟨refl ⟩
-          D.α ∘ F.F₁ ((D.α ∘ F.F₁ R2D.f) ∘ g.f) ∘ B.α        ≈⟨ refl⟩∘⟨ F.F-resp-≈ assoc ⟩∘⟨refl ⟩
-          D.α ∘ F.F₁ (D.α ∘ F.F₁ R2D.f ∘ g.f) ∘ B.α          ≡⟨⟩
-          D.α ∘ F.F₁ sol ∘ B.α
-          ∎
-      } ;
-    unique = λ D sol1 sol2 →
-      let
-        module D = F-Algebra D
-        module sol1 = C2A-morphism sol1
-        module sol2 = C2A-morphism sol2
-        open HomReasoning
-        -- first of all, the solutions are equal when precomposed with 'h: R -> B':
-        sol1-h-is-sol2-h : sol1.f ∘ h.f ≈ sol2.f ∘ h.f
-        sol1-h-is-sol2-h =
-          IsRecursive.unique R-is-rec D
-             (C2A-precompose sol1 h)
-             (C2A-precompose sol2 h)
+    f = sol;
+    commutes =
+        -- in the following, the only non-trivial steps are R2D.commutes and g.commutes
+        begin
+        sol                                            ≡⟨⟩
+        D.α ∘ F.₁ R2D.f ∘ g.f                          ≈⟨ refl⟩∘⟨ F.F-resp-≈ R2D.commutes ⟩∘⟨refl ⟩
+        D.α ∘ F.₁ (D.α ∘ F.₁ R2D.f ∘ R.α) ∘ g.f        ≈˘⟨ refl⟩∘⟨ F.F-resp-≈ assoc ⟩∘⟨refl ⟩
+        D.α ∘ F.₁ ((D.α ∘ F.₁ R2D.f) ∘ R.α) ∘ g.f      ≈⟨ refl⟩∘⟨ F.homomorphism ⟩∘⟨refl ⟩
+        D.α ∘ (F.₁ (D.α ∘ F.₁ R2D.f) ∘ F.₁ R.α) ∘ g.f  ≈⟨ refl⟩∘⟨ assoc ⟩
+        D.α ∘ F.₁ (D.α ∘ F.₁ R2D.f) ∘ F.₁ R.α ∘ g.f    ≈⟨ refl⟩∘⟨ refl⟩∘⟨ g.commutes ⟩
+        D.α ∘ F.₁ (D.α ∘ F.₁ R2D.f) ∘ F.₁ g.f ∘ B.α    ≈˘⟨ refl⟩∘⟨ assoc ⟩
+        D.α ∘ (F.₁ (D.α ∘ F.₁ R2D.f) ∘ F.₁ g.f) ∘ B.α  ≈˘⟨ refl⟩∘⟨ F.homomorphism ⟩∘⟨refl ⟩
+        D.α ∘ F.₁ ((D.α ∘ F.₁ R2D.f) ∘ g.f) ∘ B.α      ≈⟨ refl⟩∘⟨ F.F-resp-≈ assoc ⟩∘⟨refl ⟩
+        D.α ∘ F.₁ (D.α ∘ F.₁ R2D.f ∘ g.f) ∘ B.α        ≡⟨⟩
+        D.α ∘ F.₁ sol ∘ B.α
+        ∎
+    } ;
+  unique = λ D sol1 sol2 →
+    let
+      module D = F-Algebra D
+      module sol1 = C2A-morphism sol1
+      module sol2 = C2A-morphism sol2
+      open HomReasoning
+      -- first of all, the solutions are equal when precomposed with 'h: R -> B':
+      sol1-h-is-sol2-h : sol1.f ∘ h.f ≈ sol2.f ∘ h.f
+      sol1-h-is-sol2-h =
+        IsRecursive.unique R-is-rec D
+           (C2A-precompose sol1 h)
+           (C2A-precompose sol2 h)
 
-        -- this is essentially the reasoning: we do it forward for sol1 and
-        -- backwards for sol2.
-        sol-transformation sol =
-          let
-            module sol = C2A-morphism sol
-          in
-          begin
-          sol.f            ≈⟨ sol.commutes ⟩
-          D.α ∘ F.F₁ sol.f ∘ B.α  ≈⟨ refl⟩∘⟨ refl⟩∘⟨ equation ⟩
-          D.α ∘ F.F₁ sol.f ∘ F.F₁ h.f ∘ g.f  ≈⟨ refl⟩∘⟨ sym-assoc ⟩
-          D.α ∘ (F.F₁ sol.f ∘ F.F₁ h.f) ∘ g.f  ≈˘⟨ refl⟩∘⟨ F.homomorphism ⟩∘⟨refl ⟩
-          D.α ∘ F.F₁ (sol.f ∘ h.f) ∘ g.f
-          ∎
-      in
-      begin
-      sol1.f            ≈⟨ sol-transformation sol1 ⟩
-      D.α ∘ F.F₁ (sol1.f ∘ h.f) ∘ g.f   ≈⟨ refl⟩∘⟨ F.F-resp-≈ sol1-h-is-sol2-h ⟩∘⟨refl ⟩
-      D.α ∘ F.F₁ (sol2.f ∘ h.f) ∘ g.f  ≈˘⟨ sol-transformation sol2 ⟩
-      sol2.f
-      ∎
-    }
+      -- this is essentially the reasoning: we do it forward for sol1 and
+      -- backwards for sol2.
+      sol-transformation sol =
+        let
+          module sol = C2A-morphism sol
+        in
+        begin
+        sol.f                              ≈⟨ sol.commutes ⟩
+        D.α ∘ F.₁ sol.f ∘ B.α              ≈⟨ refl⟩∘⟨ refl⟩∘⟨ equation ⟩
+        D.α ∘ F.₁ sol.f ∘ F.₁ h.f ∘ g.f    ≈⟨ refl⟩∘⟨ sym-assoc ⟩
+        D.α ∘ (F.₁ sol.f ∘ F.₁ h.f) ∘ g.f  ≈˘⟨ refl⟩∘⟨ F.homomorphism ⟩∘⟨refl ⟩
+        D.α ∘ F.₁ (sol.f ∘ h.f) ∘ g.f
+        ∎
+    in
+    begin
+    sol1.f                          ≈⟨ sol-transformation sol1 ⟩
+    D.α ∘ F.₁ (sol1.f ∘ h.f) ∘ g.f  ≈⟨ refl⟩∘⟨ F.F-resp-≈ sol1-h-is-sol2-h ⟩∘⟨refl ⟩
+    D.α ∘ F.₁ (sol2.f ∘ h.f) ∘ g.f  ≈˘⟨ sol-transformation sol2 ⟩
+    sol2.f
+    ∎
+  }
 
 
 -- Corollary: If (R,r) is recursive, then so is (FR,Fr) ([CUV06, Prop. 6]).
@@ -250,9 +246,9 @@ iterate-F-Coalgebra-Morphism : {A B : F-Coalgebra F}
 iterate-F-Coalgebra-Morphism {A} {B} h =
   record {
     f = F.₁ h.f ; commutes = begin
-      F.₁ β ∘ F.₁ h.f ≈˘⟨ F.homomorphism ⟩
-      F.₁ (β ∘ h.f) ≈⟨ F.F-resp-≈ h.commutes ⟩
-      F.₁ (F.₁ h.f ∘ α) ≈⟨ F.homomorphism ⟩
+      F.₁ β ∘ F.₁ h.f         ≈˘⟨ F.homomorphism ⟩
+      F.₁ (β ∘ h.f)           ≈⟨ F.F-resp-≈ h.commutes ⟩
+      F.₁ (F.₁ h.f ∘ α)       ≈⟨ F.homomorphism ⟩
       F.₁ (F.₁ h.f) ∘ F.₁ α
       ∎}
   where
@@ -555,10 +551,14 @@ retract-coalgebra-hom-to-iterate : (X : F-Coalgebra F) {Y : 𝒞.Obj}
 retract-coalgebra-hom-to-iterate X {Y} r =
   record { f = X.α ∘ r.retract ; commutes =
     begin
-    F₁ X.α ∘ X.α ∘ r.retract ≈˘⟨ refl⟩∘⟨ elimˡ 𝒞 identity ⟩
-    F₁ X.α ∘ F₁ id ∘ X.α ∘ r.retract ≈˘⟨ refl⟩∘⟨ F-resp-≈ r.is-retract ⟩∘⟨refl  ⟩
-    F₁ X.α ∘ F₁ (r.retract ∘ r.section) ∘ X.α ∘ r.retract ≈⟨ refl⟩∘⟨ pushˡ 𝒞 homomorphism ⟩
-    F₁ X.α ∘ F₁ r.retract ∘ F₁ r.section ∘ X.α ∘ r.retract ≈˘⟨ pushˡ 𝒞 homomorphism ⟩
+    F₁ X.α ∘ X.α ∘ r.retract
+      ≈˘⟨ refl⟩∘⟨ elimˡ 𝒞 identity ⟩
+    F₁ X.α ∘ F₁ id ∘ X.α ∘ r.retract
+      ≈˘⟨ refl⟩∘⟨ F-resp-≈ r.is-retract ⟩∘⟨refl  ⟩
+    F₁ X.α ∘ F₁ (r.retract ∘ r.section) ∘ X.α ∘ r.retract
+      ≈⟨ refl⟩∘⟨ pushˡ 𝒞 homomorphism ⟩
+    F₁ X.α ∘ F₁ r.retract ∘ F₁ r.section ∘ X.α ∘ r.retract
+      ≈˘⟨ pushˡ 𝒞 homomorphism ⟩
     F₁ (X.α ∘ r.retract) ∘ F₁ r.section ∘ X.α ∘ r.retract
     ∎
   }

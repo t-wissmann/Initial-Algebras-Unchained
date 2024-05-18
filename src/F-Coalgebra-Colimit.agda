@@ -20,6 +20,7 @@ open import Colimit-Lemmas
 open import Categories.Diagram.Colimit
 open import Categories.Diagram.Cocone
 
+-- The forgetful functor from coalgebras to the base category:
 forget-Coalgebra : Functor (F-Coalgebras F) 𝒞
 forget-Coalgebra =
     let

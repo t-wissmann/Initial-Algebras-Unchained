@@ -13,13 +13,14 @@ private
   module 𝒞 = Category 𝒞
 
 record UpperBound (X Y : 𝒞.Obj) : Set (o ⊔ ℓ) where
+  -- Upper bound for two objects
   open Category 𝒞
   field
     obj : 𝒞.Obj
     i₁ : X ⇒ obj
     i₂ : Y ⇒ obj
 
--- the property of having upper bounds
+-- The property of having upper bounds for finite sets of objects:
 record has-upper-bounds : Set (o ⊔ ℓ ⊔ e) where
   open Category 𝒞
   field
@@ -45,7 +46,7 @@ record has-upper-bounds : Set (o ⊔ ℓ ⊔ e) where
   fin-is-above {ℕ.suc n} f Fin.zero = is-above₁ _ _
   fin-is-above {ℕ.suc n} f (Fin.suc k) = is-above₂ _ _ ∘ fin-is-above _ k
 
--- the property that the diagram of every pair of parallel morphisms
+-- The property that the diagram of every pair of parallel morphisms
 -- has a cocone. There is no name for this in nlab (https://ncatlab.org/nlab/show/filtered+category)
 -- nor in the Adamek/Rosicky-book. So let us call it 'merge
 record MergedMorphisms {X Y : 𝒞.Obj} (g h : 𝒞 [ X , Y ]) : Set (o ⊔ ℓ ⊔ e) where
@@ -89,7 +90,7 @@ record filtered : Set (o ⊔ ℓ ⊔ e) where
 
   open Category 𝒞
 
-  -- we can combine the above two fields to close any span of morphisms
+  -- We can combine the two fields above to close any span of morphisms
   -- to a commuting square
   close-span : ∀ {X Y Z : Obj} (g : X ⇒ Y) (h : X ⇒ Z) → ClosedSpan g h
   close-span {X} {Y} {Z} g h = record {
