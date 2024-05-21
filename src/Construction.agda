@@ -83,16 +83,29 @@ module TerminalRecursive
         }
   module A,α = CoalgColim.CoalgColim A,α
 
+  -- All coalgebras in the diagram for A,α are recursive, and so is A,α itself:
+  A,α-recursive : IsRecursive A,α.to-Coalgebra
+  A,α-recursive =
+    Limitting-Cocone-IsRecursive A,α.D
+      IdxPropCoalgebra.has-prop
+      A,α.cocone A,α.carrier-colimitting
+
+  -- Applying the Functor F to A,α again yields a locally finrec coalgebra:
+  FA,Fα : CoalgColim 𝒞 F FiniteRecursive
+  FA,Fα = iterate-CoalgColimit A,α coalgebras-filtered F-finitary
+  module FA,Fα = CoalgColim.CoalgColim FA,Fα
+
+  -- For the universal property of A,α , we use that the diagram
+  -- scheme of A,α is full:
   A,α-scheme-Full : Full-≈ forget-IdxProp
   A,α-scheme-Full = record {
     preimage = λ X Y f → f ;
     preimage-prop = λ X Y f → Category.Equiv.refl 𝒞
     }
 
-  FA,Fα : CoalgColim 𝒞 F FiniteRecursive
-  FA,Fα = iterate-CoalgColimit A,α coalgebras-filtered F-finitary
-  module FA,Fα = CoalgColim.CoalgColim FA,Fα
-
+  -- Since the diagram scheme for A,α is full, we obtain that
+  -- the colimit injections are the only coalgebra morphisms
+  -- from coalgebras in the diagram to A,α:
   A,α-proj-uniq : (i : A,α.𝒟.Obj) → F-Coalgebras F [ A,α.D.₀ i =∃!=> A,α.to-Coalgebra ]
   A,α-proj-uniq i = record {
     arr = A,α.colim.proj i ;
@@ -106,7 +119,9 @@ module TerminalRecursive
         ∎
       }
 
-  -- there is a unique coalgebra morphism from every finrec coalgebra to A,α:
+  -- We can extend the above uniqueness property from the diagram scheme
+  -- to all finrec coalgebras, so there is a unique coalgebra morphism from
+  -- every finrec coalgebra to A,α:
   universal-property : ∀ (C : F-Coalgebra F) → FiniteRecursive C →
                          F-Coalgebras F [ C =∃!=> A,α.to-Coalgebra ]
   universal-property C C-finrec = record
@@ -147,7 +162,8 @@ module TerminalRecursive
       Dj→C : F-Coalgebras F [ A,α.D.₀ j , C ]
       Dj→C = retract-coalgebra-hom⁻¹ C r
 
-  -- there is a unique coalgebra morphism from every locally finrec coalgebra to A,α:
+  -- We furthermore lift this universal property from finrec to locally finrec coalgebras:
+  -- There is a unique coalgebra morphism from every locally finrec coalgebra to A,α:
   universal-property-locally-finrec :
             ∀ {o' ℓ' e' : Level} (R : CoalgColim 𝒞 F FiniteRecursive {o'} {ℓ'} {e'}) →
             F-Coalgebras F [ CoalgColim.to-Coalgebra R =∃!=> A,α.to-Coalgebra ]
@@ -156,25 +172,26 @@ module TerminalRecursive
       λ i → universal-property (R.D.₀ i) (R.all-have-prop {i})
     where module R = CoalgColim.CoalgColim R
 
+  -- Applying this to A,α itself yields that there is only
+  -- one endo-morphism on A,α:
   unique-endo : F-Coalgebras F [ A,α.to-Coalgebra =∃!=> A,α.to-Coalgebra ]
   unique-endo = A,α.unique-homomorphism A,α.to-Coalgebra A,α-proj-uniq
   module unique-endo = singleton-hom unique-endo
 
+  -- From the locally finrec FA,Fα there is also a unique coalgebra
+  -- morphism (for the fixpoint property, we only need existence)
   inverse : F-Coalgebras F [ FA,Fα.to-Coalgebra =∃!=> A,α.to-Coalgebra ]
   inverse = universal-property-locally-finrec FA,Fα
   module inverse = singleton-hom inverse
 
+  -- By Lambek's Lemma, this yields that α is an isomorphism (in 𝒞):
   fixpoint : Iso 𝒞 A,α.structure (V.₁ inverse.arr)
   fixpoint = lambek A,α.to-Coalgebra
     (λ endo → unique-endo.unique₂ endo (Category.id (F-Coalgebras F) {A,α.to-Coalgebra}))
     inverse.arr
 
-  A,α-recursive : IsRecursive A,α.to-Coalgebra
-  A,α-recursive =
-    Limitting-Cocone-IsRecursive A,α.D
-      IdxPropCoalgebra.has-prop
-      A,α.cocone A,α.carrier-colimitting
-
+  -- A,α is recursive and has a structure that is an isomorphism,
+  -- hence it is the initial F-Algebra:
   initial-algebra : Initial (F-Algebras F)
   initial-algebra = record {
     ⊥ = record { A = A,α.carrier ; α = V.₁ inverse.arr } ;
