@@ -29,6 +29,7 @@ open import Colimit-Lemmas
 --   [CUV06] Venanzio Capretta, Tarmo Uustalu, and Varmo Vene.
 --           Recursive coalgebras from comonads.
 --           Inf. Comput., 204(4):437–468, 2006.
+--           DOI: https://doi.org/10.1016/j.ic.2005.08.005
 
 record C2A-morphism {o ℓ e} {𝒞 : Category o ℓ e} {F : Endofunctor 𝒞}
   (X : F-Coalgebra F)

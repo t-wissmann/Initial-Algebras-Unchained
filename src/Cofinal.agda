@@ -13,6 +13,9 @@ module Cofinal where
 
 open import Colimit-Lemmas
 
+-- Formalization that (co)final diagrams have the same colimit.
+-- See also: https://ncatlab.org/nlab/show/final+functor
+
 private
   variable
     -- levels for the diagram scheme:
