@@ -25,9 +25,10 @@ build-agda:
     #- sed -i '/OPTIONS/s, OPTIONS , OPTIONS --allow-unsolved-metas ,' *.agda
     - for i in $(git ls-files 'src/*.agda') ; do agda "$i" ; done
     - echo "Building HTML documentation"
-    - mkdir -p html
-    - time agda --html --html-dir=html/ src/index.agda
-    - "tar cv $(git ls-files) | { cd html && tar xv ; }"
+    - mkdir -p anc
+    - time agda --html --html-dir=anc/ src/index.agda
+    - echo "Copying source code into anc/ too"
+    - "git ls-files | grep -v '^.git' | tar cv -T- | { cd anc && tar xv ; }"
   cache:
     when: always
     paths:
@@ -39,26 +40,24 @@ build-agda:
     when: always
     expire_in: 10 yrs
     paths:
-    - html/
-    - agda-files.txt
-    - '*.md'
+    - anc/
 
-publish-doc:
-  stage: test
-  image: jgoerzen/debian-base-standard
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  dependencies:
-    - build-agda
-  before_script:
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-    - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-  script:
-    - scp -r html/* thorsten_unchained@ssh.nyc1.nearlyfreespeech.net:/home/public/iau-l24/
-  artifacts:
-    name: "${CI_PROJECT_NAME}-supplementary"
-    when: always
+#publish-doc:
+#  stage: test
+#  image: jgoerzen/debian-base-standard
+#  rules:
+#    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+#  dependencies:
+#    - build-agda
+#  before_script:
+#    - mkdir -p ~/.ssh
+#    - chmod 700 ~/.ssh
+#    - eval $(ssh-agent -s)
+#    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+#    - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+#    - chmod 644 ~/.ssh/known_hosts
+#  script:
+#    - scp -r html/* thorsten_unchained@ssh.nyc1.nearlyfreespeech.net:/home/public/iau-l24/
+#  artifacts:
+#    name: "${CI_PROJECT_NAME}-supplementary"
+#    when: always
