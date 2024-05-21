@@ -38,25 +38,27 @@ import Presentable
 import Canonical-Cocone
 import Accessible-Category
 
--- Properties about coalgebras:
-import Coalgebra.Recursive
-import Coalgebra.IdxProp
-import Coalgebra.IdxProp-fmap
+-- Example of a Fil-Accessible category: Setoids
+import FinCoequalizer -- (weak form of) finite coequalizers in Setoids for the verification of:
+import Setoids-Accessible -- Setoids are an instance of a (Fil-)accessible category
 
--- A (slightly generalized) Lambek's Lemma
-import Lambek
-
--- Some properties of Setoids:
+-- Some properties of colimits in Setoids:
 import Setoids-Choice -- a weak choice principle for preimages of elements of colimits
 import Setoids-Colimit -- necessary/sufficient conditions when cocones are colimitting
 import Hom-Colimit-Choice -- instance of the above for colimits of hom sets
 
-import FinCoequalizer -- (weak form of) finite coequalizers in Setoids for the verification of:
-import Setoids-Accessible -- Setoids are an instance of a (Fil-)accessible category
+-- Properties of coalgebras:
+import Coalgebra.Recursive
+import Coalgebra.IdxProp
+import Coalgebra.IdxProp-fmap
+import CoalgColim -- Coalgebras that arise as colimits
 
--- Coalgebras that arise as colimits:
-import CoalgColim
+-- Sufficient conditions such that the colimit injections
+-- are the unique coalgebra morphisms:
 import Unique-Proj
+
+-- A (slightly generalized) Lambek's Lemma
+import Lambek
 
 -- The construction to apply F-Coalgebra.iterate to coalgebra colimits,
 -- i.e. if A,α is the a colimit of 'finite' coalgebras, then FA,Fα is
@@ -68,7 +70,8 @@ import Iterate.DiagramScheme -- the diagram scheme for the claimed colimit
 import Iterate.Colimit
 import Iterate
 
--- The main result:
+-- The main result: The initial F-Algebra constructed as the colimit
+-- of all recursive coalgebras with presentable carrier.
 import Construction
 -- Simplified assumptions if the law of excluded middle is assumed:
 import Classical-Case
